@@ -1,5 +1,5 @@
 /* =====================================================================
-   Trama - Funciones compartidas por todas las páginas
+   ElectroMarket - Funciones compartidas por todas las páginas
    - Comunicación con la API (fetch + token JWT)
    - Sesión del usuario
    - Encabezado, pie, avisos y ventanas modales
@@ -8,8 +8,8 @@
 
 "use strict";
 
-const CLAVE_TOKEN = "trama_token";
-const CLAVE_USUARIO = "trama_usuario";
+const CLAVE_TOKEN = "ElectroMarket_token";
+const CLAVE_USUARIO = "ElectroMarket_usuario";
 
 /* ------------------------------------------------------------------ */
 /* Almacenamiento seguro (algunos navegadores lo bloquean)             */
@@ -513,10 +513,10 @@ function montarEncabezado({ busqueda = "" } = {}) {
     destino.className = "encabezado";
     destino.innerHTML = `
         <div class="encabezado-contenido">
-            <a class="logo" href="index.html" aria-label="Trama, ir al inicio">
+            <a class="logo" href="index.html" aria-label="ElectroMarket, ir al inicio">
                 ${LOGO}
                 <span class="logo-texto">
-                    <span class="logo-nombre">Trama</span>
+                    <span class="logo-nombre">ElectroMarket</span>
                     <span class="logo-lema">Tu mundo, en un solo clic</span>
                 </span>
             </a>
@@ -620,7 +620,7 @@ function montarPie() {
     destino.className = "pie";
     destino.innerHTML = `
         <div class="pie-contenido">
-            <span>© ${new Date().getFullYear()} Trama · Compra y vende tecnología usada</span>
+            <span>© ${new Date().getFullYear()} ElectroMarket · Compra y vende tecnología usada</span>
             <span>Pagos simulados · <a href="/docs" target="_blank" rel="noopener">Documentación de la API</a></span>
         </div>`;
 }
