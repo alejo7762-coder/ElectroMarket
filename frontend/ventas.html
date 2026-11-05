@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis ventas | Trama</title>
+    <link rel="stylesheet" href="css/estilos.css">
+</head>
+<body>
+    <header id="encabezado"></header>
+
+    <main class="contenedor">
+        <h1 class="titulo-seccion">Mis ventas</h1>
+        <p class="subtitulo-seccion">Prepara los envíos, actualiza su estado y responde las solicitudes de cancelación. <a href="vender.html">Publicar artículo</a></p>
+
+        <div class="indicadores" id="indicadores"></div>
+
+        <div id="solicitudes"></div>
+
+        <div class="filtros" id="filtros">
+            <button type="button" class="chip activo" data-estado="">Todas</button>
+            <button type="button" class="chip" data-estado="PENDIENTE">Por preparar</button>
+            <button type="button" class="chip" data-estado="PREPARANDO">Preparando</button>
+            <button type="button" class="chip" data-estado="ENVIADA">Enviadas</button>
+            <button type="button" class="chip" data-estado="CANCELACION_SOLICITADA">Cancelación solicitada</button>
+            <button type="button" class="chip" data-estado="ENTREGADA">Entregadas</button>
+            <button type="button" class="chip" data-estado="CANCELADA">Canceladas</button>
+        </div>
+
+        <div class="tarjeta" id="lista"><div class="cargando">Cargando ventas...</div></div>
+    </main>
+
+    <footer id="pie"></footer>
+
+    <script src="js/api.js"></script>
+    <script src="js/comunes_pedidos.js"></script>
+    <script src="js/ventas.js"></script>
+</body>
+</html>

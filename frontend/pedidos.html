@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis compras | Trama</title>
+    <link rel="stylesheet" href="css/estilos.css">
+</head>
+<body>
+    <header id="encabezado"></header>
+
+    <main class="contenedor">
+        <h1 class="titulo-seccion">Mis compras</h1>
+        <p class="subtitulo-seccion">Consulta tus pedidos, sigue los envíos y gestiona cancelaciones.</p>
+
+        <div class="filtros" id="filtros">
+            <button type="button" class="chip activo" data-estado="">Todos</button>
+            <button type="button" class="chip" data-estado="PAGADO">Pagados</button>
+            <button type="button" class="chip" data-estado="EN_PROCESO">En proceso</button>
+            <button type="button" class="chip" data-estado="PARCIALMENTE_ENVIADO">Enviados parcialmente</button>
+            <button type="button" class="chip" data-estado="COMPLETADO">Completados</button>
+            <button type="button" class="chip" data-estado="CANCELADO">Cancelados</button>
+        </div>
+
+        <div id="lista" class="lista-tarjetas"><div class="cargando">Cargando pedidos...</div></div>
+    </main>
+
+    <footer id="pie"></footer>
+
+    <script src="js/api.js"></script>
+    <script src="js/comunes_pedidos.js"></script>
+    <script src="js/pedidos.js"></script>
+</body>
+</html>

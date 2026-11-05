@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crear una cuenta | Trama</title>
+    <link rel="stylesheet" href="css/estilos.css">
+</head>
+<body class="pagina-cuenta">
+    <main>
+        <form class="caja-cuenta" id="formulario-registro" novalidate>
+            <h1>Crear una cuenta</h1>
+            <p class="descripcion">Únete a Trama y descubre todo lo que tenemos para ti.</p>
+
+            <div id="mensaje"></div>
+
+            <div class="campo">
+                <span class="etiqueta">Nombre</span>
+                <div class="fila fila-2">
+                    <input class="control" name="nombre" placeholder="Nombre" autocomplete="given-name" aria-label="Nombre" required>
+                    <input class="control" name="apellido" placeholder="Apellido" autocomplete="family-name" aria-label="Apellido" required>
+                </div>
+            </div>
+
+            <div class="campo">
+                <span class="etiqueta">Fecha de nacimiento</span>
+                <div class="fila fila-3 fecha">
+                    <select class="control" name="dia" aria-label="Día"><option value="">Día</option></select>
+                    <select class="control" name="mes" aria-label="Mes"><option value="">Mes</option></select>
+                    <select class="control" name="anio" aria-label="Año"><option value="">Año</option></select>
+                </div>
+            </div>
+
+            <div class="campo">
+                <label for="genero">Género</label>
+                <select class="control" id="genero" name="genero">
+                    <option value="">Selecciona tu género</option>
+                    <option value="FEMENINO">Femenino</option>
+                    <option value="MASCULINO">Masculino</option>
+                    <option value="OTRO">Otro</option>
+                    <option value="PREFIERO_NO_DECIRLO">Prefiero no decirlo</option>
+                </select>
+            </div>
+
+            <div class="campo">
+                <label for="correo">Correo electrónico</label>
+                <input class="control" type="email" id="correo" name="correo" placeholder="Correo electrónico" autocomplete="email" required>
+            </div>
+
+            <div class="campo">
+                <label for="telefono">Número de celular</label>
+                <input class="control" type="tel" id="telefono" name="telefono" placeholder="Número de celular" autocomplete="tel" inputmode="tel">
+            </div>
+
+            <div class="campo">
+                <label for="contrasena">Contraseña</label>
+                <input class="control" type="password" id="contrasena" name="contrasena" placeholder="Crea una contraseña" autocomplete="new-password" required>
+                <div class="ayuda">Mínimo 8 caracteres.</div>
+            </div>
+
+            <button type="submit" class="boton boton-bloque boton-grande" id="boton-registro">Crear cuenta</button>
+
+            <p class="alterno">¿Ya tienes cuenta? <a href="login.html">Ingresa</a></p>
+            <a class="enlace-pie" href="index.html">Volver a la tienda</a>
+        </form>
+    </main>
+
+    <script src="js/api.js"></script>
+    <script src="js/registro.js"></script>
+</body>
+</html>

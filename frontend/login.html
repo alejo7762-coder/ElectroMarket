@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ingresar | Trama</title>
+    <link rel="stylesheet" href="css/estilos.css">
+</head>
+<body class="pagina-cuenta">
+    <main>
+        <form class="caja-cuenta" id="formulario-ingreso" novalidate>
+            <h1>Ingresa a tu cuenta</h1>
+            <p class="descripcion">Compra, vende y sigue tus pedidos en Trama.</p>
+
+            <div id="mensaje"></div>
+
+            <div class="campo">
+                <label for="correo">Correo electrónico</label>
+                <input class="control" type="email" id="correo" name="correo" placeholder="Correo electrónico" autocomplete="email" required>
+            </div>
+
+            <div class="campo">
+                <label for="contrasena">Contraseña</label>
+                <input class="control" type="password" id="contrasena" name="contrasena" placeholder="Tu contraseña" autocomplete="current-password" required>
+            </div>
+
+            <button type="submit" class="boton boton-bloque boton-grande" id="boton-ingreso">Ingresar</button>
+
+            <p class="alterno">¿No tienes cuenta? <a href="registro.html" id="enlace-registro">Crea una aquí</a></p>
+            <a class="enlace-pie" href="index.html">Volver a la tienda</a>
+        </form>
+    </main>
+
+    <script src="js/api.js"></script>
+    <script src="js/login.js"></script>
+</body>
+</html>
