@@ -6,7 +6,7 @@ function pintarProducto(p) {
     const disponible = p.estado === "PUBLICADO" && p.stock > 0;
     const imagenes = p.imagenes || [];
 
-    document.title = `${p.nombre} | Trama`;
+    document.title = `${p.nombre} | ElectroMarket`;
     document.getElementById("migas").innerHTML =
         `<a href="index.html">Inicio</a> › ${esc(p.categoria)} › ${esc(p.nombre)}`;
 
