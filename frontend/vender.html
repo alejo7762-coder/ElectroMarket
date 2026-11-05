@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vender | Trama</title>
+    <link rel="stylesheet" href="css/estilos.css">
+</head>
+<body>
+    <header id="encabezado"></header>
+
+    <main class="contenedor">
+        <h1 class="titulo-seccion" id="titulo-formulario">Publicar artículo</h1>
+        <p class="subtitulo-seccion" id="subtitulo-formulario">Vende tus productos electrónicos usados en pocos pasos.</p>
+
+        <section class="tarjeta">
+            <form id="form-producto" novalidate>
+                <div id="msg-producto"></div>
+
+                <div class="fila fila-2">
+                    <div class="campo">
+                        <label for="nombre">Título de la publicación</label>
+                        <input class="control" id="nombre" name="nombre" maxlength="150" placeholder="Ej: Televisor Smart TV 55&quot; UHD 4K">
+                    </div>
+                    <div class="campo">
+                        <label for="id_categoria">Categoría</label>
+                        <select class="control" id="id_categoria" name="id_categoria"><option value="">Cargando...</option></select>
+                    </div>
+                </div>
+
+                <div class="campo">
+                    <label for="descripcion">Descripción</label>
+                    <textarea class="control" id="descripcion" name="descripcion" maxlength="1000"
+                              placeholder="Estado, tiempo de uso, accesorios incluidos, detalles a tener en cuenta..."></textarea>
+                    <div class="ayuda"><span id="contador-descripcion">0</span>/1000</div>
+                </div>
+
+                <div class="fila fila-3">
+                    <div class="campo">
+                        <label for="precio">Precio (COP)</label>
+                        <input class="control" id="precio" name="precio" type="number" min="1" step="1" placeholder="Ej: 2900000">
+                    </div>
+                    <div class="campo">
+                        <label for="stock">Unidades disponibles</label>
+                        <input class="control" id="stock" name="stock" type="number" min="0" step="1" value="1">
+                    </div>
+                    <div class="campo">
+                        <label for="condicion">Condición</label>
+                        <select class="control" id="condicion" name="condicion">
+                            <option value="COMO_NUEVO">Como nuevo</option>
+                            <option value="BUENO" selected>Buen estado</option>
+                            <option value="ACEPTABLE">Aceptable</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="campo" id="bloque-fotos-nuevas">
+                    <label for="fotos">Fotografías</label>
+                    <input class="control" id="fotos" type="file" accept=".jpg,.jpeg,.png,.webp" multiple>
+                    <div class="ayuda" id="ayuda-fotos">Hasta 5 fotos JPG, PNG o WEBP de máximo 5 MB. La primera será la principal.</div>
+                    <div class="previsualizaciones" id="previsualizaciones"></div>
+                </div>
+
+                <div id="bloque-fotos-actuales" class="campo oculto">
+                    <span class="etiqueta">Fotos actuales</span>
+                    <div class="fotos-producto" id="fotos-actuales"></div>
+                </div>
+
+                <div class="grupo-botones">
+                    <button type="submit" class="boton boton-grande" id="boton-guardar">Publicar artículo</button>
+                    <a class="boton boton-secundario boton-grande oculto" id="cancelar-edicion" href="vender.html">Cancelar edición</a>
+                </div>
+            </form>
+        </section>
+
+        <section id="mis-productos" style="margin-top:42px">
+            <h2 class="titulo-seccion">Mis productos</h2>
+            <p class="subtitulo-seccion">Pausa, reactiva, edita o elimina tus publicaciones. <a href="ventas.html">Ver mis ventas</a></p>
+            <div class="tarjeta" id="tabla-productos"><div class="cargando">Cargando...</div></div>
+        </section>
+    </main>
+
+    <footer id="pie"></footer>
+
+    <script src="js/api.js"></script>
+    <script src="js/vender.js"></script>
+</body>
+</html>

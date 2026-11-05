@@ -112,12 +112,16 @@ def listar_productos(id_categoria=None):
                 C.IdCategoria,
                 C.Nombre AS Categoria,
                 U.IdUsuario AS IdVendedor,
-                U.Nombre + ' ' + U.Apellido AS Vendedor
+                U.Nombre + ' ' + U.Apellido AS Vendedor,
+                IP.RutaImagen
             FROM Productos P
             INNER JOIN Categorias C
                 ON P.IdCategoria = C.IdCategoria
             INNER JOIN Usuarios U
                 ON P.IdVendedor = U.IdUsuario
+            LEFT JOIN ImagenesProducto IP
+                ON IP.IdProducto = P.IdProducto
+               AND IP.EsPrincipal = 1
             WHERE P.Estado = 'PUBLICADO'
               AND P.Stock > 0
               AND U.Estado = 'ACTIVO'
@@ -148,7 +152,8 @@ def listar_productos(id_categoria=None):
                 "id_categoria": fila.IdCategoria,
                 "categoria": fila.Categoria,
                 "id_vendedor": fila.IdVendedor,
-                "vendedor": fila.Vendedor
+                "vendedor": fila.Vendedor,
+                "imagen_principal": fila.RutaImagen
             })
 
         return productos
@@ -196,6 +201,26 @@ def obtener_producto(id_producto: int):
         if fila is None:
             return None
 
+        # Fotos del producto (públicas, para mostrarlas en la tienda)
+        cursor.execute(
+            """
+            SELECT IdImagen, RutaImagen, EsPrincipal
+            FROM ImagenesProducto
+            WHERE IdProducto = ?
+            ORDER BY EsPrincipal DESC, IdImagen;
+            """,
+            id_producto
+        )
+
+        imagenes = [
+            {
+                "id_imagen": img.IdImagen,
+                "ruta": img.RutaImagen,
+                "es_principal": bool(img.EsPrincipal)
+            }
+            for img in cursor.fetchall()
+        ]
+
         return {
             "id_producto": fila.IdProducto,
             "nombre": fila.Nombre,
@@ -208,7 +233,9 @@ def obtener_producto(id_producto: int):
             "id_categoria": fila.IdCategoria,
             "categoria": fila.Categoria,
             "id_vendedor": fila.IdVendedor,
-            "vendedor": fila.Vendedor
+            "vendedor": fila.Vendedor,
+            "imagen_principal": imagenes[0]["ruta"] if imagenes else None,
+            "imagenes": imagenes
         }
 
     finally:
@@ -462,5 +489,100 @@ def gestionar_estado_producto(
         if cursor:
             cursor.close()
 
+        if connection:
+            connection.close()
+
+
+def listar_productos_vendedor(id_vendedor: int):
+    """Productos propios del vendedor en cualquier estado excepto ELIMINADO."""
+    connection = None
+    cursor = None
+
+    try:
+        connection = get_connection()
+        cursor = connection.cursor()
+
+        cursor.execute(
+            """
+            SELECT
+                P.IdProducto,
+                P.Nombre,
+                P.Descripcion,
+                P.Precio,
+                P.Stock,
+                P.Condicion,
+                P.Estado,
+                P.FechaPublicacion,
+                C.IdCategoria,
+                C.Nombre AS Categoria,
+                IP.RutaImagen,
+                (
+                    SELECT COUNT(*)
+                    FROM ImagenesProducto I2
+                    WHERE I2.IdProducto = P.IdProducto
+                ) AS TotalImagenes
+            FROM Productos P
+            INNER JOIN Categorias C
+                ON P.IdCategoria = C.IdCategoria
+            LEFT JOIN ImagenesProducto IP
+                ON IP.IdProducto = P.IdProducto
+               AND IP.EsPrincipal = 1
+            WHERE P.IdVendedor = ?
+              AND P.Estado <> 'ELIMINADO'
+            ORDER BY P.FechaPublicacion DESC;
+            """,
+            id_vendedor
+        )
+
+        return [
+            {
+                "id_producto": fila.IdProducto,
+                "nombre": fila.Nombre,
+                "descripcion": fila.Descripcion,
+                "precio": float(fila.Precio),
+                "stock": fila.Stock,
+                "condicion": fila.Condicion,
+                "estado": fila.Estado,
+                "fecha_publicacion": fila.FechaPublicacion.isoformat(),
+                "id_categoria": fila.IdCategoria,
+                "categoria": fila.Categoria,
+                "imagen_principal": fila.RutaImagen,
+                "total_imagenes": fila.TotalImagenes
+            }
+            for fila in cursor.fetchall()
+        ]
+
+    finally:
+        if cursor:
+            cursor.close()
+        if connection:
+            connection.close()
+
+
+def listar_categorias():
+    connection = None
+    cursor = None
+
+    try:
+        connection = get_connection()
+        cursor = connection.cursor()
+
+        cursor.execute(
+            """
+            SELECT IdCategoria, Nombre
+            FROM Categorias
+            WHERE Estado = 1
+            ORDER BY Nombre;
+            """
+        )
+
+        return [
+            {"id_categoria": fila.IdCategoria, "nombre": fila.Nombre}
+            for fila in cursor.fetchall()
+        ]
+
+    finally:
+        if cursor:
+            cursor.close()
         if connection:
             connection.close()

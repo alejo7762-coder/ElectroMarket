@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi perfil | Trama</title>
+    <link rel="stylesheet" href="css/estilos.css">
+</head>
+<body>
+    <header id="encabezado"></header>
+
+    <main class="contenedor" style="max-width:860px">
+        <h1 class="titulo-seccion">Mi perfil</h1>
+        <p class="subtitulo-seccion">Administra tus datos, tu contraseña y tus direcciones.</p>
+
+        <div class="pestanas" role="tablist">
+            <button type="button" class="activa" data-pestana="datos">Datos personales</button>
+            <button type="button" data-pestana="seguridad">Contraseña</button>
+            <button type="button" data-pestana="direcciones">Direcciones</button>
+        </div>
+
+        <section class="tarjeta" id="pestana-datos">
+            <form id="form-datos" novalidate>
+                <div id="msg-datos"></div>
+                <div class="fila fila-2">
+                    <div class="campo"><label for="nombre">Nombre</label><input class="control" id="nombre" name="nombre" maxlength="100"></div>
+                    <div class="campo"><label for="apellido">Apellido</label><input class="control" id="apellido" name="apellido" maxlength="100"></div>
+                </div>
+                <div class="fila fila-2">
+                    <div class="campo">
+                        <label for="correo">Correo electrónico</label>
+                        <input class="control" id="correo" disabled>
+                        <div class="ayuda">El correo es tu usuario de ingreso y no se puede cambiar.</div>
+                    </div>
+                    <div class="campo"><label for="telefono">Número de celular</label><input class="control" id="telefono" name="telefono" type="tel" maxlength="20"></div>
+                </div>
+                <div class="fila fila-2">
+                    <div class="campo"><label for="fecha_nacimiento">Fecha de nacimiento</label><input class="control" id="fecha_nacimiento" name="fecha_nacimiento" type="date"></div>
+                    <div class="campo">
+                        <label for="genero">Género</label>
+                        <select class="control" id="genero" name="genero">
+                            <option value="">Sin especificar</option>
+                            <option value="FEMENINO">Femenino</option>
+                            <option value="MASCULINO">Masculino</option>
+                            <option value="OTRO">Otro</option>
+                            <option value="PREFIERO_NO_DECIRLO">Prefiero no decirlo</option>
+                        </select>
+                    </div>
+                </div>
+                <p class="ayuda" id="miembro-desde"></p>
+                <button type="submit" class="boton">Guardar cambios</button>
+            </form>
+        </section>
+
+        <section class="tarjeta oculto" id="pestana-seguridad">
+            <form id="form-contrasena" novalidate style="max-width:420px">
+                <div id="msg-contrasena"></div>
+                <div class="campo"><label for="actual">Contraseña actual</label><input class="control" type="password" id="actual" autocomplete="current-password"></div>
+                <div class="campo"><label for="nueva">Nueva contraseña</label><input class="control" type="password" id="nueva" autocomplete="new-password"><div class="ayuda">Mínimo 8 caracteres.</div></div>
+                <div class="campo"><label for="repetir">Repite la nueva contraseña</label><input class="control" type="password" id="repetir" autocomplete="new-password"></div>
+                <button type="submit" class="boton">Cambiar contraseña</button>
+            </form>
+        </section>
+
+        <section class="tarjeta oculto" id="pestana-direcciones">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+                <h2 style="margin:0">Mis direcciones</h2>
+                <button type="button" class="boton boton-chico" id="nueva-direccion">+ Agregar dirección</button>
+            </div>
+            <div id="lista-direcciones"><div class="cargando">Cargando...</div></div>
+        </section>
+    </main>
+
+    <footer id="pie"></footer>
+
+    <script src="js/api.js"></script>
+    <script src="js/direcciones.js"></script>
+    <script src="js/perfil.js"></script>
+</body>
+</html>

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trama | Tu mundo, en un solo clic</title>
+    <link rel="stylesheet" href="css/estilos.css">
+</head>
+<body>
+    <header id="encabezado"></header>
+
+    <main class="contenedor">
+        <section id="seccion-resultados" class="oculto">
+            <h1 class="titulo-seccion" id="titulo-resultados">Resultados</h1>
+            <p class="subtitulo-seccion" id="subtitulo-resultados"></p>
+            <div id="rejilla-resultados" class="rejilla-productos"></div>
+        </section>
+
+        <section id="seccion-destacados">
+            <h1 class="titulo-seccion">Productos destacados</h1>
+            <p class="subtitulo-seccion">Encuentra tecnología y electrodomésticos para tu hogar.</p>
+
+            <div class="carrusel">
+                <button type="button" class="flecha-carrusel izquierda" id="carrusel-izquierda" aria-label="Anteriores">&larr;</button>
+                <div class="carrusel-pista" id="carrusel-pista">
+                    <div class="cargando" style="color:#fff">Cargando productos...</div>
+                </div>
+                <button type="button" class="flecha-carrusel derecha" id="carrusel-derecha" aria-label="Siguientes">&rarr;</button>
+            </div>
+
+            <div class="banner">
+                <h2>Todo lo que necesitas, en un solo lugar</h2>
+                <p>Renueva tu hogar con tecnología y calidad. ¡Compra fácil en Trama!</p>
+                <span class="rayo" aria-hidden="true"></span>
+            </div>
+        </section>
+
+        <section id="seccion-catalogo" style="margin-top:56px">
+            <h2 class="titulo-seccion">Todos los productos</h2>
+            <p class="subtitulo-seccion">Filtra por categoría.</p>
+            <div class="filtros" id="filtros"></div>
+            <div id="rejilla-catalogo" class="rejilla-productos"></div>
+        </section>
+    </main>
+
+    <footer id="pie"></footer>
+
+    <script src="js/api.js"></script>
+    <script src="js/inicio.js"></script>
+</body>
+</html>
