@@ -1,3 +1,4 @@
+
 import uuid
 from decimal import Decimal, ROUND_HALF_UP
 
@@ -82,8 +83,7 @@ def procesar_compra(
         connection = get_connection()
         cursor = connection.cursor()
 
-        # 1. Verificar y bloquear al usuario (evita compras duplicadas
-        #    simultáneas del mismo comprador)
+        # 1. Verificar y bloquear al usuario
         cursor.execute(
             """
             SELECT Estado
@@ -373,7 +373,7 @@ def procesar_compra(
             "PENDIENTE_PAGO", "PAGADO", mensaje_pago
         )
 
-        # 12. Descontar inventario (condicional: nunca deja stock negativo)
+        # 12. Descontar inventario
         for linea in lineas:
             cursor.execute(
                 """
@@ -443,7 +443,7 @@ def procesar_compra(
                 "estado": "PENDIENTE"
             })
 
-        # 14. Vaciar el carrito (queda ACTIVO para futuras compras)
+        # 14. Vaciar el carrito
         cursor.execute(
             "DELETE FROM DetallesCarrito WHERE IdCarrito = ?;",
             (id_carrito,)
@@ -496,6 +496,7 @@ def procesar_compra(
         if connection:
             connection.close()
 
+
 # ----------------------------------------------------------------------
 # Consultas de pedidos (comprador)
 # ----------------------------------------------------------------------
@@ -534,10 +535,12 @@ def listar_pedidos(id_comprador: int, estado: str | None = None):
                     WHERE DP.IdPedido = P.IdPedido
                 ) AS Unidades,
                 (
-                    SELECT COALESCE(SUM(C.MontoReembolso), 0)
-                    FROM Cancelaciones C
-                    WHERE C.IdPedido = P.IdPedido
-                      AND C.Estado = 'APROBADA'
+                    SELECT COALESCE(SUM(R.Valor), 0)
+                    FROM Reembolsos R
+                    INNER JOIN SolicitudesCancelacion SC
+                        ON SC.IdSolicitud = R.IdSolicitud
+                    WHERE SC.IdPedido = P.IdPedido
+                      AND SC.Estado = 'APROBADA'
                 ) AS TotalCancelado,
                 (
                     SELECT TOP 1 PG.Estado
@@ -548,6 +551,7 @@ def listar_pedidos(id_comprador: int, estado: str | None = None):
             FROM Pedidos P
             WHERE P.IdComprador = ?
         """
+
         parametros = [id_comprador]
 
         if estado:
@@ -573,7 +577,6 @@ def listar_pedidos(id_comprador: int, estado: str | None = None):
                 "unidades": fila.Unidades,
                 "total": total,
                 "total_cancelado": cancelado,
-                # Si el pago no fue aprobado no hay nada cobrado
                 "total_neto": round(total - cancelado, 2) if pagado else 0.0,
                 "ciudad_entrega": fila.CiudadEntrega
             })
@@ -636,12 +639,14 @@ def obtener_pedido(id_comprador: int, id_pedido: int):
             LEFT JOIN DetalleVenta DV
                 ON DV.IdDetallePedido = DP.IdDetallePedido
             LEFT JOIN (
-                SELECT DC.IdDetallePedido, SUM(DC.Cantidad) AS Cancelada
-                FROM DetallesCancelacion DC
-                INNER JOIN Cancelaciones C
-                    ON C.IdCancelacion = DC.IdCancelacion
-                WHERE C.Estado = 'APROBADA'
-                GROUP BY DC.IdDetallePedido
+                SELECT
+                    DSC.IdDetallePedido,
+                    SUM(DSC.CantidadSolicitada) AS Cancelada
+                FROM DetalleSolicitudCancelacion DSC
+                INNER JOIN SolicitudesCancelacion SC
+                    ON SC.IdSolicitud = DSC.IdSolicitud
+                WHERE SC.Estado = 'APROBADA'
+                GROUP BY DSC.IdDetallePedido
             ) CAN ON CAN.IdDetallePedido = DP.IdDetallePedido
             WHERE DP.IdPedido = ?
             ORDER BY DP.IdDetallePedido;
@@ -729,21 +734,31 @@ def obtener_pedido(id_comprador: int, id_pedido: int):
             for v in cursor.fetchall()
         ]
 
-        # Cancelaciones
+        # Cancelaciones: consulta las tablas reales de la base de datos
         cursor.execute(
             """
             SELECT
-                IdCancelacion,
-                IdVenta,
-                Tipo,
-                Estado,
-                Motivo,
-                MontoReembolso,
-                FechaSolicitud,
-                FechaResolucion
-            FROM Cancelaciones
-            WHERE IdPedido = ?
-            ORDER BY IdCancelacion;
+                SC.IdSolicitud AS IdCancelacion,
+                SC.IdVenta,
+                SC.TipoSolicitud AS Tipo,
+                CASE
+                    WHEN SC.Estado = 'PENDIENTE' THEN 'SOLICITADA'
+                    ELSE SC.Estado
+                END AS Estado,
+                SC.Motivo,
+                COALESCE(
+                    (
+                        SELECT SUM(R.Valor)
+                        FROM Reembolsos R
+                        WHERE R.IdSolicitud = SC.IdSolicitud
+                    ),
+                    0
+                ) AS MontoReembolso,
+                SC.FechaSolicitud,
+                SC.FechaRespuesta AS FechaResolucion
+            FROM SolicitudesCancelacion SC
+            WHERE SC.IdPedido = ?
+            ORDER BY SC.IdSolicitud;
             """,
             (id_pedido,)
         )
@@ -763,6 +778,7 @@ def obtener_pedido(id_comprador: int, id_pedido: int):
         ]
 
         total = a_float(pedido.Total)
+
         total_cancelado = sum(
             c["monto_reembolso"]
             for c in cancelaciones
@@ -838,6 +854,7 @@ def obtener_historial_pedido(id_comprador: int, id_pedido: int):
 
         for fila in cursor.fetchall():
             fecha = None
+
             for columna in ("FechaCambio", "Fecha", "FechaRegistro"):
                 try:
                     fecha = iso(getattr(fila, columna))

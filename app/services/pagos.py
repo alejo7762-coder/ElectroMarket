@@ -1,3 +1,4 @@
+
 """
 Consulta de pagos simulados.
 
@@ -78,6 +79,8 @@ def obtener_pago(id_usuario: int, id_pago: int):
         connection = get_connection()
         cursor = connection.cursor()
 
+        verificar_usuario_activo(cursor, id_usuario)
+
         cursor.execute(
             _SELECT_PAGOS + """
             WHERE PG.IdPago = ?
@@ -93,18 +96,25 @@ def obtener_pago(id_usuario: int, id_pago: int):
 
         resultado = _a_diccionario(fila)
 
-        # Reembolsos simulados generados por cancelaciones aprobadas
+        # Reembolsos simulados asociados a solicitudes aprobadas.
+        # La base de datos utiliza Reembolsos.Valor y
+        # SolicitudesCancelacion.Estado = 'APROBADA'.
         cursor.execute(
             """
-            SELECT COALESCE(SUM(MontoReembolso), 0) AS Reembolsado
-            FROM Cancelaciones
-            WHERE IdPedido = ?
-              AND Estado = 'APROBADA';
+            SELECT COALESCE(SUM(R.Valor), 0) AS Reembolsado
+            FROM Reembolsos R
+            INNER JOIN SolicitudesCancelacion SC
+                ON SC.IdSolicitud = R.IdSolicitud
+            WHERE R.IdPago = ?
+              AND SC.IdPedido = ?
+              AND SC.Estado = 'APROBADA';
             """,
-            (fila.IdPedido,)
+            (fila.IdPago, fila.IdPedido)
         )
 
-        resultado["reembolsado"] = a_float(cursor.fetchone().Reembolsado)
+        resultado["reembolsado"] = a_float(
+            cursor.fetchone().Reembolsado
+        )
 
         return resultado
 

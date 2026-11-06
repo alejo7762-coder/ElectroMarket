@@ -1,3 +1,4 @@
+
 """
 Ventas del vendedor.
 
@@ -30,12 +31,16 @@ class SaleNotFound(Exception):
     pass
 
 
+# Importe de reembolsos correspondientes a solicitudes aprobadas.
+# La base de datos registra los valores en Reembolsos.Valor.
 _SUBCONSULTA_CANCELADO = """
     (
-        SELECT COALESCE(SUM(C.MontoReembolso), 0)
-        FROM Cancelaciones C
-        WHERE C.IdVenta = V.IdVenta
-          AND C.Estado = 'APROBADA'
+        SELECT COALESCE(SUM(R.Valor), 0)
+        FROM Reembolsos R
+        INNER JOIN SolicitudesCancelacion SC
+            ON SC.IdSolicitud = R.IdSolicitud
+        WHERE SC.IdVenta = V.IdVenta
+          AND SC.Estado = 'APROBADA'
     )
 """
 
@@ -66,6 +71,7 @@ def listar_ventas(id_vendedor: int, estado: str | None = None):
             LEFT JOIN Envios E ON E.IdVenta = V.IdVenta
             WHERE V.IdVendedor = ?
         """
+
         parametros = [id_vendedor]
 
         if estado:
@@ -144,6 +150,7 @@ def obtener_venta(id_vendedor: int, id_venta: int):
         if venta is None:
             raise SaleNotFound("Venta no encontrada.")
 
+        # Productos de la venta y cantidades canceladas aprobadas
         cursor.execute(
             """
             SELECT
@@ -157,14 +164,17 @@ def obtener_venta(id_vendedor: int, id_venta: int):
             FROM DetalleVenta DV
             INNER JOIN DetallesPedido DP
                 ON DP.IdDetallePedido = DV.IdDetallePedido
-            INNER JOIN Productos PR ON PR.IdProducto = DP.IdProducto
+            INNER JOIN Productos PR
+                ON PR.IdProducto = DP.IdProducto
             LEFT JOIN (
-                SELECT DC.IdDetallePedido, SUM(DC.Cantidad) AS Cancelada
-                FROM DetallesCancelacion DC
-                INNER JOIN Cancelaciones C
-                    ON C.IdCancelacion = DC.IdCancelacion
-                WHERE C.Estado = 'APROBADA'
-                GROUP BY DC.IdDetallePedido
+                SELECT
+                    DSC.IdDetallePedido,
+                    SUM(DSC.CantidadSolicitada) AS Cancelada
+                FROM DetalleSolicitudCancelacion DSC
+                INNER JOIN SolicitudesCancelacion SC
+                    ON SC.IdSolicitud = DSC.IdSolicitud
+                WHERE SC.Estado = 'APROBADA'
+                GROUP BY DSC.IdDetallePedido
             ) CAN ON CAN.IdDetallePedido = DP.IdDetallePedido
             WHERE DV.IdVenta = ?
             ORDER BY DP.IdDetallePedido;
@@ -186,6 +196,7 @@ def obtener_venta(id_vendedor: int, id_venta: int):
             for f in cursor.fetchall()
         ]
 
+        # Información del envío
         cursor.execute(
             """
             SELECT
@@ -203,13 +214,30 @@ def obtener_venta(id_vendedor: int, id_venta: int):
 
         envio = cursor.fetchone()
 
+        # Solicitudes de cancelación asociadas a la venta
         cursor.execute(
             """
-            SELECT IdCancelacion, Tipo, Estado, Motivo, MontoReembolso,
-                   FechaSolicitud, FechaResolucion
-            FROM Cancelaciones
-            WHERE IdVenta = ?
-            ORDER BY IdCancelacion;
+            SELECT
+                SC.IdSolicitud AS IdCancelacion,
+                SC.TipoSolicitud AS Tipo,
+                CASE
+                    WHEN SC.Estado = 'PENDIENTE' THEN 'SOLICITADA'
+                    ELSE SC.Estado
+                END AS Estado,
+                SC.Motivo,
+                COALESCE(
+                    (
+                        SELECT SUM(R.Valor)
+                        FROM Reembolsos R
+                        WHERE R.IdSolicitud = SC.IdSolicitud
+                    ),
+                    0
+                ) AS MontoReembolso,
+                SC.FechaSolicitud,
+                SC.FechaRespuesta AS FechaResolucion
+            FROM SolicitudesCancelacion SC
+            WHERE SC.IdVenta = ?
+            ORDER BY SC.IdSolicitud;
             """,
             (id_venta,)
         )
@@ -283,6 +311,7 @@ def resumen_ventas(id_vendedor: int):
 
         verificar_usuario_activo(cursor, id_vendedor)
 
+        # Cantidad de ventas por estado
         cursor.execute(
             """
             SELECT Estado, COUNT(*) AS Cantidad
@@ -298,16 +327,20 @@ def resumen_ventas(id_vendedor: int):
         for fila in cursor.fetchall():
             por_estado[fila.Estado] = fila.Cantidad
 
+        # Ingresos brutos y valores reembolsados
         cursor.execute(
             """
             SELECT
                 COALESCE(SUM(V.Subtotal), 0) AS Bruto,
                 COALESCE((
-                    SELECT SUM(C.MontoReembolso)
-                    FROM Cancelaciones C
-                    INNER JOIN Ventas V2 ON V2.IdVenta = C.IdVenta
+                    SELECT SUM(R.Valor)
+                    FROM Reembolsos R
+                    INNER JOIN SolicitudesCancelacion SC
+                        ON SC.IdSolicitud = R.IdSolicitud
+                    INNER JOIN Ventas V2
+                        ON V2.IdVenta = SC.IdVenta
                     WHERE V2.IdVendedor = ?
-                      AND C.Estado = 'APROBADA'
+                      AND SC.Estado = 'APROBADA'
                 ), 0) AS Cancelado
             FROM Ventas V
             WHERE V.IdVendedor = ?;
@@ -317,6 +350,7 @@ def resumen_ventas(id_vendedor: int):
 
         montos = cursor.fetchone()
 
+        # Unidades vendidas y unidades canceladas
         cursor.execute(
             """
             SELECT
@@ -326,13 +360,18 @@ def resumen_ventas(id_vendedor: int):
             INNER JOIN Pagos PG
                 ON PG.IdPedido = DP.IdPedido
                AND PG.Estado = 'APROBADO'
+            INNER JOIN DetalleVenta DV
+                ON DV.IdDetallePedido = DP.IdDetallePedido
+               AND DV.IdVendedor = DP.IdVendedor
             LEFT JOIN (
-                SELECT DC.IdDetallePedido, SUM(DC.Cantidad) AS Cancelada
-                FROM DetallesCancelacion DC
-                INNER JOIN Cancelaciones C
-                    ON C.IdCancelacion = DC.IdCancelacion
-                WHERE C.Estado = 'APROBADA'
-                GROUP BY DC.IdDetallePedido
+                SELECT
+                    DSC.IdDetallePedido,
+                    SUM(DSC.CantidadSolicitada) AS Cancelada
+                FROM DetalleSolicitudCancelacion DSC
+                INNER JOIN SolicitudesCancelacion SC
+                    ON SC.IdSolicitud = DSC.IdSolicitud
+                WHERE SC.Estado = 'APROBADA'
+                GROUP BY DSC.IdDetallePedido
             ) CAN ON CAN.IdDetallePedido = DP.IdDetallePedido
             WHERE DP.IdVendedor = ?;
             """,
