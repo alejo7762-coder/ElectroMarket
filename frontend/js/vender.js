@@ -1,6 +1,8 @@
 "use strict";
 
 const MAX_FOTOS = 5;
+const MIN_FOTOS = 3;
+const CRITERIOS_ESTADO = ["enciende", "pantalla_sin_danos", "bateria_ok", "sin_reparaciones", "accesorios_completos", "con_garantia"];
 const MAX_TAMANO = 5 * 1024 * 1024;
 const FORMATOS = ["image/jpeg", "image/png", "image/webp"];
 
@@ -136,7 +138,9 @@ function leerFormulario(form) {
         descripcion: form.descripcion.value.trim(),
         precio: Number(form.precio.value),
         stock: Number(form.stock.value),
-        condicion: form.condicion.value
+        condicion: form.condicion.value,
+        checklist: Object.fromEntries(CRITERIOS_ESTADO.map((c) => [c, form[c].checked])),
+        descripcion_defectos: form.descripcion_defectos.value.trim()
     };
 }
 
@@ -147,6 +151,9 @@ function validarFormulario(d) {
     if (!d.descripcion) errores.push("Escribe una descripción.");
     if (!(d.precio > 0)) errores.push("El precio debe ser mayor que cero.");
     if (!Number.isInteger(d.stock) || d.stock < 0) errores.push("Las unidades deben ser un número entero (0 o más).");
+    if (d.descripcion_defectos.length < 3) errores.push("Describe los defectos o el desgaste (escribe «Ninguno» si no tiene).");
+    const fotos = (productoEditado ? (productoEditado.imagenes || []).length : 0) + fotosNuevas.length;
+    if (fotos < MIN_FOTOS) errores.push(`Agrega al menos ${MIN_FOTOS} fotos (tienes ${fotos}).`);
     return errores;
 }
 
@@ -185,6 +192,7 @@ async function guardar(e) {
                 form.reset();
                 form.stock.value = 1;
                 form.condicion.value = "BUENO";
+                CRITERIOS_ESTADO.forEach((c) => { form[c].checked = false; });
                 document.getElementById("contador-descripcion").textContent = "0";
                 mostrarMensaje(caja, "", "exito");
                 aviso("¡Tu artículo ya está publicado!", "exito");
@@ -228,6 +236,9 @@ async function prepararEdicion(id) {
         form.precio.value = Math.round(p.precio);
         form.stock.value = p.stock;
         form.condicion.value = p.condicion;
+        const v = p.verificacion || {};
+        (v.criterios || []).forEach((c) => { if (form[c.clave]) form[c.clave].checked = c.cumple; });
+        form.descripcion_defectos.value = v.defectos || "";
         document.getElementById("contador-descripcion").textContent = p.descripcion.length;
 
         document.getElementById("titulo-formulario").textContent = "Editar publicación";
@@ -274,7 +285,7 @@ async function cargarMisProductos() {
                                 </td>
                                 <td class="numero">${precio(p.precio)}</td>
                                 <td class="numero">${p.stock}</td>
-                                <td>${etiquetaEstado(p.estado)}</td>
+                                <td>${etiquetaEstado(p.estado)}<div style="margin-top:6px">${insigniaVerificacion(p.nivel_verificacion, { chica: true })}</div></td>
                                 <td>
                                     <div class="grupo-botones">
                                         <a class="boton boton-secundario boton-chico" href="vender.html?editar=${p.id_producto}">Editar</a>

@@ -9,6 +9,7 @@ let filtroEstado = "";
 /* ------------------------------------------------------------------ */
 
 async function cargarLista() {
+    cargarReembolsos();
     const lista = document.getElementById("lista");
     lista.innerHTML = `<div class="cargando">Cargando pedidos...</div>`;
 
@@ -35,7 +36,7 @@ async function cargarLista() {
                         Pago ${esc(textoEstado(p.estado_pago || "—").toLowerCase())}
                     </div>
                     <div style="margin-top:6px">
-                        <strong style="color:var(--azul)">${precio(p.estado_pago === "APROBADO" ? p.total_neto : p.total)}</strong>
+                        <strong style="color:var(--tinta)">${precio(p.estado_pago === "APROBADO" ? p.total_neto : p.total)}</strong>
                         ${p.total_cancelado > 0 ? `<span class="ayuda" style="display:inline"> · ${precio(p.total_cancelado)} reembolsado</span>` : ""}
                     </div>
                 </div>
@@ -44,6 +45,77 @@ async function cargarLista() {
 
     } catch (e) {
         lista.innerHTML = `<div class="tarjeta vacio">${esc(e.message)}</div>`;
+    }
+}
+
+/* ------------------------------------------------------------------ */
+/* Reembolsos                                                          */
+/* ------------------------------------------------------------------ */
+
+function lineaTiempoReembolso(r) {
+    const procesado = r.estado === "PROCESADO";
+    return `
+        <ol class="linea-reembolso" aria-label="Progreso del reembolso">
+            <li class="hecho"><strong>Cancelación aprobada</strong><span>${fecha(r.fecha_solicitud, true)}</span></li>
+            <li class="hecho"><strong>Reembolso registrado</strong><span>${esc(METODOS_PAGO[r.metodo_destino] || r.metodo_destino)}</span></li>
+            <li class="${procesado ? "hecho" : "actual"}"><strong>${procesado ? "Dinero devuelto" : "En proceso"}</strong>
+                <span>${procesado ? `${fecha(r.fecha_procesado, true)} · ${esc(r.referencia)}` : "La pasarela lo procesa en pocos minutos"}</span></li>
+        </ol>`;
+}
+
+function tablaReembolsos(reembolsos) {
+    return `
+        <div class="lista-reembolsos">
+            ${reembolsos.map((r) => `
+                <article class="tarjeta-reembolso">
+                    <div class="tarjeta-reembolso-cabecera">
+                        <div>
+                            <strong>Pedido #${r.id_pedido}</strong>
+                            <span class="ayuda" style="display:inline"> · Cancelación ${r.tipo_cancelacion === "TOTAL" ? "total" : "parcial"} #${r.id_cancelacion}</span>
+                        </div>
+                        <div class="monto-reembolso">${precio(r.valor)} ${etiquetaEstado(r.estado === "PENDIENTE" ? "PENDIENTE" : r.estado)}</div>
+                    </div>
+                    ${r.motivo ? `<p class="ayuda">Motivo: ${esc(r.motivo)}</p>` : ""}
+                    ${lineaTiempoReembolso(r)}
+                </article>`).join("")}
+        </div>`;
+}
+
+async function cargarReembolsos() {
+    const destino = document.getElementById("reembolsos");
+    if (!destino) return;
+
+    try {
+        const datos = await api("GET", "/reembolsos/");
+
+        if (!datos.total) {
+            destino.innerHTML = `<div class="tarjeta vacio"><p>No tienes reembolsos. Si cancelas un pedido, aquí verás la devolución de tu dinero.</p></div>`;
+            return;
+        }
+
+        destino.innerHTML = `
+            <div class="resumen-reembolsos">
+                <div><span>Devuelto</span><strong>${precio(datos.total_reembolsado)}</strong></div>
+                <div><span>En proceso</span><strong>${precio(datos.total_pendiente)}</strong></div>
+                <div><span>Reembolsos</span><strong>${datos.total}</strong></div>
+            </div>
+            ${tablaReembolsos(datos.reembolsos)}`;
+    } catch (e) {
+        destino.innerHTML = `<div class="mensaje mensaje-error">${esc(e.message)}</div>`;
+    }
+}
+
+async function cargarReembolsosPedido(idPedido) {
+    const destino = document.getElementById("reembolsos-pedido");
+    if (!destino) return;
+
+    try {
+        const datos = await api("GET", `/reembolsos/?id_pedido=${idPedido}`);
+        destino.innerHTML = datos.total
+            ? `<h3>Reembolsos</h3>${tablaReembolsos(datos.reembolsos)}`
+            : "";
+    } catch (e) {
+        destino.innerHTML = "";
     }
 }
 
@@ -152,6 +224,7 @@ function pintarDetalle(cuerpo, pedido, recargar) {
         <ul class="lista-datos">
             <li><span>Entrega</span><span>${esc(pedido.entrega.direccion)}, ${esc(pedido.entrega.ciudad)}, ${esc(pedido.entrega.departamento)}</span></li>
             <li><span>Pago</span><span>${pago ? `${esc(METODOS_PAGO[pago.metodo] || pago.metodo)} · ${etiquetaEstado(pago.estado)} · Ref. ${esc(pago.referencia)}` : "—"}</span></li>
+            ${pedido.total_cancelado > 0 ? `<li><span>Estado del reembolso</span><span>${etiquetaEstado(pedido.total_cancelado + 0.005 >= pedido.total ? "REEMBOLSADO" : "REEMBOLSO_PARCIAL")}</span></li>` : ""}
             <li><span>Total</span><span>${precio(pedido.total)}</span></li>
             ${pedido.total_cancelado > 0 ? `
                 <li><span>Reembolsado (simulado)</span><span>− ${precio(pedido.total_cancelado)}</span></li>
@@ -170,9 +243,13 @@ function pintarDetalle(cuerpo, pedido, recargar) {
 
         ${tablaCancelaciones(pedido.cancelaciones)}
 
+        <div id="reembolsos-pedido"></div>
+
         <h3>Historial</h3>
         <button type="button" class="boton-texto" id="ver-historial">Ver historial de estados</button>
         <div id="historial"></div>`;
+
+    cargarReembolsosPedido(pedido.id_pedido);
 
     const avisarCambio = () => cuerpo.closest(".modal").dispatchEvent(new Event("pedido-cambio"));
 
@@ -199,7 +276,7 @@ function pintarDetalle(cuerpo, pedido, recargar) {
 
             try {
                 const r = await api("POST", `/cancelaciones/ventas/${idVenta}`, { cuerpo: { motivo } });
-                aviso(r.estado === "SOLICITADA" ? "Solicitud enviada al vendedor." : `Cancelación aplicada. Reembolso: ${precio(r.monto_reembolso)}.`, "exito");
+                aviso(r.estado === "SOLICITADA" ? "Solicitud enviada al vendedor." : `Cancelación aplicada. Reembolso de ${precio(r.monto_reembolso)} en proceso.`, "exito");
                 avisarCambio();
             } catch (e) {
                 aviso(e.message, "error");
@@ -225,7 +302,7 @@ function pintarDetalle(cuerpo, pedido, recargar) {
                 aviso(
                     solicitudes
                         ? `Cancelación procesada. ${solicitudes} parte(s) ya despachada(s) quedan pendientes de aprobación.`
-                        : `Pedido cancelado. Reembolso: ${precio(r.monto_reembolsado)}.`,
+                        : `Pedido cancelado. Reembolso de ${precio(r.monto_reembolsado)} en proceso; lo verás en «Mis reembolsos».`,
                     "exito"
                 );
                 avisarCambio();
@@ -292,7 +369,7 @@ function abrirCancelacionParcial(pedido, productos, alTerminar) {
                     <label for="motivo-parcial">Motivo</label>
                     <textarea class="control" id="motivo-parcial" maxlength="500" placeholder="Cuéntanos por qué cancelas"></textarea>
                 </div>
-                <div class="linea" style="display:flex;justify-content:space-between;font-weight:700;color:var(--azul)">
+                <div class="linea" style="display:flex;justify-content:space-between;font-weight:700;color:var(--tinta)">
                     <span>Reembolso estimado</span><span id="reembolso">${precio(0)}</span>
                 </div>
                 <div class="grupo-botones" style="justify-content:flex-end;margin-top:14px">

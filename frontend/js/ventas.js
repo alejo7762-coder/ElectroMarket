@@ -209,7 +209,7 @@ function pintarVenta(cuerpo, v, alCambiar) {
                 </tbody>
             </table>
         </div>
-        <p style="text-align:right;font-weight:700;color:var(--azul)">Total: ${precio(v.subtotal_neto)}</p>
+        <p style="text-align:right;font-weight:700;color:var(--tinta)">Total: ${precio(v.subtotal_neto)}</p>
 
         <h3>Envío</h3>
         ${gestionEnvio}

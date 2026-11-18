@@ -1,5 +1,54 @@
 "use strict";
 
+const NIVEL_CONDICION = { COMO_NUEVO: 3, BUENO: 2, ACEPTABLE: 1 };
+
+function panelVerificacion(p) {
+    const v = p.verificacion || { nivel: "SIN_VERIFICAR", puntaje: 0, criterios: [], faltantes: [] };
+    const nivel = NIVEL_CONDICION[p.condicion] || 0;
+    const tono = v.puntaje >= 80 ? "alto" : v.puntaje >= 50 ? "medio" : "bajo";
+
+    return `
+        <section class="panel-verificacion" aria-label="Estado del producto">
+            <div class="panel-verificacion-cabecera">
+                ${insigniaVerificacion(v.nivel)}
+                <span class="puntaje-estado">${v.puntaje}<small>/100</small></span>
+            </div>
+
+            <div class="escala-condicion" aria-label="Condición: ${esc(CONDICIONES[p.condicion] || p.condicion)}">
+                ${["Aceptable", "Buen estado", "Como nuevo"].map((t, i) =>
+                    `<span class="${i < nivel ? "activo" : ""}${i === nivel - 1 ? " actual" : ""}">${t}</span>`).join("")}
+            </div>
+
+            <div class="barra-puntaje barra-${tono}" role="meter" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${v.puntaje}"
+                 aria-label="Puntaje de estado"><span style="width:${v.puntaje}%"></span></div>
+
+            ${v.criterios.length ? `
+                <ul class="checklist-resultado">
+                    ${v.criterios.map((c) => `
+                        <li class="${c.cumple ? "cumple" : "no-cumple"}">
+                            <span aria-hidden="true">${c.cumple ? "✔" : "✕"}</span>
+                            ${esc(c.texto)}${c.esencial ? ' <em>esencial</em>' : ""}
+                        </li>`).join("")}
+                </ul>` : ""}
+
+            <div class="fotos-verificacion ${v.total_fotos >= v.fotos_requeridas ? "cumple" : "no-cumple"}">
+                ${v.total_fotos} de ${v.fotos_requeridas} fotos mínimas
+            </div>
+
+            ${v.defectos ? `
+                <div class="defectos ${v.sin_defectos ? "defectos-ninguno" : ""}">
+                    <strong>${v.sin_defectos ? "Sin defectos declarados" : "Defectos declarados por el vendedor"}</strong>
+                    ${v.sin_defectos ? "" : `<p>${esc(v.defectos)}</p>`}
+                </div>` : ""}
+
+            ${v.faltantes.length ? `
+                <details class="faltantes">
+                    <summary>¿Por qué no está verificado?</summary>
+                    <ul>${v.faltantes.map((f) => `<li>${esc(f)}</li>`).join("")}</ul>
+                </details>` : ""}
+        </section>`;
+}
+
 function pintarProducto(p) {
     const usuario = Sesion.usuario();
     const propio = usuario && usuario.id_usuario === p.id_vendedor;
@@ -59,9 +108,11 @@ function pintarProducto(p) {
                     <li><span>Publicado</span><span>${fecha(p.fecha_publicacion)}</span></li>
                 </ul>
 
+                ${panelVerificacion(p)}
+
                 ${accion}
 
-                <h2 style="font-size:16px;color:var(--azul);margin:26px 0 8px">Descripción</h2>
+                <h2 style="font-size:16px;color:var(--tinta);margin:26px 0 8px">Descripción</h2>
                 <p style="white-space:pre-line;margin:0">${esc(p.descripcion)}</p>
             </div>
         </article>`;
