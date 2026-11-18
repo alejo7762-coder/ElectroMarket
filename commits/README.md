@@ -18,3 +18,4 @@ python commits/generar_bitacora.py
 | 007 | [`9b1f404`](007_9b1f404.md) | 2026-11-18 03:23 | Claude | Reorganiza en backend/, frontend/ y database/; agrega reembolsos y verificación de productos |
 | 008 | [`82914f1`](008_82914f1.md) | 2026-11-18 03:23 | Claude | Rediseña la interfaz con la paleta #1E1E1C, #D8CBB3 y #2F6BFF |
 | 009 | [`ccc409b`](009_ccc409b.md) | 2026-11-18 03:23 | Claude | Actualiza el README con la nueva estructura, reembolsos y verificación |
+| 010 | [`90843aa`](010_90843aa.md) | 2026-11-18 03:41 | Claude | Ajusta el código al esquema real de la base de datos |
