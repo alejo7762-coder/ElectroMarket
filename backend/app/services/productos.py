@@ -2,6 +2,11 @@ import pyodbc
 from decimal import Decimal
 
 from app.db.connection import get_connection
+from app.services.verificacion import (
+    guardar_verificacion,
+    obtener_verificacion,
+    SQL_NIVEL_VERIFICACION
+)
 
 
 class CategoryNotFound(Exception):
@@ -19,7 +24,9 @@ def publicar_producto(
     descripcion: str,
     precio: Decimal,
     stock: int,
-    condicion: str
+    condicion: str,
+    checklist: dict | None = None,
+    defectos: str | None = None
 ):
     connection = None
     cursor = None
@@ -77,6 +84,9 @@ def publicar_producto(
         resultado = cursor.fetchone()
         id_producto = resultado[0]
 
+        if checklist is not None:
+            guardar_verificacion(cursor, id_producto, checklist, defectos or "")
+
         connection.commit()
 
         return id_producto
@@ -113,7 +123,8 @@ def listar_productos(id_categoria=None):
                 C.Nombre AS Categoria,
                 U.IdUsuario AS IdVendedor,
                 U.Nombre + ' ' + U.Apellido AS Vendedor,
-                IP.RutaImagen
+                IP.RutaImagen,
+                """ + SQL_NIVEL_VERIFICACION + """ AS NivelVerificacion
             FROM Productos P
             INNER JOIN Categorias C
                 ON P.IdCategoria = C.IdCategoria
@@ -122,6 +133,8 @@ def listar_productos(id_categoria=None):
             LEFT JOIN ImagenesProducto IP
                 ON IP.IdProducto = P.IdProducto
                AND IP.EsPrincipal = 1
+            LEFT JOIN VerificacionProductos VP
+                ON VP.IdProducto = P.IdProducto
             WHERE P.Estado = 'PUBLICADO'
               AND P.Stock > 0
               AND U.Estado = 'ACTIVO'
@@ -153,7 +166,8 @@ def listar_productos(id_categoria=None):
                 "categoria": fila.Categoria,
                 "id_vendedor": fila.IdVendedor,
                 "vendedor": fila.Vendedor,
-                "imagen_principal": fila.RutaImagen
+                "imagen_principal": fila.RutaImagen,
+                "nivel_verificacion": fila.NivelVerificacion
             })
 
         return productos
@@ -235,7 +249,10 @@ def obtener_producto(id_producto: int):
             "id_vendedor": fila.IdVendedor,
             "vendedor": fila.Vendedor,
             "imagen_principal": imagenes[0]["ruta"] if imagenes else None,
-            "imagenes": imagenes
+            "imagenes": imagenes,
+            "verificacion": obtener_verificacion(
+                cursor, fila.IdProducto, len(imagenes), fila.Condicion
+            )
         }
 
     finally:
@@ -269,7 +286,9 @@ def modificar_producto(
     descripcion: str,
     precio: Decimal,
     stock: int,
-    condicion: str
+    condicion: str,
+    checklist: dict | None = None,
+    defectos: str | None = None
 ):
     connection = None
     cursor = None
@@ -362,6 +381,9 @@ def modificar_producto(
             raise ProductNotFound(
                 "No fue posible actualizar el producto."
             )
+
+        if checklist is not None:
+            guardar_verificacion(cursor, id_producto, checklist, defectos or "")
 
         connection.commit()
 
@@ -520,13 +542,16 @@ def listar_productos_vendedor(id_vendedor: int):
                     SELECT COUNT(*)
                     FROM ImagenesProducto I2
                     WHERE I2.IdProducto = P.IdProducto
-                ) AS TotalImagenes
+                ) AS TotalImagenes,
+                """ + SQL_NIVEL_VERIFICACION + """ AS NivelVerificacion
             FROM Productos P
             INNER JOIN Categorias C
                 ON P.IdCategoria = C.IdCategoria
             LEFT JOIN ImagenesProducto IP
                 ON IP.IdProducto = P.IdProducto
                AND IP.EsPrincipal = 1
+            LEFT JOIN VerificacionProductos VP
+                ON VP.IdProducto = P.IdProducto
             WHERE P.IdVendedor = ?
               AND P.Estado <> 'ELIMINADO'
             ORDER BY P.FechaPublicacion DESC;
@@ -547,7 +572,8 @@ def listar_productos_vendedor(id_vendedor: int):
                 "id_categoria": fila.IdCategoria,
                 "categoria": fila.Categoria,
                 "imagen_principal": fila.RutaImagen,
-                "total_imagenes": fila.TotalImagenes
+                "total_imagenes": fila.TotalImagenes,
+                "nivel_verificacion": fila.NivelVerificacion
             }
             for fila in cursor.fetchall()
         ]

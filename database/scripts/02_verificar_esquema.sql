@@ -53,7 +53,10 @@ INSERT INTO @valores (Tabla, Columna, Valor) VALUES
     ('Productos', 'Estado', 'PUBLICADO'),
     ('Productos', 'Estado', 'PAUSADO'),
     ('Productos', 'Estado', 'AGOTADO'),
-    ('Productos', 'Estado', 'ELIMINADO');
+    ('Productos', 'Estado', 'ELIMINADO'),
+    -- Reembolsos (04_reembolsos.sql)
+    ('Reembolsos', 'Estado', 'PENDIENTE'),
+    ('Reembolsos', 'Estado', 'PROCESADO');
 
 /* 1. Valores que alguna restricción CHECK de la columna NO acepta */
 SELECT

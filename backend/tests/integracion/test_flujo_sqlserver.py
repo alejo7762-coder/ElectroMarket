@@ -61,7 +61,9 @@ def _publicar(client, vendedor, nombre, precio, stock):
         "descripcion": "Producto creado por la prueba de integración.",
         "precio": precio,
         "stock": stock,
-        "condicion": "BUENO"
+        "condicion": "BUENO",
+        "checklist": {"enciende": True, "pantalla_sin_danos": True, "bateria_ok": True},
+        "descripcion_defectos": "Ninguno"
     }), 201)["id_producto"]
 
 
