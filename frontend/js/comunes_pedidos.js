@@ -11,13 +11,13 @@ function pedirMotivo({ titulo, explicacion, textoBoton = "Confirmar", etiqueta =
             chico: true,
             contenido: `
                 <form id="form-motivo" novalidate>
-                    ${explicacion ? `<p style="margin-top:0">${esc(explicacion)}</p>` : ""}
+                    ${explicacion ? `<p class="u-mt-0">${esc(explicacion)}</p>` : ""}
                     <div class="campo">
-                        <label for="motivo">${esc(etiqueta)}${opcional ? ' <span class="ayuda" style="display:inline">(opcional)</span>' : ""}</label>
+                        <label for="motivo">${esc(etiqueta)}${opcional ? ' <span class="ayuda u-en-linea">(opcional)</span>' : ""}</label>
                         <textarea class="control" id="motivo" maxlength="500"></textarea>
                         <div class="error-campo oculto" id="error-motivo">Escribe al menos ${minimo} caracteres.</div>
                     </div>
-                    <div class="grupo-botones" style="justify-content:flex-end">
+                    <div class="grupo-botones u-al-final">
                         <button type="button" class="boton boton-secundario" data-cancelar>Volver</button>
                         <button type="submit" class="boton">${esc(textoBoton)}</button>
                     </div>

@@ -33,7 +33,7 @@
     --radio: 10px;
     --sombra: 0 8px 28px rgba(30, 30, 28, 0.10);
     --sombra-suave: 0 1px 3px rgba(30, 30, 28, 0.08);
-    --fuente: "Inter", "Segoe UI", Arial, Helvetica, sans-serif;
+    --fuente: "Segoe UI", system-ui, -apple-system, Roboto, Arial, sans-serif;
     color-scheme: light;
 }
 
@@ -1839,6 +1839,73 @@ table.tabla {
     .linea-reembolso {
         grid-template-columns: 1fr;
     }
+}
+
+
+/* ------------------------------------------------------------------ */
+/* Utilidades (reemplazan estilos en línea del HTML y JS)              */
+/* ------------------------------------------------------------------ */
+
+.u-fila { display: flex; align-items: center; }
+.u-fila-entre { display: flex; justify-content: space-between; align-items: center; }
+.u-envolver { flex-wrap: wrap; }
+.u-gap-10 { gap: 10px; }
+.u-gap-12 { gap: 12px; }
+.u-items-end { align-items: end; }
+.u-centrar { justify-content: center; }
+.u-al-final { justify-content: flex-end; }
+.u-cursor-normal { cursor: default; }
+.u-en-linea { display: inline; }
+.u-ancho-completo { grid-column: 1 / -1; }
+.u-ancho-completo-w { width: 100%; }
+.u-w-64 { width: 64px; }
+.u-w-80 { width: 80px; }
+.u-max-420 { max-width: 420px; }
+.u-max-640 { max-width: 640px; }
+.u-max-860 { max-width: 860px; }
+.u-centrado { margin-left: auto; margin-right: auto; text-align: center; }
+.u-m-0 { margin: 0; }
+.u-mt-0 { margin-top: 0; }
+.u-mt-6 { margin-top: 6px; }
+.u-mt-8 { margin-top: 8px; }
+.u-mt-10 { margin-top: 10px; }
+.u-mt-12 { margin-top: 12px; }
+.u-mt-14 { margin-top: 14px; }
+.u-mt-16 { margin-top: 16px; }
+.u-mt-42 { margin-top: 42px; }
+.u-mt-56 { margin-top: 56px; }
+.u-mb-12 { margin-bottom: 12px; }
+.u-mb-14 { margin-bottom: 14px; }
+.u-my-20 { margin-top: 20px; margin-bottom: 20px; }
+.u-p-24 { padding: 24px; }
+.u-texto-centro { text-align: center; }
+.u-texto-izq { text-align: left; }
+.u-texto-der { text-align: right; }
+.u-texto-22 { font-size: 22px; }
+.u-negrita { font-weight: 700; }
+.u-tinta { color: var(--tinta); }
+.u-sin-salto { white-space: nowrap; }
+.u-pre-linea { white-space: pre-line; }
+
+.subtitulo-bloque {
+    font-size: 16px;
+    color: var(--tinta);
+    margin: 26px 0 8px;
+}
+
+.icono-exito {
+    font-size: 46px;
+    color: var(--exito);
+}
+
+.tarjeta-plana {
+    border: 1px solid var(--borde);
+    box-shadow: none;
+}
+
+.boton.deshabilitado {
+    pointer-events: none;
+    opacity: 0.55;
 }
 
 @media (max-width: 900px) {

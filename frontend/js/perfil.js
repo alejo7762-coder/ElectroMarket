@@ -105,12 +105,12 @@ async function cargarDirecciones() {
         direcciones = await api("GET", "/direcciones/");
 
         if (!direcciones.length) {
-            lista.innerHTML = `<div class="vacio" style="padding:24px">Aún no tienes direcciones registradas.</div>`;
+            lista.innerHTML = `<div class="vacio u-p-24">Aún no tienes direcciones registradas.</div>`;
             return;
         }
 
         lista.innerHTML = direcciones.map((d) => `
-            <div class="opcion" style="cursor:default;justify-content:space-between;align-items:center">
+            <div class="opcion u-fila-entre u-cursor-normal">
                 <span>${esc(d.direccion)}<small>${esc(d.ciudad)}, ${esc(d.departamento)}${d.codigo_postal ? " · CP " + esc(d.codigo_postal) : ""}</small></span>
                 <span class="grupo-botones">
                     <button type="button" class="boton boton-secundario boton-chico" data-editar="${d.id_direccion}">Editar</button>

@@ -35,9 +35,9 @@ async function cargarLista() {
                         Entrega en ${esc(p.ciudad_entrega || "—")} ·
                         Pago ${esc(textoEstado(p.estado_pago || "—").toLowerCase())}
                     </div>
-                    <div style="margin-top:6px">
-                        <strong style="color:var(--tinta)">${precio(["APROBADO", "REEMBOLSO_PARCIAL", "REEMBOLSADO"].includes(p.estado_pago) ? p.total_neto : p.total)}</strong>
-                        ${p.total_cancelado > 0 ? `<span class="ayuda" style="display:inline"> · ${precio(p.total_cancelado)} reembolsado</span>` : ""}
+                    <div class="u-mt-6">
+                        <strong class="u-tinta">${precio(["APROBADO", "REEMBOLSO_PARCIAL", "REEMBOLSADO"].includes(p.estado_pago) ? p.total_neto : p.total)}</strong>
+                        ${p.total_cancelado > 0 ? `<span class="ayuda u-en-linea"> · ${precio(p.total_cancelado)} reembolsado</span>` : ""}
                     </div>
                 </div>
                 <button type="button" class="boton boton-secundario" data-ver="${p.id_pedido}">Ver detalle</button>
@@ -71,7 +71,7 @@ function tablaReembolsos(reembolsos) {
                     <div class="tarjeta-reembolso-cabecera">
                         <div>
                             <strong>Pedido #${r.id_pedido}</strong>
-                            <span class="ayuda" style="display:inline"> · Cancelación ${r.tipo_cancelacion === "TOTAL" ? "total" : "parcial"} #${r.id_cancelacion}</span>
+                            <span class="ayuda u-en-linea"> · Cancelación ${r.tipo_cancelacion === "TOTAL" ? "total" : "parcial"} #${r.id_cancelacion}</span>
                         </div>
                         <div class="monto-reembolso">${precio(r.valor)} ${etiquetaEstado(r.estado === "PENDIENTE" ? "PENDIENTE" : r.estado)}</div>
                     </div>
@@ -136,8 +136,8 @@ function bloqueVenta(venta, productos) {
     }
 
     return `
-        <div class="tarjeta" style="border:1px solid var(--borde);box-shadow:none;margin-bottom:12px">
-            <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center">
+        <div class="tarjeta tarjeta-plana u-mb-12">
+            <div class="u-fila-entre u-gap-10 u-envolver">
                 <div>
                     <strong>Vendedor: ${esc(venta.vendedor)}</strong> ${etiquetaEstado(venta.estado)}
                     <div class="ayuda">
@@ -151,12 +151,12 @@ function bloqueVenta(venta, productos) {
                     ${acciones}
                 </div>
             </div>
-            <div class="tabla-envoltura" style="margin-top:10px">
+            <div class="tabla-envoltura u-mt-10">
                 <table class="tabla">
                     <tbody>
                         ${productos.map((p) => `
                             <tr>
-                                <td style="width:64px"><div class="miniatura">${imagenProducto(p.imagen_principal, p.nombre)}</div></td>
+                                <td class="u-w-64"><div class="miniatura">${imagenProducto(p.imagen_principal, p.nombre)}</div></td>
                                 <td>
                                     <a href="producto.html?id=${p.id_producto}">${esc(p.nombre)}</a>
                                     <div class="ayuda">${precio(p.precio_unitario)} c/u</div>
@@ -211,8 +211,8 @@ function pintarDetalle(cuerpo, pedido, recargar) {
     });
 
     cuerpo.innerHTML = `
-        <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:14px">
-            <div>${etiquetaEstado(pedido.estado)} <span class="ayuda" style="display:inline">· ${fecha(pedido.fecha, true)}</span></div>
+        <div class="u-fila-entre u-gap-10 u-envolver u-mb-14">
+            <div>${etiquetaEstado(pedido.estado)} <span class="ayuda u-en-linea">· ${fecha(pedido.fecha, true)}</span></div>
             <div class="grupo-botones">
                 ${productosCancelables.length && ESTADOS_PEDIDO_CANCELABLES.includes(pedido.estado)
                     ? `<button type="button" class="boton boton-secundario boton-chico" id="cancelar-parcial">Cancelar algunos productos</button>` : ""}
@@ -346,7 +346,7 @@ function abrirCancelacionParcial(pedido, productos, alTerminar) {
         titulo: "Cancelar algunos productos",
         contenido: `
             <form id="form-parcial" novalidate>
-                <p style="margin-top:0">Marca los productos y las unidades que quieres cancelar. Solo aparecen los que aún no se han despachado.</p>
+                <p class="u-mt-0">Marca los productos y las unidades que quieres cancelar. Solo aparecen los que aún no se han despachado.</p>
                 <div id="msg-parcial"></div>
                 <div class="tabla-envoltura">
                     <table class="tabla">
@@ -358,21 +358,21 @@ function abrirCancelacionParcial(pedido, productos, alTerminar) {
                                     <td>${esc(p.nombre)}<div class="ayuda">${esc(p.vendedor)} · ${precio(p.precio_unitario)} c/u</div></td>
                                     <td class="numero">${p.cantidad_vigente}</td>
                                     <td class="numero">
-                                        <input type="number" class="control" style="width:80px" min="1" max="${p.cantidad_vigente}"
+                                        <input type="number" class="control u-w-80" min="1" max="${p.cantidad_vigente}"
                                                value="${p.cantidad_vigente}" data-cantidad="${p.id_producto}" disabled>
                                     </td>
                                 </tr>`).join("")}
                         </tbody>
                     </table>
                 </div>
-                <div class="campo" style="margin-top:14px">
+                <div class="campo u-mt-14">
                     <label for="motivo-parcial">Motivo</label>
                     <textarea class="control" id="motivo-parcial" maxlength="500" placeholder="Cuéntanos por qué cancelas"></textarea>
                 </div>
-                <div class="linea" style="display:flex;justify-content:space-between;font-weight:700;color:var(--tinta)">
+                <div class="linea u-fila-entre u-negrita u-tinta">
                     <span>Reembolso estimado</span><span id="reembolso">${precio(0)}</span>
                 </div>
-                <div class="grupo-botones" style="justify-content:flex-end;margin-top:14px">
+                <div class="grupo-botones u-al-final u-mt-14">
                     <button type="button" class="boton boton-secundario" data-cerrar>Volver</button>
                     <button type="submit" class="boton boton-peligro">Cancelar seleccionados</button>
                 </div>

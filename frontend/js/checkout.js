@@ -50,7 +50,7 @@ function pintarPagina() {
                         <span>Tarjeta de crédito o débito (simulada)<small>Las tarjetas terminadas en 0000 se rechazan, para probar pagos fallidos.</small></span>
                     </label>
 
-                    <div class="campo oculto" id="campo-tarjeta" style="margin-top:12px">
+                    <div class="campo oculto u-mt-12" id="campo-tarjeta">
                         <label for="tarjeta">Número de tarjeta</label>
                         <input class="control" id="tarjeta" inputmode="numeric" autocomplete="off"
                                placeholder="0000 0000 0000 0000" maxlength="19">
@@ -62,12 +62,12 @@ function pintarPagina() {
             <aside class="tarjeta resumen">
                 <h2>Tu pedido</h2>
                 ${items.map((p) => `
-                    <div class="linea" style="gap:12px"><span>${esc(p.nombre)} <span class="ayuda" style="display:inline">× ${p.cantidad}</span></span><span style="white-space:nowrap">${precio(p.subtotal)}</span></div>`).join("")}
+                    <div class="linea u-gap-12"><span>${esc(p.nombre)} <span class="ayuda u-en-linea">× ${p.cantidad}</span></span><span class="u-sin-salto">${precio(p.subtotal)}</span></div>`).join("")}
                 <div class="linea"><span>Envío</span><span>Gratis</span></div>
                 <div class="linea total"><span>Total (${unidades} und.)</span><span>${precio(carrito.total)}</span></div>
-                <div id="mensaje-compra" style="margin-top:14px"></div>
-                <button type="button" class="boton boton-bloque boton-grande" id="confirmar" style="margin-top:6px">Pagar ${precio(carrito.total)}</button>
-                <a class="boton boton-secundario boton-bloque" href="carrito.html" style="margin-top:8px">Volver al carrito</a>
+                <div class="u-mt-14" id="mensaje-compra"></div>
+                <button type="button" class="boton boton-bloque boton-grande u-mt-6" id="confirmar">Pagar ${precio(carrito.total)}</button>
+                <a class="boton boton-secundario boton-bloque u-mt-8" href="carrito.html">Volver al carrito</a>
             </aside>
         </div>`;
 
@@ -104,18 +104,18 @@ function pintarResultadoExitoso(r) {
     actualizarContadorCarrito(0);
 
     document.getElementById("contenido").innerHTML = `
-        <section class="tarjeta" style="max-width:640px;margin:0 auto;text-align:center">
-            <div style="font-size:46px;color:var(--exito)">✓</div>
-            <h2 style="font-size:22px">¡Compra realizada!</h2>
+        <section class="tarjeta u-max-640 u-centrado">
+            <div class="icono-exito">✓</div>
+            <h2 class="u-texto-22">¡Compra realizada!</h2>
             <p>Tu pedido <strong>#${r.id_pedido}</strong> fue pagado y confirmado.</p>
-            <ul class="lista-datos" style="text-align:left;margin:20px 0">
+            <ul class="lista-datos u-texto-izq u-my-20">
                 <li><span>Total pagado</span><span>${precio(r.total)}</span></li>
                 <li><span>Método</span><span>${esc(METODOS_PAGO[r.pago.metodo] || r.pago.metodo)}</span></li>
                 <li><span>Referencia</span><span>${esc(r.pago.referencia)}</span></li>
                 <li><span>Vendedores</span><span>${r.ventas.length}</span></li>
             </ul>
             <p class="ayuda">Cada vendedor preparará su parte del pedido. Puedes seguir el envío desde “Mis compras”.</p>
-            <div class="grupo-botones" style="justify-content:center;margin-top:16px">
+            <div class="grupo-botones u-centrar u-mt-16">
                 <a class="boton" href="pedidos.html?pedido=${r.id_pedido}">Ver mi pedido</a>
                 <a class="boton boton-secundario" href="index.html">Seguir comprando</a>
             </div>

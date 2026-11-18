@@ -10,7 +10,7 @@
 <body>
     <header id="encabezado"></header>
 
-    <main class="contenedor" style="max-width:860px">
+    <main class="contenedor u-max-860">
         <h1 class="titulo-seccion">Mi perfil</h1>
         <p class="subtitulo-seccion">Administra tus datos, tu contraseña y tus direcciones.</p>
 
@@ -54,7 +54,7 @@
         </section>
 
         <section class="tarjeta oculto" id="pestana-seguridad">
-            <form id="form-contrasena" novalidate style="max-width:420px">
+            <form class="u-max-420" id="form-contrasena" novalidate>
                 <div id="msg-contrasena"></div>
                 <div class="campo"><label for="actual">Contraseña actual</label><input class="control" type="password" id="actual" autocomplete="current-password"></div>
                 <div class="campo"><label for="nueva">Nueva contraseña</label><input class="control" type="password" id="nueva" autocomplete="new-password"><div class="ayuda">Mínimo 8 caracteres.</div></div>
@@ -64,8 +64,8 @@
         </section>
 
         <section class="tarjeta oculto" id="pestana-direcciones">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-                <h2 style="margin:0">Mis direcciones</h2>
+            <div class="u-fila-entre u-mb-14">
+                <h2 class="u-m-0">Mis direcciones</h2>
                 <button type="button" class="boton boton-chico" id="nueva-direccion">+ Agregar dirección</button>
             </div>
             <div id="lista-direcciones"><div class="cargando">Cargando...</div></div>

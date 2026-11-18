@@ -139,8 +139,8 @@ function pintarVenta(cuerpo, v, alCambiar) {
 
     if (!envio && v.estado === "PENDIENTE" && !bloqueada) {
         gestionEnvio = `
-            <form id="form-envio" class="fila fila-2" style="align-items:end">
-                <div class="campo" style="margin:0">
+            <form id="form-envio" class="fila fila-2 u-items-end">
+                <div class="campo u-m-0">
                     <label for="transportadora">Transportadora</label>
                     <select class="control" id="transportadora">
                         <option value="">Asignar automáticamente</option>
@@ -169,8 +169,8 @@ function pintarVenta(cuerpo, v, alCambiar) {
     }
 
     cuerpo.innerHTML = `
-        <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:12px">
-            <div>${etiquetaEstado(v.estado)} <span class="ayuda" style="display:inline">· Pedido #${v.id_pedido} · ${fecha(v.fecha, true)}</span></div>
+        <div class="u-fila-entre u-gap-10 u-envolver u-mb-12">
+            <div>${etiquetaEstado(v.estado)} <span class="ayuda u-en-linea">· Pedido #${v.id_pedido} · ${fecha(v.fecha, true)}</span></div>
             ${ESTADOS_SIN_DESPACHAR.includes(v.estado) && v.estado_pedido !== "CANCELADO"
                 ? `<button type="button" class="boton boton-peligro boton-chico" id="cancelar-venta">Cancelar venta</button>` : ""}
         </div>
@@ -180,7 +180,7 @@ function pintarVenta(cuerpo, v, alCambiar) {
                 <strong>El comprador solicitó cancelar esta venta.</strong><br>
                 Motivo: ${esc(solicitud.motivo)}<br>
                 Reembolso: ${precio(solicitud.monto_reembolso)}
-                <div class="grupo-botones" style="margin-top:10px">
+                <div class="grupo-botones u-mt-10">
                     <button type="button" class="boton boton-chico" data-responder="aprobar" data-id="${solicitud.id_cancelacion}">Aprobar cancelación</button>
                     <button type="button" class="boton boton-secundario boton-chico" data-responder="rechazar" data-id="${solicitud.id_cancelacion}">Rechazar</button>
                 </div>
@@ -209,7 +209,7 @@ function pintarVenta(cuerpo, v, alCambiar) {
                 </tbody>
             </table>
         </div>
-        <p style="text-align:right;font-weight:700;color:var(--tinta)">Total: ${precio(v.subtotal_neto)}</p>
+        <p class="u-texto-der u-negrita u-tinta">Total: ${precio(v.subtotal_neto)}</p>
 
         <h3>Envío</h3>
         ${gestionEnvio}

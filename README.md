@@ -18,18 +18,35 @@ Sistema transaccional de compraventa de productos electrónicos usados (celulare
 
 ```
 ElectroMarket/
-├── backend/            API FastAPI
-│   ├── app/            rutas, servicios, seguridad y conexión a la BD
-│   ├── tests/          pruebas (pytest)
-│   ├── storage/        fotos subidas de los productos
-│   └── requirements.txt
-├── frontend/           interfaz web (HTML, CSS y JS sin dependencias)
+├── backend/                     API FastAPI
+│   ├── app/
+│   │   ├── main.py              aplicación, rutas y manejo global de errores
+│   │   ├── errores.py           errores de negocio y su código HTTP
+│   │   ├── security.py          tokens JWT
+│   │   ├── db/connection.py     conexión a SQL Server
+│   │   ├── routes/              endpoints: validan la entrada (Pydantic)
+│   │   └── services/            lógica de negocio y consultas SQL
+│   ├── tests/                   pruebas (pytest)
+│   ├── storage/productos/       fotos subidas de los productos
+│   ├── requirements.txt
+│   └── .env.example
+├── frontend/                    interfaz web (HTML, CSS y JS sin dependencias)
+│   ├── css/estilos.css          paleta, temas, componentes y utilidades
+│   ├── js/                      api.js y tema.js (comunes) y un archivo por página
+│   └── *.html
 ├── database/
-│   └── scripts/        scripts SQL de SQL Server (ejecutar en orden)
-└── commits/            bitácora del historial de commits
+│   ├── README.md                modelo, estados y orden de los scripts
+│   └── scripts/                 scripts SQL (00 a 04 y 99)
+└── commits/                     bitácora del historial de commits
 ```
 
 Todos los comandos de Python se ejecutan dentro de `backend/`.
+
+### Arquitectura
+
+- **Rutas** (`routes/`): reciben la petición, validan los datos con Pydantic (los límites coinciden con las columnas de la base de datos) y llaman al servicio.
+- **Servicios** (`services/`): reglas de negocio, transacciones y SQL parametrizado. Ante una regla incumplida lanzan un error de `app/errores.py`.
+- **Errores**: cada error de negocio pertenece a una categoría con su código (`DatosInvalidos` 400, `NoAutorizado` 401, `AccesoDenegado` 403, `NoEncontrado` 404, `Conflicto` 409). `main.py` los convierte en `{"detail": ...}`. Un error inesperado se registra en el log y el cliente recibe un 500 sin detalles internos.
 
 ## 1. Instalación
 
@@ -65,14 +82,14 @@ python -m app.db.connection
 
 ## 2. Base de datos
 
-1. Crea la base de datos y sus tablas con `database/scripts/00_modelo.sql` (esquema completo exportado desde SSMS; ajusta las rutas de los archivos `.mdf`/`.ldf` si tu instalación es distinta).
-2. Ejecuta en SSMS, en este orden:
-   - `database/scripts/03_perfil_usuarios.sql`: agrega `FechaNacimiento` y `Genero` a `Usuarios` si faltan (ya incluidas en `00_modelo.sql`).
-   - `database/scripts/04_reembolsos.sql`: agrega `FechaSolicitud` y `Referencia` a `Reembolsos`.
-   - `database/scripts/05_verificacion_productos.sql`: crea `VerificacionProductos` (checklist de estado del producto).
-   - `database/scripts/02_verificar_esquema.sql`: solo lectura. Comprueba que las restricciones `CHECK` acepten todos los estados que usa el código y que existan las columnas. Si las tres consultas salen vacías, el esquema es compatible.
+Ejecuta en SSMS los scripts de `database/scripts/` en orden:
 
-`database/scripts/01_cancelaciones.sql` es de una versión anterior: crea `Cancelaciones` y `DetallesCancelacion`, que el código ya no usa (las cancelaciones se guardan en `SolicitudesCancelacion` y `DetalleSolicitudCancelacion`). No es necesario ejecutarlo.
+1. `00_modelo.sql`: crea la base y todas las tablas (omítelo si ya la tienes).
+2. `01_perfil_usuarios.sql`, `02_reembolsos.sql` y `03_verificacion_productos.sql`: cambios sobre el modelo; se pueden ejecutar varias veces.
+3. `04_datos_iniciales.sql`: categorías de productos.
+4. `99_verificar_esquema.sql`: solo lectura; si sus consultas salen vacías, el esquema es compatible.
+
+El diagrama del modelo, los estados y las reglas del esquema están en [`database/README.md`](database/README.md).
 
 ## 3. Ejecutar la aplicación
 
@@ -260,16 +277,18 @@ Si se omite `cantidad`, se cancelan todas las unidades vigentes de ese producto.
   - Venta despachada (`ENVIADA`): el comprador solo puede solicitar la cancelación completa de esa venta, y el vendedor la aprueba o la rechaza. Mientras está pendiente no se puede cambiar el envío.
   - Venta `ENTREGADA`: no se puede cancelar.
   - El vendedor puede cancelar su venta solo antes de despacharla.
-- Al aplicar una cancelación se devuelven las unidades al inventario (un producto `AGOTADO` vuelve a `PUBLICADO`) y se registra el reembolso simulado. El pago original conserva su estado `APROBADO`.
+- Al aplicar una cancelación se devuelven las unidades al inventario (un producto `AGOTADO` vuelve a `PUBLICADO`) y se registra un reembolso `PENDIENTE`. Al procesarse, el pago pasa a `REEMBOLSO_PARCIAL` o `REEMBOLSADO`.
+- Un producto se publica con checklist de estado y descripción de defectos; queda `VERIFICADO` solo si cumple los criterios esenciales y tiene al menos 3 fotos.
 - No se implementan devoluciones después de la entrega.
-- Las fotos se guardan en `storage/productos/{id_producto}/` y la base de datos guarda la ruta.
+- Las fotos (JPG, PNG o WEBP, máximo 5 MB, hasta 5 por producto) se guardan en `backend/storage/productos/{id_producto}/` y la base de datos guarda la ruta.
 
 ## 7. Estados
 
 | Entidad | Estados |
 |---|---|
 | Pedido | `PENDIENTE_PAGO`, `PAGADO`, `EN_PROCESO`, `PARCIALMENTE_ENVIADO`, `COMPLETADO`, `CANCELADO` |
-| Pago | `PENDIENTE`, `APROBADO`, `RECHAZADO` |
+| Pago | `PENDIENTE`, `APROBADO`, `RECHAZADO`, `REEMBOLSO_PARCIAL`, `REEMBOLSADO` |
+| Reembolso | `PENDIENTE`, `PROCESADO` |
 | Venta | `PENDIENTE`, `PREPARANDO`, `ENVIADA`, `ENTREGADA`, `CANCELACION_SOLICITADA`, `CANCELADA` |
 | Envío | `PREPARANDO`, `ENVIADO`, `EN_TRANSITO`, `ENTREGADO`, `PROBLEMA`, `CANCELADO` |
 | Cancelación | `SOLICITADA`, `APROBADA`, `RECHAZADA` (tipo `TOTAL` o `PARCIAL`) |
@@ -281,8 +300,8 @@ El estado del pedido se recalcula a partir de sus ventas: todas entregadas -> `C
 ## 8. Pruebas
 
 ```powershell
-# Pruebas unitarias y de rutas (no necesitan SQL Server)
-pytest -v
+# Desde backend/: pruebas unitarias y de rutas (no necesitan SQL Server)
+pytest
 
 # Prueba de integración del flujo completo contra SQL Server
 # (escribe datos reales: usa preferiblemente una copia de la base)
@@ -291,23 +310,14 @@ $env:ELECTROMARKET_ID_CATEGORIA = "1"
 pytest tests/integracion -v
 ```
 
-## 9. Estructura
+## 9. Repositorio
 
+- Ramas: el trabajo se hace en una rama y se integra a `main` mediante pull request.
+- Mensajes de commit en español, en presente y describiendo el cambio (por ejemplo, «Agrega reembolsos al cancelar pedidos»).
+- Bitácora: `commits/` tiene un archivo por commit y un índice. Actualízala después de cada commit:
+
+```powershell
+python commits/generar_bitacora.py
 ```
-ElectroMarket/
-├── app/
-│   ├── main.py              # Aplicación FastAPI y registro de rutas
-│   ├── security.py          # JWT
-│   ├── db/connection.py     # Conexión a SQL Server
-│   ├── routes/              # Endpoints (validación y códigos HTTP)
-│   └── services/            # Lógica de negocio y consultas SQL
-├── frontend/                # Interfaz gráfica (se sirve en /web/)
-│   ├── css/estilos.css
-│   ├── js/                  # api.js (común) y un archivo por página
-│   └── *.html
-├── sql/                     # Scripts de base de datos
-├── storage/productos/       # Fotos de productos
-├── tests/                   # Pruebas
-├── .env.example
-└── requirements.txt
-```
+
+- Nunca se suben `.env`, entornos virtuales ni fotos de usuarios (ver `.gitignore`).

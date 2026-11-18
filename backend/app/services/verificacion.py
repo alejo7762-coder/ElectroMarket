@@ -6,7 +6,7 @@ Con eso, el número de fotos y la condición se calcula un nivel de
 verificación (VERIFICADO, PARCIAL o SIN_VERIFICAR) y un puntaje 0-100
 que la tienda muestra como insignia y barra de estado.
 
-Tabla: VerificacionProductos (database/scripts/05_verificacion_productos.sql)
+Tabla: VerificacionProductos (database/scripts/03_verificacion_productos.sql)
 """
 
 MIN_FOTOS_VERIFICADO = 3

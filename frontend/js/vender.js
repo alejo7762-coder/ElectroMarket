@@ -86,7 +86,7 @@ function pintarFotosActuales() {
                 <img src="${esc(urlImagen(img.ruta))}" alt="">
                 <div class="acciones">
                     ${img.es_principal
-                        ? `<span class="estado estado-proceso" style="text-align:center">Principal</span>`
+                        ? `<span class="estado estado-proceso u-texto-centro">Principal</span>`
                         : `<button type="button" class="boton boton-secundario boton-chico" data-principal="${img.id_imagen}">Hacer principal</button>`}
                     <button type="button" class="boton boton-secundario boton-chico" data-borrar-foto="${img.id_imagen}">Eliminar</button>
                 </div>
@@ -278,14 +278,14 @@ async function cargarMisProductos() {
                     <tbody>
                         ${productos.map((p) => `
                             <tr>
-                                <td style="width:64px"><div class="miniatura">${imagenProducto(p.imagen_principal, p.nombre)}</div></td>
+                                <td class="u-w-64"><div class="miniatura">${imagenProducto(p.imagen_principal, p.nombre)}</div></td>
                                 <td>
                                     <a href="producto.html?id=${p.id_producto}">${esc(p.nombre)}</a>
                                     <div class="ayuda">${esc(p.categoria)} · ${p.total_imagenes} foto${p.total_imagenes === 1 ? "" : "s"}</div>
                                 </td>
                                 <td class="numero">${precio(p.precio)}</td>
                                 <td class="numero">${p.stock}</td>
-                                <td>${etiquetaEstado(p.estado)}<div style="margin-top:6px">${insigniaVerificacion(p.nivel_verificacion, { chica: true })}</div></td>
+                                <td>${etiquetaEstado(p.estado)}<div class="u-mt-6">${insigniaVerificacion(p.nivel_verificacion, { chica: true })}</div></td>
                                 <td>
                                     <div class="grupo-botones">
                                         <a class="boton boton-secundario boton-chico" href="vender.html?editar=${p.id_producto}">Editar</a>

@@ -464,7 +464,7 @@ function confirmar(mensaje, { titulo = "Confirmar", textoBoton = "Aceptar", peli
         const { elemento, cerrar } = abrirModal({
             titulo,
             chico: true,
-            contenido: `<p style="margin:0">${esc(mensaje)}</p>`,
+            contenido: `<p class="u-m-0">${esc(mensaje)}</p>`,
             pie: `
                 <button type="button" class="boton boton-secundario" data-r="no">Cancelar</button>
                 <button type="button" class="boton ${peligro ? "boton-peligro" : ""}" data-r="si">${esc(textoBoton)}</button>`

@@ -4,7 +4,7 @@ let todosLosProductos = [];
 let categoriaActiva = null;
 
 const VACIO = (texto) => `
-    <div class="vacio" style="grid-column:1/-1">
+    <div class="vacio u-ancho-completo">
         ${ICONOS.caja}
         <p>${esc(texto)}</p>
     </div>`;
@@ -20,8 +20,8 @@ function pintarCarrusel(productos) {
     const pista = document.getElementById("carrusel-pista");
 
     if (!productos.length) {
-        pista.innerHTML = `<div class="vacio" style="width:100%">Aún no hay productos publicados.
-            <br><a href="vender.html" style="font-weight:700">¡Publica el primero!</a></div>`;
+        pista.innerHTML = `<div class="vacio u-ancho-completo-w">Aún no hay productos publicados.
+            <br><a class="u-negrita" href="vender.html">¡Publica el primero!</a></div>`;
         document.querySelectorAll(".flecha-carrusel").forEach((b) => b.classList.add("oculto"));
         return;
     }
@@ -120,7 +120,7 @@ async function iniciar() {
 
     } catch (e) {
         document.getElementById("carrusel-pista").innerHTML =
-            `<div class="vacio" style="width:100%">${esc(e.message)}</div>`;
+            `<div class="vacio u-ancho-completo-w">${esc(e.message)}</div>`;
         document.getElementById("rejilla-catalogo").innerHTML = "";
     }
 }

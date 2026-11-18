@@ -30,8 +30,8 @@ function pintar(carrito) {
     contenido.innerHTML = `
         <div class="distribucion-compra">
             <section class="tarjeta">
-                <div style="display:flex;justify-content:space-between;align-items:center">
-                    <h2 style="margin:0">${items.length} producto${items.length === 1 ? "" : "s"}</h2>
+                <div class="u-fila-entre">
+                    <h2 class="u-m-0">${items.length} producto${items.length === 1 ? "" : "s"}</h2>
                     <button type="button" class="boton-texto" id="vaciar">Vaciar carrito</button>
                 </div>
                 ${items.map((p) => {
@@ -44,7 +44,7 @@ function pintar(carrito) {
                             <div class="vendedor">Vendido por ${esc(p.vendedor)} · ${precio(p.precio_unitario)} c/u</div>
                             ${problema ? `<div class="error-campo">${esc(problema)}</div>` : ""}
                         </div>
-                        <div class="acciones-item" style="display:flex;gap:10px;align-items:center">
+                        <div class="acciones-item u-fila u-gap-10">
                             <div class="selector-cantidad">
                                 <button type="button" data-cambiar="${p.id_producto}" data-delta="-1" aria-label="Menos">−</button>
                                 <input type="number" min="1" max="${Math.max(1, p.stock_disponible)}" value="${p.cantidad}"
@@ -63,11 +63,10 @@ function pintar(carrito) {
                 <div class="linea"><span>Productos (${unidades})</span><span>${precio(carrito.total)}</span></div>
                 <div class="linea"><span>Envío</span><span>Gratis</span></div>
                 <div class="linea total"><span>Total</span><span>${precio(carrito.total)}</span></div>
-                ${conProblemas.length ? `<div class="mensaje mensaje-aviso" style="margin-top:14px">Ajusta los productos marcados para poder comprar.</div>` : ""}
-                <a class="boton boton-bloque boton-grande ${conProblemas.length ? "deshabilitado" : ""}"
-                   style="margin-top:14px${conProblemas.length ? ";pointer-events:none;opacity:.55" : ""}"
+                ${conProblemas.length ? `<div class="mensaje mensaje-aviso u-mt-14">Ajusta los productos marcados para poder comprar.</div>` : ""}
+                <a class="boton boton-bloque boton-grande u-mt-14 ${conProblemas.length ? "deshabilitado" : ""}"
                    href="checkout.html" ${conProblemas.length ? 'aria-disabled="true"' : ""}>Continuar compra</a>
-                <a class="boton boton-secundario boton-bloque" style="margin-top:8px" href="index.html">Seguir comprando</a>
+                <a class="boton boton-secundario boton-bloque u-mt-8" href="index.html">Seguir comprando</a>
             </aside>
         </div>`;
 }

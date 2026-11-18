@@ -12,7 +12,7 @@ Ciclo de vida de los reembolsos simulados.
    o REEMBOLSADO.
 
 Usa Reembolsos.FechaReembolso como fecha de procesamiento; las columnas
-FechaSolicitud y Referencia las agrega database/scripts/04_reembolsos.sql.
+FechaSolicitud y Referencia las agrega database/scripts/02_reembolsos.sql.
 """
 
 from app.db.connection import get_connection

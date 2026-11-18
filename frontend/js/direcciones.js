@@ -24,7 +24,7 @@ function formularioDireccion(d = {}) {
     return `
         <div class="campo">
             <label>Dirección</label>
-            <input class="control" name="direccion" maxlength="200" placeholder="Ej: Calle 10 # 20-30, apto 501"
+            <input class="control" name="direccion" maxlength="250" placeholder="Ej: Calle 10 # 20-30, apto 501"
                    value="${esc(d.direccion || "")}" required>
         </div>
         <div class="fila fila-2">
@@ -41,8 +41,8 @@ function formularioDireccion(d = {}) {
             </div>
         </div>
         <div class="campo">
-            <label>Código postal <span class="ayuda" style="display:inline">(opcional)</span></label>
-            <input class="control" name="codigo_postal" maxlength="20" value="${esc(d.codigo_postal || "")}">
+            <label>Código postal <span class="ayuda u-en-linea">(opcional)</span></label>
+            <input class="control" name="codigo_postal" maxlength="15" pattern="[0-9A-Za-z -]{3,15}" value="${esc(d.codigo_postal || "")}">
         </div>`;
 }
 
@@ -77,7 +77,7 @@ function editarDireccionModal(direccion = null) {
                 <form id="form-direccion" novalidate>
                     <div id="msg-direccion"></div>
                     ${formularioDireccion(direccion || {})}
-                    <div class="grupo-botones" style="justify-content:flex-end">
+                    <div class="grupo-botones u-al-final">
                         <button type="button" class="boton boton-secundario" id="cancelar-direccion">Cancelar</button>
                         <button type="submit" class="boton">Guardar dirección</button>
                     </div>

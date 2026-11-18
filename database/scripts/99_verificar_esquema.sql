@@ -2,7 +2,7 @@
    ElectroMarket - Verificación del esquema (solo lectura)
    ---------------------------------------------------------------------
    Comprueba que las restricciones CHECK de la base de datos acepten
-   todos los estados que usa el código de las etapas 6 a 10.
+   todos los estados que usa el código de la aplicación.
    No modifica nada. Si aparece alguna fila en el resultado, ese valor
    debe agregarse a la restricción CHECK correspondiente.
    ===================================================================== */
@@ -54,7 +54,7 @@ INSERT INTO @valores (Tabla, Columna, Valor) VALUES
     ('Productos', 'Estado', 'PAUSADO'),
     ('Productos', 'Estado', 'AGOTADO'),
     ('Productos', 'Estado', 'ELIMINADO'),
-    -- Reembolsos (04_reembolsos.sql)
+    -- Reembolsos (02_reembolsos.sql)
     ('Reembolsos', 'Estado', 'PENDIENTE'),
     ('Reembolsos', 'Estado', 'PROCESADO'),
     ('Pagos', 'Estado', 'REEMBOLSO_PARCIAL'),
@@ -103,7 +103,7 @@ INSERT INTO @columnas (Tabla, Columna) VALUES
     ('HistorialEstados', 'TipoOperacion'), ('HistorialEstados', 'IdOperacion'),
     ('HistorialEstados', 'EstadoAnterior'), ('HistorialEstados', 'EstadoNuevo'),
     ('HistorialEstados', 'Observacion'),
-    -- 04_reembolsos.sql y 05_verificacion_productos.sql
+    -- 02_reembolsos.sql y 03_verificacion_productos.sql
     ('Reembolsos', 'FechaReembolso'), ('Reembolsos', 'FechaSolicitud'),
     ('Reembolsos', 'Referencia'),
     ('VerificacionProductos', 'IdProducto'), ('VerificacionProductos', 'DescripcionDefectos');

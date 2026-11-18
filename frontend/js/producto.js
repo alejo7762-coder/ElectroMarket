@@ -69,7 +69,7 @@ function pintarProducto(p) {
         accion = `<div class="mensaje mensaje-aviso">Este producto no está disponible en este momento.</div>`;
     } else {
         accion = `
-            <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+            <div class="u-fila u-gap-12 u-envolver">
                 <div class="selector-cantidad">
                     <button type="button" id="menos" aria-label="Menos">−</button>
                     <input type="number" id="cantidad" value="1" min="1" max="${p.stock}" aria-label="Cantidad">
@@ -77,7 +77,7 @@ function pintarProducto(p) {
                 </div>
                 <button type="button" class="boton boton-grande" id="agregar">Agregar al carrito</button>
             </div>
-            <button type="button" class="boton boton-turquesa boton-bloque" id="comprar-ahora" style="margin-top:12px">Comprar ahora</button>`;
+            <button type="button" class="boton boton-turquesa boton-bloque u-mt-12" id="comprar-ahora">Comprar ahora</button>`;
     }
 
     document.getElementById("contenido").innerHTML = `
@@ -97,7 +97,7 @@ function pintarProducto(p) {
 
             <div class="info-producto">
                 ${etiquetaEstado(p.estado)}
-                <h1 style="margin-top:10px">${esc(p.nombre)}</h1>
+                <h1 class="u-mt-10">${esc(p.nombre)}</h1>
                 <div class="precio-grande">${precio(p.precio)}</div>
 
                 <ul class="lista-datos">
@@ -112,8 +112,8 @@ function pintarProducto(p) {
 
                 ${accion}
 
-                <h2 style="font-size:16px;color:var(--tinta);margin:26px 0 8px">Descripción</h2>
-                <p style="white-space:pre-line;margin:0">${esc(p.descripcion)}</p>
+                <h2 class="subtitulo-bloque">Descripción</h2>
+                <p class="u-pre-linea u-m-0">${esc(p.descripcion)}</p>
             </div>
         </article>`;
 
