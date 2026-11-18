@@ -14,11 +14,28 @@ Sistema transaccional de compraventa de productos electrónicos usados (celulare
 
 ---
 
+## Estructura del proyecto
+
+```
+ElectroMarket/
+├── backend/            API FastAPI
+│   ├── app/            rutas, servicios, seguridad y conexión a la BD
+│   ├── tests/          pruebas (pytest)
+│   ├── storage/        fotos subidas de los productos
+│   └── requirements.txt
+├── frontend/           interfaz web (HTML, CSS y JS sin dependencias)
+├── database/
+│   └── scripts/        scripts SQL de SQL Server (ejecutar en orden)
+└── commits/            bitácora del historial de commits
+```
+
+Todos los comandos de Python se ejecutan dentro de `backend/`.
+
 ## 1. Instalación
 
 ```powershell
 git clone https://github.com/<usuario>/ElectroMarket.git
-cd ElectroMarket
+cd ElectroMarket/backend
 
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
@@ -26,7 +43,7 @@ python -m venv .venv
 pip install -r requirements.txt
 ```
 
-Copia `.env.example` como `.env` y completa los valores:
+Copia `backend/.env.example` como `backend/.env` y completa los valores:
 
 ```env
 DB_SERVER=.\SQLEXPRESS
@@ -50,9 +67,11 @@ python -m app.db.connection
 
 1. Crea la base de datos y sus tablas con el script del modelo relacional.
 2. Ejecuta en SSMS, en este orden:
-   - `sql/01_cancelaciones.sql`: crea `Cancelaciones` y `DetallesCancelacion` (etapa 10). Puedes ejecutarlo varias veces sin problema.
-   - `sql/03_perfil_usuarios.sql`: agrega `FechaNacimiento` y `Genero` a `Usuarios` (necesario para el registro y el perfil).
-   - `sql/02_verificar_esquema.sql`: solo lectura. Comprueba que las restricciones `CHECK` acepten todos los estados que usa el código. Si las tres consultas salen vacías, el esquema es compatible.
+   - `database/scripts/01_cancelaciones.sql`: crea `Cancelaciones` y `DetallesCancelacion` (etapa 10). Puedes ejecutarlo varias veces sin problema.
+   - `database/scripts/03_perfil_usuarios.sql`: agrega `FechaNacimiento` y `Genero` a `Usuarios` (necesario para el registro y el perfil).
+   - `database/scripts/04_reembolsos.sql`: completa `Reembolsos` (estado `PENDIENTE`/`PROCESADO`, referencia y fechas).
+   - `database/scripts/05_verificacion_productos.sql`: crea `VerificacionProductos` (checklist de estado del producto).
+   - `database/scripts/02_verificar_esquema.sql`: solo lectura. Comprueba que las restricciones `CHECK` acepten todos los estados que usa el código. Si las tres consultas salen vacías, el esquema es compatible.
 
 ## 3. Ejecutar la aplicación
 
@@ -68,6 +87,8 @@ En Swagger usa **Authorize** y pega el `access_token` que devuelve `/usuarios/lo
 
 ### Interfaz gráfica
 
+Paleta: `#1E1E1C` (carbón), `#D8CBB3` (arena) y `#2F6BFF` (azul eléctrico). Tiene tema claro y oscuro; el botón ☾/☀ del encabezado cambia entre ellos y la elección se recuerda en el navegador.
+
 La interfaz está en `frontend/` (HTML, CSS y JavaScript sin dependencias) y la sirve FastAPI en `/web/`, por lo que no necesita un servidor aparte. Las fotos de los productos se sirven en `/storage/`.
 
 | Página | Archivo | Qué hace |
@@ -75,12 +96,12 @@ La interfaz está en `frontend/` (HTML, CSS y JavaScript sin dependencias) y la 
 | Inicio | `index.html` | Productos destacados, catálogo por categoría y búsqueda |
 | Crear cuenta | `registro.html` | Registro con fecha de nacimiento y género |
 | Ingresar | `login.html` | Inicio de sesión |
-| Producto | `producto.html` | Fotos, detalle y agregar al carrito |
+| Producto | `producto.html` | Fotos, detalle, verificación del estado y agregar al carrito |
 | Carrito | `carrito.html` | Cambiar cantidades, quitar y vaciar |
 | Finalizar compra | `checkout.html` | Dirección, método de pago simulado y pago |
-| Mis compras | `pedidos.html` | Pedidos, seguimiento y cancelaciones parciales o totales |
+| Mis compras | `pedidos.html` | Pedidos, seguimiento, cancelaciones parciales o totales y seguimiento de reembolsos |
 | Mi perfil | `perfil.html` | Datos personales, contraseña y direcciones |
-| Vender | `vender.html` | Publicar y editar artículos con fotos; pausar, reactivar y eliminar |
+| Vender | `vender.html` | Publicar y editar artículos con checklist de estado y mínimo 3 fotos; pausar, reactivar y eliminar |
 | Mis ventas | `ventas.html` | Envíos, cambios de estado y respuesta a solicitudes de cancelación |
 
 La sesión se guarda en el navegador (token JWT). Si el token vence, la interfaz pide ingresar de nuevo.
@@ -157,6 +178,29 @@ El registro acepta además `telefono`, `fecha_nacimiento` (mayor de 18 años) y 
 | GET | `/pagos/{id}` | Detalle del pago y valor reembolsado |
 
 Métodos de pago simulados: `SIMULADO`, `TRANSFERENCIA_SIMULADA` y `TARJETA_SIMULADA` (requiere `numero_tarjeta` de 16 dígitos; si termina en `0000` se rechaza). El número de tarjeta nunca se guarda.
+
+### Reembolsos
+| Método | Ruta | Descripción |
+|---|---|---|
+| GET | `/reembolsos/` | Mis reembolsos con totales devuelto y en proceso (filtro `id_pedido`) |
+| GET | `/reembolsos/{id}` | Detalle: valor, estado, referencia y fechas |
+
+Cuando se aprueba una cancelación (inmediata o por el vendedor) se registra un reembolso `PENDIENTE` por el valor cancelado. La pasarela simulada lo pasa a `PROCESADO` (con referencia `RMB-########`) un minuto después; el cambio se aplica al consultar reembolsos o pagos. `GET /pagos/` y `GET /pagos/{id}` incluyen `reembolsado`, `reembolso_pendiente` y `estado_reembolso` (`SIN_REEMBOLSO`, `REEMBOLSO_PARCIAL`, `REEMBOLSADO`).
+
+### Verificación del estado del producto
+Al publicar o editar, el cuerpo debe incluir:
+
+```json
+{
+  "checklist": {
+    "enciende": true, "pantalla_sin_danos": true, "bateria_ok": true,
+    "sin_reparaciones": false, "accesorios_completos": true, "con_garantia": false
+  },
+  "descripcion_defectos": "Rayón leve en la esquina. Escribe «Ninguno» si no tiene."
+}
+```
+
+`GET /productos/{id}` devuelve `verificacion` (nivel, puntaje 0-100, criterios, defectos y requisitos faltantes); los listados devuelven `nivel_verificacion`. Es `VERIFICADO` si cumple los tres criterios esenciales, tiene al menos 3 fotos y defectos declarados; `PARCIAL` si falta algo; `SIN_VERIFICAR` si no hay checklist.
 
 ### Ventas (vendedor)
 | Método | Ruta | Descripción |
