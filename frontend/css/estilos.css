@@ -2276,6 +2276,52 @@ input[type="file"].control::file-selector-button {
     justify-self: start;
 }
 
+
+/* Precio sugerido con IA */
+.precio-ia legend {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.precio-ia legend .icono {
+    color: var(--acento);
+}
+
+.precio-ia-valor {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.precio-ia-valor strong {
+    font-size: 26px;
+    color: var(--tinta);
+}
+
+.precio-ia-valor span {
+    color: var(--texto-suave);
+    font-size: 13px;
+}
+
+.precio-ia-factores {
+    margin: 0;
+}
+
+.precio-ia-factores small {
+    color: var(--texto-suave);
+}
+
+.efecto-baja {
+    color: var(--error);
+    font-weight: 700;
+}
+
+.efecto-neutro {
+    color: var(--exito);
+    font-weight: 700;
+}
+
 @media (max-width: 900px) {
     .encabezado-contenido {
         flex-wrap: wrap;

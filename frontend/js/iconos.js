@@ -88,6 +88,7 @@ const ICONOS = {
 const ICONO_POR_TEXTO = [
     // exactos
     ["Analizar con IA", "ia"], ["Usar condición sugerida", "check"],
+    ["Sugerir precio con IA", "ia"], ["Usar precio sugerido", "check"],
     ["Agregar al carrito", "carritoMas"], ["Comprar ahora", "relampago"],
     ["Ir a la tienda", "tienda"], ["Seguir comprando", "tienda"], ["Volver a la tienda", "tienda"],
     ["Eliminar", "basura"], ["Quitar", "basura"], ["Vaciar carrito", "basura"],

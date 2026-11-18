@@ -81,6 +81,25 @@
                     <div id="resultado-ia" class="oculto"></div>
                 </fieldset>
 
+                <fieldset class="checklist-estado precio-ia">
+                    <legend data-icono="ia">Precio sugerido con IA</legend>
+                    <p class="ayuda">Una red neuronal estima el precio de mercado del artículo usado a partir de la categoría, la condición, la antigüedad, la caja y accesorios, la garantía y su precio nuevo. Es una orientación: tú decides el precio.</p>
+                    <div class="fila fila-3 u-items-end">
+                        <div class="campo">
+                            <label for="antiguedad">Antigüedad (meses)</label>
+                            <input class="control" id="antiguedad" name="antiguedad" type="number" min="0" max="240" step="1" placeholder="Ej: 24">
+                        </div>
+                        <div class="campo">
+                            <label for="precio_nuevo">Precio nuevo de referencia (COP)</label>
+                            <input class="control" id="precio_nuevo" name="precio_nuevo" type="number" min="50000" step="1000" placeholder="Ej: 2400000">
+                        </div>
+                        <div class="campo">
+                            <button type="button" class="boton boton-secundario boton-bloque" id="sugerir-precio">Sugerir precio con IA</button>
+                        </div>
+                    </div>
+                    <div id="resultado-precio" class="oculto"></div>
+                </fieldset>
+
                 <div class="campo" id="bloque-fotos-nuevas">
                     <label for="fotos">Fotografías (mínimo 3)</label>
                     <input class="control" id="fotos" type="file" accept=".jpg,.jpeg,.png,.webp" multiple>

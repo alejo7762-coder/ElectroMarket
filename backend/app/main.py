@@ -73,6 +73,7 @@ app.include_router(ventas.router)
 app.include_router(cancelaciones.router)
 app.include_router(reembolsos.router)
 app.include_router(ia.router)
+app.include_router(ia.router_precio)
 
 
 @app.get("/", include_in_schema=False)

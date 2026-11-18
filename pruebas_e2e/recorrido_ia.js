@@ -1,4 +1,4 @@
-// Prueba de interfaz (end-to-end) del servicio de IA: analizar, corregir y publicar.
+// Prueba de interfaz (end-to-end) de los servicios de IA: precio sugerido e inspector de estado.
 // Requiere el backend en http://127.0.0.1:8000 con la base de datos lista.
 // Uso (desde la raíz del repositorio):
 //   npm install playwright && npx playwright install chromium
@@ -37,8 +37,17 @@ async function usuario(nombre) {
   await page.fill('[name=precio]', '900000'); await page.selectOption('[name=condicion]', 'COMO_NUEVO');
   for (const c of ['enciende', 'pantalla_sin_danos', 'bateria_ok']) await page.check(`[name=${c}]`);
   await page.fill('[name=descripcion_defectos]', 'Ninguno');
-  await page.click('#analizar-ia'); await page.waitForSelector('.panel-ia');
-  await foto('ia-01-analisis-incoherente', '.checklist-estado');
+  // 0. Precio sugerido por la red neuronal
+  await page.check('[name=accesorios_completos]');
+  await page.fill('[name=antiguedad]', '24'); await page.fill('[name=precio_nuevo]', '2400000');
+  await page.click('#sugerir-precio'); await page.waitForSelector('#resultado-precio .panel-ia');
+  await foto('ia-00-precio-sugerido', '.precio-ia');
+  await page.click('[data-usar-precio]');
+  const precioUsado = await page.inputValue('[name=precio]');
+  if (!(Number(precioUsado) > 0)) throw new Error('No se aplicó el precio sugerido');
+
+  await page.click('#analizar-ia'); await page.waitForSelector('#resultado-ia .panel-ia');
+  await foto('ia-01-analisis-incoherente', '.checklist-estado:not(.precio-ia)');
 
   // 2. Usa la condición sugerida, corrige el checklist y vuelve a analizar
   await page.click('[data-usar-condicion]');
@@ -46,7 +55,7 @@ async function usuario(nombre) {
   await page.fill('[name=descripcion]', 'iPhone 11 funcionando. La pantalla está rota en una esquina y la batería dura poco.');
   await page.fill('[name=descripcion_defectos]', 'Pantalla rota en una esquina, batería deteriorada');
   await page.click('#analizar-ia'); await page.waitForTimeout(800);
-  await foto('ia-02-analisis-coherente', '.checklist-estado');
+  await foto('ia-02-analisis-coherente', '.checklist-estado:not(.precio-ia)');
 
   // 3. Publica con 3 fotos
   await page.setInputFiles('#fotos', [1, 2, 3].map(i => `${fotos}/foto${i}.jpg`));

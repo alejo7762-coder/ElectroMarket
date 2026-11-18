@@ -95,6 +95,7 @@ def test_endpoint_inspeccionar(client, auth):
 
 
 def test_endpoint_modelo(client):
-    datos = client.get("/ia/modelo").json()
-    assert datos["version"] == inspector.VERSION_MODELO
-    assert datos["clases"] == list(inspector.CONDICIONES)
+    servicios = {s["nombre"]: s for s in client.get("/ia/modelo").json()["servicios"]}
+    assert servicios["Inspector de estado"]["version"] == inspector.VERSION_MODELO
+    assert servicios["Inspector de estado"]["clases"] == list(inspector.CONDICIONES)
+    assert servicios["Precio sugerido"]["metricas"]["parametros_red"] == 67

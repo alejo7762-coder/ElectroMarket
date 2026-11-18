@@ -295,6 +295,75 @@ async function analizarConIA() {
     }, "Analizando...");
 }
 
+/* Precio sugerido (red neuronal 9-6-1) */
+
+async function sugerirPrecio() {
+    const form = document.getElementById("form-producto");
+    const destino = document.getElementById("resultado-precio");
+    const meses = Number(form.antiguedad.value);
+    const precioNuevo = Number(form.precio_nuevo.value);
+    const errores = [];
+
+    if (!form.id_categoria.value) errores.push("Selecciona la categoría.");
+    if (form.antiguedad.value === "" || !Number.isInteger(meses) || meses < 0) errores.push("Indica la antigüedad en meses.");
+    if (!(precioNuevo >= 50000)) errores.push("Indica el precio del artículo nuevo (mínimo $ 50.000).");
+
+    destino.classList.remove("oculto");
+    if (errores.length) {
+        destino.innerHTML = "";
+        mostrarMensaje(destino, "Para sugerir el precio:", "aviso", errores);
+        return;
+    }
+
+    await conBoton(document.getElementById("sugerir-precio"), async () => {
+        try {
+            const r = await api("POST", "/productos/precio-sugerido", {
+                cuerpo: {
+                    categoria: form.id_categoria.selectedOptions[0].textContent,
+                    antiguedad_meses: meses,
+                    condicion: form.condicion.value,
+                    incluye_caja: form.accesorios_completos.checked,
+                    garantia_vigente: form.con_garantia.checked,
+                    precio_nuevo: precioNuevo
+                }
+            });
+            destino.innerHTML = panelPrecio(r);
+        } catch (e) {
+            destino.innerHTML = `<div class="mensaje mensaje-error">${esc(e.message)}</div>`;
+        }
+    }, "Calculando...");
+}
+
+function panelPrecio(r) {
+    const factores = r.factores.map((f) => `
+        <li><span>${esc(f.factor)} <small>(${esc(CONDICIONES[f.valor] || f.valor)})</small></span>
+            <span class="${f.efecto_porcentual < 0 ? "efecto-baja" : "efecto-neutro"}">${f.efecto_porcentual > 0 ? "+" : ""}${f.efecto_porcentual.toLocaleString("es-CO")} pts</span></li>`).join("");
+
+    return `
+        <div class="panel-ia">
+            <div class="panel-ia-cabecera">
+                <span class="titulo-ia">${icono("ia")}Precio sugerido</span>
+                <span class="estado estado-proceso">Conserva el ${Math.round(r.proporcion * 100)} % del precio nuevo</span>
+            </div>
+            <div class="precio-ia-valor">
+                <strong>${precio(r.precio_sugerido)}</strong>
+                <span>Rango razonable: ${precio(r.rango_minimo)} – ${precio(r.rango_maximo)}</span>
+            </div>
+            <div class="ia-terminos"><small>Efecto de cada característica frente a un artículo nuevo y completo (puntos del precio nuevo):</small></div>
+            <ul class="lista-datos precio-ia-factores">${factores}</ul>
+            <button type="button" class="boton boton-chico" data-usar-precio="${r.precio_sugerido}">Usar precio sugerido</button>
+            <small class="ia-version">Red neuronal ${esc(r.version_modelo)} · categoría agrupada como ${esc(r.grupo_categoria)} · local, sin servicios externos</small>
+        </div>`;
+}
+
+function usarPrecioSugerido(e) {
+    const boton = e.target.closest("[data-usar-precio]");
+    if (!boton) return;
+
+    document.getElementById("form-producto").precio.value = boton.dataset.usarPrecio;
+    aviso(`Precio cambiado a ${precio(Number(boton.dataset.usarPrecio))}.`, "exito");
+}
+
 function usarCondicionSugerida(e) {
     const boton = e.target.closest("[data-usar-condicion]");
     if (!boton) return;
@@ -394,6 +463,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     form.addEventListener("submit", guardar);
     document.getElementById("analizar-ia").addEventListener("click", analizarConIA);
     document.getElementById("resultado-ia").addEventListener("click", usarCondicionSugerida);
+    document.getElementById("sugerir-precio").addEventListener("click", sugerirPrecio);
+    document.getElementById("resultado-precio").addEventListener("click", usarPrecioSugerido);
     document.getElementById("fotos").addEventListener("change", elegirFotos);
     document.getElementById("fotos-actuales").addEventListener("click", accionesFotos);
     document.getElementById("tabla-productos").addEventListener("click", accionProducto);

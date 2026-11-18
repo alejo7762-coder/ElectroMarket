@@ -1,0 +1,229 @@
+{
+  "fecha": "2026-11-18T05:23:42",
+  "version_modelo": "precio-mlp-9-6-1-1.0",
+  "ejemplos": 2000,
+  "entrenamiento": 1600,
+  "prueba": 400,
+  "parametros_red": 67,
+  "comparacion": [
+    {
+      "modelo": "Red neuronal MLP 9-6-1",
+      "mae": 0.026007741223781345,
+      "rmse": 0.03428075677869086,
+      "r2": 0.9683162378342504,
+      "mae_cop": 63609.75367708341
+    },
+    {
+      "modelo": "Regresión lineal",
+      "mae": 0.04778218080274888,
+      "rmse": 0.06176211464665323,
+      "r2": 0.8971556926902338,
+      "mae_cop": 112327.44791729037
+    },
+    {
+      "modelo": "Bosque aleatorio (200 árboles)",
+      "mae": 0.028894957500000044,
+      "rmse": 0.03799498940626914,
+      "r2": 0.96107858699696,
+      "mae_cop": 70231.25473375017
+    }
+  ],
+  "red_supera_lineas_base": true,
+  "ejemplos_sugerencia": [
+    {
+      "entrada": {
+        "categoria": "Celulares",
+        "meses": 24,
+        "condicion": "BUENO",
+        "caja": true,
+        "garantia": false,
+        "precio_nuevo": 2400000
+      },
+      "precio_sugerido": 960000,
+      "rango_minimo": 864000,
+      "rango_maximo": 1056000,
+      "proporcion": 0.4001,
+      "precio_nuevo": 2400000,
+      "grupo_categoria": "CELULAR",
+      "factores": [
+        {
+          "factor": "Antigüedad",
+          "valor": "24 meses",
+          "efecto_porcentual": -29.4
+        },
+        {
+          "factor": "Condición",
+          "valor": "BUENO",
+          "efecto_porcentual": -10.9
+        },
+        {
+          "factor": "Caja y accesorios",
+          "valor": "sí",
+          "efecto_porcentual": 0.0
+        },
+        {
+          "factor": "Garantía vigente",
+          "valor": "no",
+          "efecto_porcentual": -7.1
+        }
+      ],
+      "version_modelo": "precio-mlp-9-6-1-1.0"
+    },
+    {
+      "entrada": {
+        "categoria": "Celulares",
+        "meses": 3,
+        "condicion": "COMO_NUEVO",
+        "caja": true,
+        "garantia": true,
+        "precio_nuevo": 4500000
+      },
+      "precio_sugerido": 3621000,
+      "rango_minimo": 3259000,
+      "rango_maximo": 3983000,
+      "proporcion": 0.8046,
+      "precio_nuevo": 4500000,
+      "grupo_categoria": "CELULAR",
+      "factores": [
+        {
+          "factor": "Antigüedad",
+          "valor": "3 meses",
+          "efecto_porcentual": -2.3
+        },
+        {
+          "factor": "Condición",
+          "valor": "COMO_NUEVO",
+          "efecto_porcentual": 0.0
+        },
+        {
+          "factor": "Caja y accesorios",
+          "valor": "sí",
+          "efecto_porcentual": 0.0
+        },
+        {
+          "factor": "Garantía vigente",
+          "valor": "sí",
+          "efecto_porcentual": 0.0
+        }
+      ],
+      "version_modelo": "precio-mlp-9-6-1-1.0"
+    },
+    {
+      "entrada": {
+        "categoria": "Televisores",
+        "meses": 36,
+        "condicion": "BUENO",
+        "caja": false,
+        "garantia": false,
+        "precio_nuevo": 2000000
+      },
+      "precio_sugerido": 736000,
+      "rango_minimo": 662000,
+      "rango_maximo": 810000,
+      "proporcion": 0.368,
+      "precio_nuevo": 2000000,
+      "grupo_categoria": "TELEVISOR",
+      "factores": [
+        {
+          "factor": "Antigüedad",
+          "valor": "36 meses",
+          "efecto_porcentual": -31.4
+        },
+        {
+          "factor": "Condición",
+          "valor": "BUENO",
+          "efecto_porcentual": -4.5
+        },
+        {
+          "factor": "Caja y accesorios",
+          "valor": "no",
+          "efecto_porcentual": -4.8
+        },
+        {
+          "factor": "Garantía vigente",
+          "valor": "no",
+          "efecto_porcentual": -6.8
+        }
+      ],
+      "version_modelo": "precio-mlp-9-6-1-1.0"
+    },
+    {
+      "entrada": {
+        "categoria": "Neveras",
+        "meses": 60,
+        "condicion": "ACEPTABLE",
+        "caja": false,
+        "garantia": false,
+        "precio_nuevo": 2800000
+      },
+      "precio_sugerido": 870000,
+      "rango_minimo": 783000,
+      "rango_maximo": 957000,
+      "proporcion": 0.3107,
+      "precio_nuevo": 2800000,
+      "grupo_categoria": "NEVERA",
+      "factores": [
+        {
+          "factor": "Antigüedad",
+          "valor": "60 meses",
+          "efecto_porcentual": -22.8
+        },
+        {
+          "factor": "Condición",
+          "valor": "ACEPTABLE",
+          "efecto_porcentual": -19.9
+        },
+        {
+          "factor": "Caja y accesorios",
+          "valor": "no",
+          "efecto_porcentual": -4.2
+        },
+        {
+          "factor": "Garantía vigente",
+          "valor": "no",
+          "efecto_porcentual": -4.7
+        }
+      ],
+      "version_modelo": "precio-mlp-9-6-1-1.0"
+    },
+    {
+      "entrada": {
+        "categoria": "Videojuegos",
+        "meses": 12,
+        "condicion": "COMO_NUEVO",
+        "caja": true,
+        "garantia": false,
+        "precio_nuevo": 2600000
+      },
+      "precio_sugerido": 1859000,
+      "rango_minimo": 1673000,
+      "rango_maximo": 2045000,
+      "proporcion": 0.7151,
+      "precio_nuevo": 2600000,
+      "grupo_categoria": "OTRO",
+      "factores": [
+        {
+          "factor": "Antigüedad",
+          "valor": "12 meses",
+          "efecto_porcentual": -10.7
+        },
+        {
+          "factor": "Condición",
+          "valor": "COMO_NUEVO",
+          "efecto_porcentual": 0.0
+        },
+        {
+          "factor": "Caja y accesorios",
+          "valor": "sí",
+          "efecto_porcentual": 0.0
+        },
+        {
+          "factor": "Garantía vigente",
+          "valor": "no",
+          "efecto_porcentual": -5.5
+        }
+      ],
+      "version_modelo": "precio-mlp-9-6-1-1.0"
+    }
+  ]
+}
