@@ -42,6 +42,16 @@ router = APIRouter(
 )
 
 
+class ChecklistEstado(BaseModel):
+    """Declaración del vendedor sobre el estado del producto."""
+    enciende: bool
+    pantalla_sin_danos: bool
+    bateria_ok: bool
+    sin_reparaciones: bool = False
+    accesorios_completos: bool = False
+    con_garantia: bool = False
+
+
 class ProductoNuevo(BaseModel):
     id_categoria: int = Field(gt=0)
     nombre: str = Field(min_length=2, max_length=150)
@@ -53,6 +63,9 @@ class ProductoNuevo(BaseModel):
         "BUENO",
         "ACEPTABLE"
     ]
+    checklist: ChecklistEstado
+    # Obligatorio: defectos, rayones o desgaste ("Ninguno" si no tiene)
+    descripcion_defectos: str = Field(min_length=3, max_length=1000)
 
 
 @router.post("/publicar", status_code=201)
@@ -68,7 +81,9 @@ def crear_producto(
             descripcion=datos.descripcion.strip(),
             precio=datos.precio,
             stock=datos.stock,
-            condicion=datos.condicion
+            condicion=datos.condicion,
+            checklist=datos.checklist.model_dump(),
+            defectos=datos.descripcion_defectos.strip()
         )
 
         return {
@@ -166,6 +181,9 @@ class ProductoActualizar(BaseModel):
         "BUENO",
         "ACEPTABLE"
     ]
+    checklist: ChecklistEstado
+    # Obligatorio: defectos, rayones o desgaste ("Ninguno" si no tiene)
+    descripcion_defectos: str = Field(min_length=3, max_length=1000)
 
 
 @router.put("/{id_producto}")
@@ -189,7 +207,9 @@ def actualizar_producto(
             descripcion=datos.descripcion.strip(),
             precio=datos.precio,
             stock=datos.stock,
-            condicion=datos.condicion
+            condicion=datos.condicion,
+            checklist=datos.checklist.model_dump(),
+            defectos=datos.descripcion_defectos.strip()
         )
 
         return {

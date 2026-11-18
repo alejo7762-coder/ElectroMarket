@@ -8,6 +8,7 @@ permite consultarlos. Nunca se almacena el número de tarjeta.
 """
 
 from app.db.connection import get_connection
+from app.services.reembolsos import estado_reembolso_pago, procesar_reembolsos_pendientes
 from app.services.utilidades import a_float, iso, verificar_usuario_activo
 
 
@@ -16,7 +17,13 @@ class PaymentNotFound(Exception):
 
 
 def _a_diccionario(fila):
+    valor = a_float(fila.Valor)
+    reembolsado = a_float(fila.Reembolsado)
+
     return {
+        "reembolsado": reembolsado,
+        "reembolso_pendiente": a_float(fila.ReembolsoPendiente),
+        "estado_reembolso": estado_reembolso_pago(valor, reembolsado),
         "id_pago": fila.IdPago,
         "id_pedido": fila.IdPedido,
         "valor": a_float(fila.Valor),
@@ -37,7 +44,11 @@ _SELECT_PAGOS = """
         PG.Estado,
         PG.Referencia,
         PG.FechaPago,
-        P.Estado AS EstadoPedido
+        P.Estado AS EstadoPedido,
+        COALESCE((SELECT SUM(R.Valor) FROM Reembolsos R
+                  WHERE R.IdPago = PG.IdPago AND R.Estado = 'PROCESADO'), 0) AS Reembolsado,
+        COALESCE((SELECT SUM(R.Valor) FROM Reembolsos R
+                  WHERE R.IdPago = PG.IdPago AND R.Estado = 'PENDIENTE'), 0) AS ReembolsoPendiente
     FROM Pagos PG
     INNER JOIN Pedidos P ON P.IdPedido = PG.IdPedido
 """
@@ -52,6 +63,8 @@ def listar_pagos(id_usuario: int):
         cursor = connection.cursor()
 
         verificar_usuario_activo(cursor, id_usuario)
+        procesar_reembolsos_pendientes(cursor, id_usuario)
+        connection.commit()
 
         cursor.execute(
             _SELECT_PAGOS + """
@@ -80,6 +93,8 @@ def obtener_pago(id_usuario: int, id_pago: int):
         cursor = connection.cursor()
 
         verificar_usuario_activo(cursor, id_usuario)
+        procesar_reembolsos_pendientes(cursor, id_usuario)
+        connection.commit()
 
         cursor.execute(
             _SELECT_PAGOS + """
@@ -95,26 +110,6 @@ def obtener_pago(id_usuario: int, id_pago: int):
             raise PaymentNotFound("Pago no encontrado.")
 
         resultado = _a_diccionario(fila)
-
-        # Reembolsos simulados asociados a solicitudes aprobadas.
-        # La base de datos utiliza Reembolsos.Valor y
-        # SolicitudesCancelacion.Estado = 'APROBADA'.
-        cursor.execute(
-            """
-            SELECT COALESCE(SUM(R.Valor), 0) AS Reembolsado
-            FROM Reembolsos R
-            INNER JOIN SolicitudesCancelacion SC
-                ON SC.IdSolicitud = R.IdSolicitud
-            WHERE R.IdPago = ?
-              AND SC.IdPedido = ?
-              AND SC.Estado = 'APROBADA';
-            """,
-            (fila.IdPago, fila.IdPedido)
-        )
-
-        resultado["reembolsado"] = a_float(
-            cursor.fetchone().Reembolsado
-        )
 
         return resultado
 

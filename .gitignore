@@ -233,5 +233,5 @@ __pycache__/
 .vscode/
 
 # Imágenes almacenadas de los productos
-storage/productos/*
-!storage/productos/.gitkeep
+backend/storage/productos/*
+!backend/storage/productos/.gitkeep
