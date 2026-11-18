@@ -22,3 +22,4 @@ python commits/generar_bitacora.py
 | 011 | [`3343e89`](011_3343e89.md) | 2026-11-18 04:19 | Claude | Centraliza el manejo de errores y alinea las validaciones con la BD |
 | 012 | [`0208a32`](012_0208a32.md) | 2026-11-18 04:22 | Claude | Ordena la base de datos, unifica estilos de la interfaz y actualiza la documentación |
 | 013 | [`e4cff88`](013_e4cff88.md) | 2026-11-18 04:34 | Claude | Verifica el sistema contra SQL Server real y prepara la sustentación |
+| 014 | [`f33400e`](014_f33400e.md) | 2026-11-18 04:42 | Claude | Agrega un set de iconos propio a la interfaz |
