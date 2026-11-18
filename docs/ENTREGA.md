@@ -1,6 +1,6 @@
 # Entrega final: Prototipo, pruebas y servicio de IA
 
-**ElectroMarket**: sistema transaccional de compraventa de electrónicos usados, con un inspector de estado basado en IA.
+**ElectroMarket**: sistema transaccional de compraventa de electrónicos usados, con dos servicios de IA (precio sugerido con red neuronal e inspector de estado). Equipo: Alejandro Castro Alvarez, Maria Camila Sosa Cediel y Manuel Santiago Osorio Feo.
 
 ## 1. Enlace o acceso al prototipo
 
@@ -17,27 +17,33 @@
 
 Índice: [`evidencias/pruebas/RESUMEN.md`](evidencias/pruebas/RESUMEN.md)
 
-- 92 pruebas automatizadas, todas aprobadas; 3 de ellas recorren el sistema contra SQL Server real.
+- 104 pruebas automatizadas, todas aprobadas; 3 de ellas recorren el sistema contra SQL Server real.
 - Reporte HTML de pytest: [`evidencias/pruebas/reporte_pruebas.html`](evidencias/pruebas/reporte_pruebas.html)
-- Cobertura del backend: 65 % ([`salida_pytest.txt`](evidencias/pruebas/salida_pytest.txt))
+- Cobertura del backend: 64 % ([`salida_pytest.txt`](evidencias/pruebas/salida_pytest.txt))
 - Pruebas de interfaz en navegador real con capturas: [`evidencias/capturas/`](evidencias/capturas/)
 
 ## 3. Evidencia del servicio de Inteligencia Artificial
 
-Documento: [`SERVICIO_IA.md`](SERVICIO_IA.md) (problema, integración, información que procesa, resultado y uso).
+Documento: [`SERVICIO_IA.md`](SERVICIO_IA.md) (problema, integración, información que procesa, resultado y uso de cada servicio).
 
-- Métricas del modelo: [`evidencias/ia/metricas_modelo.md`](evidencias/ia/metricas_modelo.md). Exactitud del 94,4 % con descripciones escritas a mano que el modelo nunca vio; 5 de 5 inconsistencias detectadas.
+- Precio sugerido: red neuronal 9-6-1 con R² de 0,968, mejor que la regresión lineal y el bosque aleatorio ([`evidencias/ia/metricas_precio.md`](evidencias/ia/metricas_precio.md)).
+- Inspector de estado, métricas del modelo: [`evidencias/ia/metricas_modelo.md`](evidencias/ia/metricas_modelo.md). Exactitud del 94,4 % con descripciones escritas a mano que el modelo nunca vio; 5 de 5 inconsistencias detectadas.
 - Capturas del servicio en funcionamiento:
 
 | Captura | Muestra |
 |---|---|
+| ![](evidencias/capturas/ia-00-precio-sugerido.png) | La red neuronal sugiere el precio, el rango y el efecto de cada característica |
 | ![](evidencias/capturas/ia-01-analisis-incoherente.png) | El vendedor analiza un borrador incoherente: la IA sugiere «Aceptable» y lista las contradicciones |
 | ![](evidencias/capturas/ia-02-analisis-coherente.png) | Tras corregir el checklist y la descripción, el análisis es coherente |
 | ![](evidencias/capturas/ia-03-mis-productos.png) | La publicación incoherente aparece con «IA: revisar» y sin «Estado verificado» |
 | ![](evidencias/capturas/ia-05-ficha-revisar.png) | El comprador ve el análisis de IA en la ficha del producto |
 
-- API: `POST /ia/inspeccionar` (analizar un borrador) y `GET /ia/modelo` (versión, descripción y métricas).
+- API: `POST /productos/precio-sugerido`, `POST /ia/inspeccionar` y `GET /ia/modelo` (versión, descripción y métricas de ambos servicios).
 
-## 4. Guion de la presentación
+## 4. Documento Maestro
+
+Versión final consolidada: [`Documento_Maestro_Sistemas_Transaccionales_ElectroMarket.pdf`](Documento_Maestro_Sistemas_Transaccionales_ElectroMarket.pdf) (y su versión editable `.docx`).
+
+## 5. Guion de la presentación
 
 Ver [`SUSTENTACION.md`](SUSTENTACION.md): demostración del prototipo, de las pruebas y del servicio de IA, con las preguntas probables.

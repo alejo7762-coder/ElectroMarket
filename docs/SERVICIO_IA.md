@@ -1,4 +1,39 @@
-# Servicio de Inteligencia Artificial: Inspector de estado
+# Servicios de Inteligencia Artificial
+
+ElectroMarket integra dos servicios de IA propios, ejecutados localmente con scikit-learn (sin servicios externos ni costo):
+
+| Servicio | Técnica | Momento de uso | Detalle |
+|---|---|---|---|
+| **Precio sugerido** | Red neuronal perceptrón multicapa 9-6-1 (regresión) | Al fijar el precio en Vender | [Sección A](#a-precio-sugerido-red-neuronal-9-6-1) |
+| **Inspector de estado** | Clasificación de texto (regresión logística + TF-IDF) y reglas de coherencia | Al describir el estado y al publicar | [Sección B](#b-inspector-de-estado) |
+
+## A. Precio sugerido (red neuronal 9-6-1)
+
+**Qué problema resuelve.** En un mercado de segunda mano el precio no está estandarizado. El vendedor fijaba el precio sin referencia, lo que produce publicaciones sobrevaloradas que no se venden o subvaloradas que generan pérdida, y el comprador no tiene criterio para juzgar si el precio es razonable.
+
+**Cómo se integra.** En `vender.html`, el bloque «Precio sugerido con IA» llama a `POST /productos/precio-sugerido` (`backend/app/routes/ia.py`), que ejecuta la red de `backend/app/ia/precio.py`. El vendedor ve el precio y el rango y puede pulsar «Usar precio sugerido». La sugerencia no se guarda: la base de datos solo recibe el precio que el vendedor confirma al publicar.
+
+**Qué información procesa (9 entradas).** Categoría agrupada en Celular, Televisor, Nevera u Otro (one-hot, x1–x4); antigüedad en meses con tope de 120 (x5); condición ordinal: Aceptable 0, Buen estado 0,5, Como nuevo 1 (x6); caja y accesorios (x7, casilla «Incluye accesorios originales» del checklist); garantía vigente (x8, casilla «Conserva garantía o factura»); y precio nuevo de referencia en escala logarítmica (x9).
+
+**Qué resultado genera.** La proporción r = precio usado ÷ precio nuevo (salida sigmoide entre 0 y 1), el precio sugerido r × precio nuevo, un rango de ±10 % y el efecto de cada característica frente a un artículo nuevo y completo.
+
+**Cómo usa el sistema el resultado.** Orienta al vendedor al fijar el precio, que puede aplicar con un clic o ignorar. No interviene en el pago, la venta ni las cancelaciones; el pedido sigue copiando el precio vigente al comprar.
+
+**Arquitectura y entrenamiento.** Capa de entrada de 9 neuronas, capa oculta de 6 con ReLU y salida de 1 con sigmoide: 67 parámetros. Se entrena con `MLPRegressor` (lbfgs) sobre logit(r), con 10 inicializaciones elegidas por validación. Los datos son 2.000 ejemplos sintéticos generados con reglas de depreciación por categoría, condición y edad, más un 6 % de ruido de mercado.
+
+**Resultados** ([`evidencias/ia/metricas_precio.md`](evidencias/ia/metricas_precio.md)), con partición 80/20:
+
+| Modelo | MAE (r) | RMSE (r) | R² | MAE en pesos |
+|---|---|---|---|---|
+| **Red neuronal 9-6-1** | **0,026** | **0,034** | **0,968** | **$ 63.610** |
+| Bosque aleatorio | 0,029 | 0,038 | 0,961 | $ 70.231 |
+| Regresión lineal | 0,048 | 0,062 | 0,897 | $ 112.327 |
+
+La red supera a los dos modelos de referencia, que era el criterio para incorporarla.
+
+---
+
+## B. Inspector de estado
 
 ElectroMarket vende electrónicos **usados**. El mayor riesgo para el comprador es recibir un producto en peor estado del que se anunció. El inspector de estado es un modelo de IA propio que lee cada publicación y avisa cuando la descripción no coincide con lo que declara el vendedor.
 

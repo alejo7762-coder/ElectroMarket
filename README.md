@@ -1,6 +1,6 @@
 # ElectroMarket
 
-Sistema transaccional de compraventa de productos electrónicos usados (celulares, televisores, neveras, etc.). Cualquier usuario puede comprar y vender. Los pagos son simulados. Incluye un **inspector de estado con IA** que revisa cada publicación ([`docs/SERVICIO_IA.md`](docs/SERVICIO_IA.md)).
+Sistema transaccional de compraventa de productos electrónicos usados (celulares, televisores, neveras, etc.). Cualquier usuario puede comprar y vender. Los pagos son simulados. Incluye dos servicios de IA: **precio sugerido** con una red neuronal 9-6-1 e **inspector de estado** que revisa cada publicación ([`docs/SERVICIO_IA.md`](docs/SERVICIO_IA.md)).
 
 > Entrega final (prototipo, pruebas e IA): [`docs/ENTREGA.md`](docs/ENTREGA.md)
 
@@ -27,7 +27,7 @@ ElectroMarket/
 │   │   ├── errores.py           errores de negocio y su código HTTP
 │   │   ├── security.py          tokens JWT
 │   │   ├── db/connection.py     conexión a SQL Server
-│   │   ├── ia/                  inspector de estado: modelo, datos y evaluación
+│   │   ├── ia/                  servicios de IA: red de precio e inspector de estado
 │   │   ├── routes/              endpoints: validan la entrada (Pydantic)
 │   │   └── services/            lógica de negocio y consultas SQL
 │   ├── tests/                   pruebas (pytest)
@@ -243,10 +243,11 @@ Al publicar o editar, el cuerpo debe incluir:
 ### Inteligencia artificial
 | Método | Ruta | Descripción |
 |---|---|---|
+| POST | `/productos/precio-sugerido` | Red neuronal 9-6-1: precio sugerido y rango ±10 % a partir de categoría, antigüedad, condición, caja, garantía y precio nuevo (no se guarda) |
 | POST | `/ia/inspeccionar` | Analiza un borrador de publicación (descripción, defectos, checklist, condición) sin guardarlo |
 | GET | `/ia/modelo` | Versión, descripción y métricas del modelo |
 
-Al publicar o editar un producto, el análisis se guarda en `InspeccionesIA` y aparece en `GET /productos/{id}` como `inspeccion_ia`. Si la coherencia es `REVISAR`, el producto no puede quedar `VERIFICADO`. El modelo se entrena solo la primera vez; para reentrenarlo y regenerar las métricas: `python -m app.ia.evaluar`.
+Al publicar o editar un producto, el análisis se guarda en `InspeccionesIA` y aparece en `GET /productos/{id}` como `inspeccion_ia`. Si la coherencia es `REVISAR`, el producto no puede quedar `VERIFICADO`. Los modelos se entrenan solos la primera vez; para reentrenarlos y regenerar las métricas: `python -m app.ia.evaluar` (inspector) y `python -m app.ia.evaluar_precio` (red de precio).
 
 ### Ventas (vendedor)
 | Método | Ruta | Descripción |

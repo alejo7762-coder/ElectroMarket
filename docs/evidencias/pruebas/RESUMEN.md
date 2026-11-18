@@ -1,13 +1,13 @@
 # Evidencias de pruebas
 
-Resultado: **92 pruebas, 92 aprobadas, 0 fallidas**, contra SQL Server 2022 para las de integración. Cobertura del código del backend: **65 %**.
+Resultado: **104 pruebas, 104 aprobadas, 0 fallidas**, contra SQL Server 2022 para las de integración. Cobertura del código del backend: **64 %**.
 
 | Archivo | Evidencia |
 |---|---|
 | [`reporte_pruebas.html`](reporte_pruebas.html) | Reporte HTML de pytest (abrir en el navegador): cada prueba con su resultado y duración |
 | [`salida_pytest.txt`](salida_pytest.txt) | Salida de la consola con la lista de pruebas y la cobertura por archivo |
 | [`../capturas/`](../capturas/) | Capturas de las pruebas de interfaz (end-to-end) en un navegador real |
-| [`../ia/metricas_modelo.md`](../ia/metricas_modelo.md) | Métricas del modelo de IA |
+| [`../ia/metricas_precio.md`](../ia/metricas_precio.md) y [`../ia/metricas_modelo.md`](../ia/metricas_modelo.md) | Métricas de los dos modelos de IA |
 
 ## Pruebas automatizadas del backend (pytest)
 
@@ -15,6 +15,7 @@ Resultado: **92 pruebas, 92 aprobadas, 0 fallidas**, contra SQL Server 2022 para
 |---|---|---|
 | `tests/test_rutas.py` | 18 | Autenticación, validaciones de entrada, compra (aprobada 201 / rechazada 402 / conflicto de stock 409), cancelaciones |
 | `tests/test_ia.py` | 15 | Servicio de IA: clasificación de las 3 condiciones, contradicciones, negaciones, explicación, reentrenamiento automático, efecto en la insignia, tolerancia a fallos y endpoints `/ia` |
+| `tests/test_precio.py` | 12 | Servicio de IA de precio: arquitectura 9-6-1 con 67 parámetros, agrupación de categorías, escalado de entradas, rango ±10 %, comportamiento esperado (antigüedad, condición, caja) y endpoint |
 | `tests/test_reembolsos_verificacion.py` | 13 | Estado de reembolso del pago, endpoints de reembolsos, niveles de verificación y puntaje del producto |
 | `tests/test_perfil.py` | 12 | Registro con edad mínima, perfil, cambio de contraseña, productos del vendedor |
 | `tests/test_sincronizacion_pedido.py` | 10 | Recalcular el estado del pedido a partir de sus ventas |
@@ -36,7 +37,7 @@ Scripts en `pruebas_e2e/` (Playwright, navegador Chromium) contra el backend y l
 | Recorrido | Capturas |
 |---|---|
 | Compra: registro, producto, carrito, pago, pedido, cancelación, reembolso, ventas | `capturas/compra-01` a `compra-08` |
-| IA: análisis incoherente, condición sugerida, publicación, alerta en Mis productos, ficha del comprador | `capturas/ia-01` a `ia-05` |
+| IA: precio sugerido, análisis incoherente, condición sugerida, publicación, alerta en Mis productos, ficha del comprador | `capturas/ia-00` a `ia-05` |
 
 ## Cómo reproducirlas
 

@@ -38,13 +38,14 @@ Si algo falla en vivo, el mismo flujo está automatizado en `backend/tests/integ
 | Bloque | Tiempo | Qué mostrar |
 |---|---|---|
 | 1. Prototipo | 7 min | Pasos 2, 5, 6, 7, 8, 9, 12 del guion anterior (publicar, comprar, pago rechazado y aprobado, cancelar, reembolso) |
-| 2. Pruebas | 4 min | En `backend/`: `$env:ELECTROMARKET_DB_TESTS="1"; pytest` en vivo (92 aprobadas); abrir `docs/evidencias/pruebas/reporte_pruebas.html`; ejecutar `node pruebas_e2e/recorrido_ia.js` y mostrar las capturas |
+| 2. Pruebas | 4 min | En `backend/`: `$env:ELECTROMARKET_DB_TESTS="1"; pytest` en vivo (104 aprobadas); abrir `docs/evidencias/pruebas/reporte_pruebas.html`; ejecutar `node pruebas_e2e/recorrido_ia.js` y mostrar las capturas |
 | 3. Servicio de IA | 5 min | Ver la tabla siguiente |
 
 **Demostración de la IA**
 
 | # | Acción | Qué explicar |
 |---|---|---|
+| 0 | Vender: categoría Celulares, antigüedad 24 meses, precio nuevo $ 2.400.000, **Sugerir precio con IA** → **Usar precio sugerido** | Primer servicio: la red 9-6-1 estima el precio (problema, 9 entradas, salida r, rango ±10 %, uso consultivo); métricas en `metricas_precio.md` |
 | 1 | Vender: escribir «iPhone como nuevo, la pantalla está rota y la batería dura poco», marcar todo el checklist y declarar «Como nuevo» | **Problema:** el vendedor puede exagerar el estado |
 | 2 | Pulsar **Analizar con IA** | **Integración:** el formulario llama a `POST /ia/inspeccionar`; el modelo corre dentro del backend |
 | 3 | Mostrar el panel: «Aceptable», confianza, alertas y expresiones clave | **Información que procesa** (texto, checklist, condición) y **resultado** (condición, confianza, coherencia, alertas, explicación) |
@@ -99,7 +100,10 @@ El vendedor completa un checklist y describe los defectos (obligatorio). El prod
 **¿Cómo se probó?**
 Pruebas unitarias y de rutas sin base de datos (`pytest`) y pruebas de integración que recorren el flujo completo contra SQL Server real (`ELECTROMARKET_DB_TESTS=1`).
 
-**¿Qué tipo de IA es y por qué esa?**
+**¿Cómo funciona la red de precio?**
+Perceptrón multicapa 9-6-1: h = ReLU(W1·x + b1) y y = σ(W2·h + b2), con 67 parámetros. La salida sigmoide impide precios negativos o mayores que el precio nuevo. Se entrenó con retropropagación (lbfgs) y se comparó con regresión lineal y bosque aleatorio: la red obtuvo el menor error (MAE 0,026; R² 0,968).
+
+**¿Qué tipo de IA es el inspector y por qué esa?**
 Aprendizaje automático supervisado: clasificación de texto con regresión logística sobre TF-IDF (scikit-learn), más reglas de coherencia. Es liviana, explicable (muestra qué expresiones influyeron), corre localmente sin costo ni internet y se entrena en segundos.
 
 **¿Con qué datos se entrenó? ¿Cómo saben que funciona?**
@@ -138,16 +142,16 @@ SELECT TOP 10 * FROM HistorialEstados ORDER BY IdHistorial DESC;
 
 ## 6. Distribución del trabajo
 
-Completen esta tabla con los integrantes reales. Cada persona debe poder explicar su módulo y responder preguntas de los demás.
+Roles: Alejandro Castro Alvarez (líder y backend), Maria Camila Sosa Cediel (datos e inteligencia artificial) y Manuel Santiago Osorio Feo (interfaz, pruebas y documentación). Ajusten la tabla si la distribución real fue distinta; cada persona debe poder explicar su módulo y responder preguntas de los demás.
 
 | Integrante | Módulo | Archivos principales |
 |---|---|---|
-| | Usuarios, autenticación y perfil | `routes/usuarios.py`, `services/usuarios.py`, `security.py`, `registro.html`, `login.html`, `perfil.html` |
-| | Productos, imágenes y verificación | `routes/productos.py`, `services/productos.py`, `services/imagenes.py`, `services/verificacion.py`, `vender.html`, `producto.html` |
-| | Carrito, compra y pagos | `services/carrito.py`, `services/pedidos.py`, `services/pagos.py`, `carrito.html`, `checkout.html` |
-| | Ventas, envíos, cancelaciones y reembolsos | `services/ventas.py`, `services/envios.py`, `services/cancelaciones.py`, `services/reembolsos.py`, `pedidos.html`, `ventas.html` |
-| | Base de datos | `database/scripts/`, `database/README.md` |
-| | Servicio de IA | `app/ia/`, `routes/ia.py`, `services/inspeccion_ia.py`, `docs/SERVICIO_IA.md` |
+| Alejandro Castro Alvarez | Usuarios, autenticación y perfil | `routes/usuarios.py`, `services/usuarios.py`, `security.py`, `registro.html`, `login.html`, `perfil.html` |
+| Manuel Santiago Osorio Feo | Productos, imágenes y verificación | `routes/productos.py`, `services/productos.py`, `services/imagenes.py`, `services/verificacion.py`, `vender.html`, `producto.html` |
+| Alejandro Castro Alvarez | Carrito, compra y pagos | `services/carrito.py`, `services/pedidos.py`, `services/pagos.py`, `carrito.html`, `checkout.html` |
+| Alejandro Castro Alvarez | Ventas, envíos, cancelaciones y reembolsos | `services/ventas.py`, `services/envios.py`, `services/cancelaciones.py`, `services/reembolsos.py`, `pedidos.html`, `ventas.html` |
+| Maria Camila Sosa Cediel | Base de datos | `database/scripts/`, `database/README.md` |
+| Maria Camila Sosa Cediel | Servicio de IA | `app/ia/`, `routes/ia.py`, `services/inspeccion_ia.py`, `docs/SERVICIO_IA.md` |
 
 ## 7. Limitaciones conocidas (decirlas antes de que las pregunten)
 
