@@ -24,3 +24,6 @@ python commits/generar_bitacora.py
 | 013 | [`e4cff88`](013_e4cff88.md) | 2026-11-18 04:34 | Claude | Verifica el sistema contra SQL Server real y prepara la sustentación |
 | 014 | [`f33400e`](014_f33400e.md) | 2026-11-18 04:42 | Claude | Agrega un set de iconos propio a la interfaz |
 | 015 | [`344c2ad`](015_344c2ad.md) | 2026-11-18 05:01 | Claude | Integra el inspector de estado con IA y agrega las evidencias de la entrega final |
+| 016 | [`4b7c862`](016_4b7c862.md) | 2026-11-18 05:35 | Claude | Implementa el precio sugerido con una red neuronal 9-6-1 |
+| 017 | [`f23d08b`](017_f23d08b.md) | 2026-11-18 05:36 | Claude | Documenta el precio sugerido y actualiza las evidencias de pruebas |
+| 018 | [`47b94dd`](018_47b94dd.md) | 2026-11-18 05:44 | Claude | Consolida el Documento Maestro final (PDF y Word) |
