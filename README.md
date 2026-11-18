@@ -41,6 +41,7 @@ ElectroMarket/
 │   └── *.html
 ├── docs/
 │   ├── ENTREGA.md               índice de la entrega final
+│   ├── Documento_Maestro_*.pdf  Documento Maestro final (PDF y Word)
 │   ├── SERVICIO_IA.md           servicio de inteligencia artificial
 │   ├── SUSTENTACION.md          guion de demostración y decisiones técnicas
 │   └── evidencias/              reportes de pruebas, métricas de IA y capturas

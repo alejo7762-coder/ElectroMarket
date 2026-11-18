@@ -42,7 +42,7 @@ Documento: [`SERVICIO_IA.md`](SERVICIO_IA.md) (problema, integración, informaci
 
 ## 4. Documento Maestro
 
-Versión final consolidada: [`Documento_Maestro_Sistemas_Transaccionales_ElectroMarket.pdf`](Documento_Maestro_Sistemas_Transaccionales_ElectroMarket.pdf) (y su versión editable `.docx`).
+Versión final consolidada: [`Documento_Maestro_Sistemas_Transaccionales_ElectroMarket_Castro_Sosa_Osorio.pdf`](Documento_Maestro_Sistemas_Transaccionales_ElectroMarket_Castro_Sosa_Osorio.pdf) (y su versión editable `.docx`).
 
 ## 5. Guion de la presentación
 
