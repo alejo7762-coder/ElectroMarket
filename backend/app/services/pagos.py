@@ -10,10 +10,9 @@ permite consultarlos. Nunca se almacena el número de tarjeta.
 from app.db.connection import get_connection
 from app.services.reembolsos import estado_reembolso_pago, procesar_reembolsos_pendientes
 from app.services.utilidades import a_float, iso, verificar_usuario_activo
-
-
-class PaymentNotFound(Exception):
-    pass
+from app.errores import (
+    PaymentNotFound,
+)
 
 
 def _a_diccionario(fila):

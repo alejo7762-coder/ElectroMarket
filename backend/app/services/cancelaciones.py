@@ -22,6 +22,13 @@ from app.services.utilidades import (
     iso,
     verificar_usuario_activo
 )
+from app.errores import (
+    CancellationConflict,
+    CancellationForbidden,
+    CancellationNotFound,
+    OrderNotFound,
+    SaleNotFound,
+)
 
 
 CENTAVOS = Decimal("0.01")
@@ -34,26 +41,6 @@ ESTADOS_PEDIDO_CANCELABLES = (
 
 ESTADOS_VENTA_SIN_DESPACHAR = ("PENDIENTE", "PREPARANDO")
 ESTADOS_ENVIO_FINALES = ("ENTREGADO", "CANCELADO")
-
-
-class CancellationNotFound(Exception):
-    pass
-
-
-class OrderNotFound(Exception):
-    pass
-
-
-class SaleNotFound(Exception):
-    pass
-
-
-class CancellationConflict(Exception):
-    pass
-
-
-class CancellationForbidden(Exception):
-    pass
 
 
 # ----------------------------------------------------------------------

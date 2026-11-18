@@ -1,11 +1,15 @@
-import os
 import uuid
-import pyodbc
 
 from pathlib import Path
 from datetime import datetime
 
 from app.db.connection import get_connection
+from app.errores import (
+    ImageLimitExceeded,
+    InvalidImage,
+    ProductForbidden,
+    ProductNotFound
+)
 
 
 # Configuración de almacenamiento
@@ -21,22 +25,6 @@ FORMATOS_PERMITIDOS = {
     ".png",
     ".webp"
 }
-
-
-class ProductNotFound(Exception):
-    pass
-
-
-class ProductForbidden(Exception):
-    pass
-
-
-class ImageLimitExceeded(Exception):
-    pass
-
-
-class InvalidImage(Exception):
-    pass
 
 
 def guardar_imagen(
@@ -186,6 +174,8 @@ def guardar_imagen(
 
         if connection:
             connection.close()
+
+
 def listar_imagenes_producto(id_producto: int):
     conexion = get_connection()
     cursor = conexion.cursor()
@@ -219,6 +209,8 @@ def listar_imagenes_producto(id_producto: int):
     finally:
         cursor.close()
         conexion.close()
+
+
 def cambiar_imagen_principal(id_producto: int, id_imagen: int, id_vendedor: int):
     conexion = get_connection()
     cursor = conexion.cursor()
@@ -273,6 +265,7 @@ def cambiar_imagen_principal(id_producto: int, id_imagen: int, id_vendedor: int)
     finally:
         cursor.close()
         conexion.close()
+
 
 def eliminar_imagen(id_producto: int, id_imagen: int, id_vendedor: int):
     conexion = get_connection()

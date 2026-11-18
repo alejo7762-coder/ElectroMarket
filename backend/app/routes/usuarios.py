@@ -2,7 +2,12 @@ from datetime import date
 from typing import Literal, Optional
 
 from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel, EmailStr, Field, field_validator
+from pydantic import (
+    BaseModel,
+    EmailStr,
+    Field,
+    field_validator
+)
 
 from app.security import crear_token_acceso, obtener_usuario_token
 from app.services.usuarios import (
@@ -11,7 +16,6 @@ from app.services.usuarios import (
     obtener_perfil,
     actualizar_perfil,
     cambiar_contrasena,
-    EmailAlreadyExists,
     InvalidCredentials,
     AccountInactive,
     UserNotFound
@@ -89,7 +93,7 @@ class DatosPersonales(BaseModel):
 
 
 class RegistroUsuario(DatosPersonales):
-    correo: EmailStr
+    correo: EmailStr = Field(max_length=150)
     contrasena: str = Field(min_length=8, max_length=128)
 
 
@@ -105,32 +109,20 @@ class CambioContrasena(BaseModel):
 
 @router.post("/registro", status_code=201)
 def crear_usuario(datos: RegistroUsuario):
-    try:
-        id_usuario = registrar_usuario(
-            nombre=datos.nombre,
-            apellido=datos.apellido,
-            correo=str(datos.correo).strip().lower(),
-            contrasena=datos.contrasena,
-            telefono=datos.telefono,
-            fecha_nacimiento=datos.fecha_nacimiento,
-            genero=datos.genero
-        )
+    id_usuario = registrar_usuario(
+        nombre=datos.nombre,
+        apellido=datos.apellido,
+        correo=str(datos.correo).strip().lower(),
+        contrasena=datos.contrasena,
+        telefono=datos.telefono,
+        fecha_nacimiento=datos.fecha_nacimiento,
+        genero=datos.genero
+    )
 
-        return {
-            "mensaje": "Usuario registrado correctamente.",
-            "id_usuario": id_usuario
-        }
-
-    except EmailAlreadyExists as error:
-        raise HTTPException(status_code=409, detail=str(error))
-
-    except Exception as error:
-        print("ERROR AL REGISTRAR USUARIO:", repr(error))
-
-        raise HTTPException(
-            status_code=500,
-            detail="No fue posible registrar el usuario."
-        )
+    return {
+        "mensaje": "Usuario registrado correctamente.",
+        "id_usuario": id_usuario
+    }
 
 
 @router.post("/login")
@@ -162,14 +154,6 @@ def iniciar_sesion(datos: LoginUsuario):
             detail="La cuenta no está activa."
         )
 
-    except Exception as error:
-        print("ERROR AL INICIAR SESIÓN:", repr(error))
-
-        raise HTTPException(
-            status_code=500,
-            detail="No fue posible iniciar sesión."
-        )
-
 
 @router.get("/me")
 def consultar_perfil(id_usuario: int = Depends(obtener_usuario_token)):
@@ -178,14 +162,6 @@ def consultar_perfil(id_usuario: int = Depends(obtener_usuario_token)):
 
     except (UserNotFound, AccountInactive):
         raise HTTPException(status_code=401, detail="Usuario no disponible.")
-
-    except Exception as error:
-        print("ERROR AL CONSULTAR EL PERFIL:", repr(error))
-
-        raise HTTPException(
-            status_code=500,
-            detail="No fue posible consultar el perfil."
-        )
 
 
 @router.put("/me")
@@ -210,14 +186,6 @@ def editar_perfil(
 
     except (UserNotFound, AccountInactive):
         raise HTTPException(status_code=401, detail="Usuario no disponible.")
-
-    except Exception as error:
-        print("ERROR AL ACTUALIZAR EL PERFIL:", repr(error))
-
-        raise HTTPException(
-            status_code=500,
-            detail="No fue posible actualizar el perfil."
-        )
 
 
 @router.put("/me/contrasena")
@@ -245,11 +213,3 @@ def actualizar_contrasena(
 
     except UserNotFound:
         raise HTTPException(status_code=401, detail="Usuario no disponible.")
-
-    except Exception as error:
-        print("ERROR AL CAMBIAR LA CONTRASEÑA:", repr(error))
-
-        raise HTTPException(
-            status_code=500,
-            detail="No fue posible cambiar la contraseña."
-        )

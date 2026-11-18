@@ -1,4 +1,3 @@
-import pyodbc
 from decimal import Decimal
 
 from app.db.connection import get_connection
@@ -7,14 +6,16 @@ from app.services.verificacion import (
     obtener_verificacion,
     SQL_NIVEL_VERIFICACION
 )
-
-
-class CategoryNotFound(Exception):
-    pass
-
-
-class CategoryInactive(Exception):
-    pass
+from app.errores import (
+    DatosInvalidos,
+    CategoryInactive,
+    CategoryNotFound,
+    ProductDeleted,
+    ProductForbidden,
+    ProductInvalidState,
+    ProductNotFound,
+    ProductOutOfStock
+)
 
 
 def publicar_producto(
@@ -101,6 +102,8 @@ def publicar_producto(
             cursor.close()
         if connection:
             connection.close()
+
+
 def listar_productos(id_categoria=None):
     connection = None
     cursor = None
@@ -260,23 +263,7 @@ def obtener_producto(id_producto: int):
             cursor.close()
         if connection:
             connection.close()
-class ProductNotFound(Exception):
-    pass
 
-
-class ProductForbidden(Exception):
-    pass
-
-
-class ProductDeleted(Exception):
-    pass
-
-class ProductInvalidState(Exception):
-    pass
-
-
-class ProductOutOfStock(Exception):
-    pass
 
 def modificar_producto(
     id_producto: int,
@@ -400,6 +387,7 @@ def modificar_producto(
         if connection:
             connection.close()
 
+
 def gestionar_estado_producto(
     id_producto: int,
     id_vendedor: int,
@@ -412,7 +400,7 @@ def gestionar_estado_producto(
         accion = accion.upper()
 
         if accion not in ("PAUSAR", "REACTIVAR", "ELIMINAR"):
-            raise ValueError("Acción no válida.")
+            raise DatosInvalidos("Acción no válida.")
 
         connection = get_connection()
         cursor = connection.cursor()

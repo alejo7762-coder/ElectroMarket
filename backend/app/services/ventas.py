@@ -15,6 +15,9 @@ from app.services.utilidades import (
     iso,
     verificar_usuario_activo
 )
+from app.errores import (
+    SaleNotFound,
+)
 
 
 ESTADOS_VENTA = (
@@ -25,10 +28,6 @@ ESTADOS_VENTA = (
     "CANCELACION_SOLICITADA",
     "CANCELADA"
 )
-
-
-class SaleNotFound(Exception):
-    pass
 
 
 # Importe de reembolsos correspondientes a solicitudes aprobadas.

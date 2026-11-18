@@ -6,18 +6,13 @@ from app.services.productos import (
     ProductInvalidState,
     ProductOutOfStock
 )
-
-
-class UserNotActive(Exception):
-    pass
-
-
-class OwnProduct(Exception):
-    pass
-
-
-class CartProcessed(Exception):
-    pass
+from app.errores import (
+    DatosInvalidos,
+    NoEncontrado,
+    CartProcessed,
+    OwnProduct,
+    UserNotActive,
+)
 
 
 def obtener_carrito(id_usuario: int):
@@ -136,7 +131,7 @@ def agregar_producto(
 
     try:
         if cantidad <= 0:
-            raise ValueError(
+            raise DatosInvalidos(
                 "La cantidad debe ser mayor que cero."
             )
 
@@ -308,6 +303,7 @@ def agregar_producto(
         if connection:
             connection.close()
 
+
 def actualizar_cantidad(
     id_usuario: int,
     id_producto: int,
@@ -318,7 +314,7 @@ def actualizar_cantidad(
 
     try:
         if cantidad <= 0:
-            raise ValueError(
+            raise DatosInvalidos(
                 "La cantidad debe ser mayor que cero."
             )
 
@@ -439,6 +435,7 @@ def actualizar_cantidad(
         if connection:
             connection.close()
 
+
 def eliminar_producto_carrito(id_usuario: int, id_producto: int):
     conexion = get_connection()
     cursor = conexion.cursor()
@@ -466,7 +463,7 @@ def eliminar_producto_carrito(id_usuario: int, id_producto: int):
         carrito = cursor.fetchone()
 
         if not carrito:
-            raise ValueError("El usuario no tiene un carrito.")
+            raise DatosInvalidos("El usuario no tiene un carrito.")
 
         id_carrito = carrito[0]
         estado_carrito = carrito[1]
@@ -475,7 +472,7 @@ def eliminar_producto_carrito(id_usuario: int, id_producto: int):
             raise CartProcessed()
 
         if estado_carrito != "ACTIVO":
-            raise ValueError("El carrito no se encuentra activo.")
+            raise DatosInvalidos("El carrito no se encuentra activo.")
 
         # Eliminar el producto del carrito
         cursor.execute("""
@@ -485,7 +482,7 @@ def eliminar_producto_carrito(id_usuario: int, id_producto: int):
         """, (id_carrito, id_producto))
 
         if cursor.rowcount == 0:
-            raise ValueError("El producto no se encuentra en el carrito.")
+            raise NoEncontrado("El producto no se encuentra en el carrito.")
 
         # Actualizar la fecha del carrito
         cursor.execute("""
@@ -509,6 +506,7 @@ def eliminar_producto_carrito(id_usuario: int, id_producto: int):
     finally:
         cursor.close()
         conexion.close()
+
 
 def vaciar_carrito(id_usuario: int):
     conexion = get_connection()
@@ -537,7 +535,7 @@ def vaciar_carrito(id_usuario: int):
         carrito = cursor.fetchone()
 
         if not carrito:
-            raise ValueError("El usuario no tiene un carrito.")
+            raise DatosInvalidos("El usuario no tiene un carrito.")
 
         id_carrito = carrito[0]
         estado_carrito = carrito[1]
@@ -546,7 +544,7 @@ def vaciar_carrito(id_usuario: int):
             raise CartProcessed()
 
         if estado_carrito != "ACTIVO":
-            raise ValueError("El carrito no se encuentra activo.")
+            raise DatosInvalidos("El carrito no se encuentra activo.")
 
         # Eliminar todos los productos del carrito
         cursor.execute("""

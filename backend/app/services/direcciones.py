@@ -2,14 +2,10 @@ import pyodbc
 
 from app.db.connection import get_connection
 from app.services.carrito import UserNotActive
-
-
-class AddressNotFound(Exception):
-    pass
-
-
-class AddressInUse(Exception):
-    pass
+from app.errores import (
+    AddressInUse,
+    AddressNotFound,
+)
 
 
 def _verificar_usuario_activo(cursor, id_usuario: int):

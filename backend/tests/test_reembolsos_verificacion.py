@@ -1,4 +1,5 @@
 import app.routes.reembolsos as rutas_reembolsos
+from app.errores import RefundNotFound
 import app.routes.productos as rutas_productos
 from app.services.reembolsos import estado_reembolso_pago, referencia_reembolso
 from app.services.verificacion import evaluar_verificacion, MIN_FOTOS_VERIFICADO
@@ -41,7 +42,7 @@ def test_reembolsos_totales(client, auth, monkeypatch):
 
 def test_reembolso_inexistente_404(client, auth, monkeypatch):
     def falso(id_usuario, id_reembolso):
-        raise rutas_reembolsos.RefundNotFound("Reembolso no encontrado.")
+        raise RefundNotFound("Reembolso no encontrado.")
 
     monkeypatch.setattr(rutas_reembolsos, "obtener_reembolso", falso)
     assert client.get("/reembolsos/9", headers=auth).status_code == 404

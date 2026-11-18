@@ -17,13 +17,12 @@ FechaSolicitud y Referencia las agrega database/scripts/04_reembolsos.sql.
 
 from app.db.connection import get_connection
 from app.services.utilidades import a_float, iso, verificar_usuario_activo
+from app.errores import (
+    RefundNotFound,
+)
 
 
 MINUTOS_PROCESAMIENTO = 1
-
-
-class RefundNotFound(Exception):
-    pass
 
 
 def referencia_reembolso(id_reembolso: int) -> str:

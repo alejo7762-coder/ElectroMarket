@@ -11,28 +11,18 @@ from app.services.utilidades import (
     iso,
     verificar_usuario_activo
 )
+from app.errores import (
+    AddressNotFound,
+    EmptyCart,
+    OrderNotFound,
+    PurchaseValidationError,
+)
 
 
 CENTAVOS = Decimal("0.01")
 
 # Regla de simulación: tarjetas que terminan en estos dígitos se rechazan
 TARJETA_RECHAZADA_TERMINACION = "0000"
-
-
-class EmptyCart(Exception):
-    pass
-
-
-class AddressNotFound(Exception):
-    pass
-
-
-class PurchaseValidationError(Exception):
-    def __init__(self, problemas: list):
-        super().__init__(
-            "El carrito contiene productos que no se pueden comprar."
-        )
-        self.problemas = problemas
 
 
 def _simular_pago(metodo: str, numero_tarjeta: str | None):
@@ -501,10 +491,6 @@ def procesar_compra(
 # ----------------------------------------------------------------------
 # Consultas de pedidos (comprador)
 # ----------------------------------------------------------------------
-
-class OrderNotFound(Exception):
-    pass
-
 
 ESTADOS_PEDIDO = (
     "PENDIENTE_PAGO",

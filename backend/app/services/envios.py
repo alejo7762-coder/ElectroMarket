@@ -4,6 +4,12 @@ import uuid
 from app.db.connection import get_connection
 from app.services.carrito import UserNotActive
 from app.services.pedidos import _registrar_historial
+from app.errores import (
+    OrderNotFound,
+    SaleNotFound,
+    ShipmentConflict,
+    ShipmentNotFound,
+)
 
 
 TRANSPORTADORAS_SIMULADAS = [
@@ -38,22 +44,6 @@ ESTADO_VENTA_POR_ENVIO = {
     "EN_TRANSITO": "ENVIADA",
     "ENTREGADO": "ENTREGADA"
 }
-
-
-class SaleNotFound(Exception):
-    pass
-
-
-class ShipmentNotFound(Exception):
-    pass
-
-
-class OrderNotFound(Exception):
-    pass
-
-
-class ShipmentConflict(Exception):
-    pass
 
 
 def _iso(valor):

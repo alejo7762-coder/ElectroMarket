@@ -1,21 +1,21 @@
 from typing import Literal
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import (
+    APIRouter,
+    Depends,
+    HTTPException,
+    Query
+)
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field, model_validator
 
 from app.security import obtener_usuario_token
-from app.services.carrito import UserNotActive, CartProcessed
 from app.services.pedidos import (
     procesar_compra,
     listar_pedidos,
     obtener_pedido,
     obtener_historial_pedido,
-    EmptyCart,
-    OrderNotFound,
-    ESTADOS_PEDIDO,
-    AddressNotFound,
-    PurchaseValidationError
+    ESTADOS_PEDIDO
 )
 
 
@@ -51,48 +51,18 @@ def comprar(
     datos: CompraRequest,
     id_usuario: int = Depends(obtener_usuario_token)
 ):
-    try:
-        resultado = procesar_compra(
-            id_usuario=id_usuario,
-            id_direccion=datos.id_direccion,
-            metodo_pago=datos.metodo_pago,
-            numero_tarjeta=datos.numero_tarjeta
-        )
+    resultado = procesar_compra(
+        id_usuario=id_usuario,
+        id_direccion=datos.id_direccion,
+        metodo_pago=datos.metodo_pago,
+        numero_tarjeta=datos.numero_tarjeta
+    )
 
-        # Pago rechazado: 402 Payment Required
-        if resultado["pago"]["estado"] == "RECHAZADO":
-            return JSONResponse(status_code=402, content=resultado)
+    # Pago rechazado: 402 Payment Required
+    if resultado["pago"]["estado"] == "RECHAZADO":
+        return JSONResponse(status_code=402, content=resultado)
 
-        return resultado
-
-    except UserNotActive as error:
-        raise HTTPException(status_code=403, detail=str(error))
-
-    except CartProcessed as error:
-        raise HTTPException(status_code=409, detail=str(error))
-
-    except EmptyCart as error:
-        raise HTTPException(status_code=400, detail=str(error))
-
-    except AddressNotFound as error:
-        raise HTTPException(status_code=404, detail=str(error))
-
-    except PurchaseValidationError as error:
-        raise HTTPException(
-            status_code=409,
-            detail={
-                "mensaje": str(error),
-                "productos": error.problemas
-            }
-        )
-
-    except Exception as error:
-        print("ERROR AL PROCESAR LA COMPRA:", repr(error))
-
-        raise HTTPException(
-            status_code=500,
-            detail="No fue posible procesar la compra."
-        )
+    return resultado
 
 
 @router.get("/")
@@ -112,19 +82,7 @@ def mis_pedidos(
                 detail="Estado no válido. Usa: " + ", ".join(ESTADOS_PEDIDO)
             )
 
-    try:
-        return listar_pedidos(id_usuario, estado)
-
-    except UserNotActive as error:
-        raise HTTPException(status_code=403, detail=str(error))
-
-    except Exception as error:
-        print("ERROR AL LISTAR LOS PEDIDOS:", repr(error))
-
-        raise HTTPException(
-            status_code=500,
-            detail="No fue posible consultar los pedidos."
-        )
+    return listar_pedidos(id_usuario, estado)
 
 
 @router.get("/{id_pedido}")
@@ -132,19 +90,7 @@ def detalle_pedido(
     id_pedido: int,
     id_usuario: int = Depends(obtener_usuario_token)
 ):
-    try:
-        return obtener_pedido(id_usuario, id_pedido)
-
-    except OrderNotFound as error:
-        raise HTTPException(status_code=404, detail=str(error))
-
-    except Exception as error:
-        print("ERROR AL CONSULTAR EL PEDIDO:", repr(error))
-
-        raise HTTPException(
-            status_code=500,
-            detail="No fue posible consultar el pedido."
-        )
+    return obtener_pedido(id_usuario, id_pedido)
 
 
 @router.get("/{id_pedido}/historial")
@@ -152,16 +98,4 @@ def historial_pedido(
     id_pedido: int,
     id_usuario: int = Depends(obtener_usuario_token)
 ):
-    try:
-        return obtener_historial_pedido(id_usuario, id_pedido)
-
-    except OrderNotFound as error:
-        raise HTTPException(status_code=404, detail=str(error))
-
-    except Exception as error:
-        print("ERROR AL CONSULTAR EL HISTORIAL:", repr(error))
-
-        raise HTTPException(
-            status_code=500,
-            detail="No fue posible consultar el historial del pedido."
-        )
+    return obtener_historial_pedido(id_usuario, id_pedido)

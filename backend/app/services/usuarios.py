@@ -7,25 +7,15 @@ from argon2.exceptions import (
 )
 
 from app.db.connection import get_connection
+from app.errores import (
+    AccountInactive,
+    EmailAlreadyExists,
+    InvalidCredentials,
+    UserNotFound,
+)
 
 
 password_hasher = PasswordHasher()
-
-
-class EmailAlreadyExists(Exception):
-    pass
-
-
-class InvalidCredentials(Exception):
-    pass
-
-
-class AccountInactive(Exception):
-    pass
-
-
-class UserNotFound(Exception):
-    pass
 
 
 def registrar_usuario(

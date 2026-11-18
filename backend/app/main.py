@@ -1,8 +1,11 @@
+import logging
 from pathlib import Path
 
-from fastapi import FastAPI
-from fastapi.responses import RedirectResponse
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
+
+from app.errores import ErrorAplicacion
 
 from app.routes import usuarios
 from app.routes import productos
@@ -32,6 +35,29 @@ app = FastAPI(
     description="API para la plataforma de compraventa de productos electrónicos.",
     version="1.0.0"
 )
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)s %(name)s: %(message)s"
+)
+logger = logging.getLogger("electromarket")
+
+
+@app.exception_handler(ErrorAplicacion)
+def manejar_error_aplicacion(request: Request, error: ErrorAplicacion):
+    """Errores de negocio: cada clase define su código HTTP."""
+    return JSONResponse(status_code=error.status_code, content={"detail": error.detalle})
+
+
+@app.exception_handler(Exception)
+def manejar_error_inesperado(request: Request, error: Exception):
+    """Errores no previstos: se registran y el cliente recibe un 500 genérico."""
+    logger.exception("Error en %s %s", request.method, request.url.path)
+    return JSONResponse(
+        status_code=500,
+        content={"detail": "Ocurrió un error interno. Intenta de nuevo más tarde."}
+    )
+
 
 app.include_router(usuarios.router)
 app.include_router(productos.router)

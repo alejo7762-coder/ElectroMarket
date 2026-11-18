@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 # Cargar variables del archivo .env
 load_dotenv()
 
+
 def get_connection():
     server = os.getenv("DB_SERVER")
     database = os.getenv("DB_NAME")
