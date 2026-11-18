@@ -26,3 +26,10 @@ storage/
 *.log
 .DS_Store
 Thumbs.db
+
+# Modelo de IA entrenado (se genera automáticamente)
+backend/app/ia/modelo/
+
+# Dependencias de las pruebas de interfaz
+node_modules/
+package-lock.json

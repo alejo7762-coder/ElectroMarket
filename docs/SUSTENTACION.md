@@ -5,7 +5,7 @@ Material para presentar, demostrar y defender ElectroMarket ante la auditoría.
 ## 1. Antes de la presentación
 
 - [ ] `git pull` en la rama que se va a presentar y `pip install -r requirements.txt` dentro de `backend/`.
-- [ ] Base de datos al día: ejecutar `database/scripts/01` a `04` y comprobar que `99_verificar_esquema.sql` salga vacío.
+- [ ] Base de datos al día: ejecutar `database/scripts/01` a `05` y comprobar que `99_verificar_esquema.sql` salga vacío.
 - [ ] `pytest` en `backend/` → todas las pruebas pasan (mostrar el resultado si lo piden).
 - [ ] `python -m scripts.datos_demo` en `backend/` para tener vendedora, comprador y productos listos. Anotar los correos que imprime (contraseña `Demo12345`).
 - [ ] Reemplazar las fotos de prueba por fotos reales desde **Vender → Editar** (el script sube imágenes de 1 píxel).
@@ -33,10 +33,31 @@ Material para presentar, demostrar y defender ElectroMarket ante la auditoría.
 
 Si algo falla en vivo, el mismo flujo está automatizado en `backend/tests/integracion/test_flujo_sqlserver.py`.
 
+### Presentación final: prototipo, pruebas e IA (15 a 18 minutos)
+
+| Bloque | Tiempo | Qué mostrar |
+|---|---|---|
+| 1. Prototipo | 7 min | Pasos 2, 5, 6, 7, 8, 9, 12 del guion anterior (publicar, comprar, pago rechazado y aprobado, cancelar, reembolso) |
+| 2. Pruebas | 4 min | En `backend/`: `$env:ELECTROMARKET_DB_TESTS="1"; pytest` en vivo (92 aprobadas); abrir `docs/evidencias/pruebas/reporte_pruebas.html`; ejecutar `node pruebas_e2e/recorrido_ia.js` y mostrar las capturas |
+| 3. Servicio de IA | 5 min | Ver la tabla siguiente |
+
+**Demostración de la IA**
+
+| # | Acción | Qué explicar |
+|---|---|---|
+| 1 | Vender: escribir «iPhone como nuevo, la pantalla está rota y la batería dura poco», marcar todo el checklist y declarar «Como nuevo» | **Problema:** el vendedor puede exagerar el estado |
+| 2 | Pulsar **Analizar con IA** | **Integración:** el formulario llama a `POST /ia/inspeccionar`; el modelo corre dentro del backend |
+| 3 | Mostrar el panel: «Aceptable», confianza, alertas y expresiones clave | **Información que procesa** (texto, checklist, condición) y **resultado** (condición, confianza, coherencia, alertas, explicación) |
+| 4 | **Usar condición sugerida**, corregir el checklist, volver a analizar → «Coherente» | El vendedor decide; la IA solo sugiere |
+| 5 | Mis productos: la publicación incoherente de los datos demo muestra «IA: revisar» y no tiene «Estado verificado» | **Cómo usa el sistema el resultado:** se guarda en `InspeccionesIA` y condiciona la insignia |
+| 6 | Ficha del producto con la sesión del comprador | El comprador ve el análisis («El vendedor marcó…») |
+| 7 | `docs/evidencias/ia/metricas_modelo.md` | 94,4 % con descripciones escritas a mano; limitaciones |
+
 ## 3. Dónde está la evidencia de cada criterio
 
 | Criterio | Evidencia |
 |---|---|
+| Prototipo, pruebas e IA (entrega final) | [`ENTREGA.md`](ENTREGA.md), [`SERVICIO_IA.md`](SERVICIO_IA.md), `docs/evidencias/` |
 | Funcionamiento del sistema transaccional | Demostración; `tests/integracion` (flujo completo contra SQL Server); `pytest` |
 | Repositorio y código fuente | Estructura `backend/`, `frontend/`, `database/`; historial de Git y bitácora `commits/`; pull requests |
 | Calidad técnica | Capas rutas → servicios → BD; `app/errores.py`; validaciones Pydantic iguales a las columnas; transacciones con bloqueo; `database/README.md` (modelo y restricciones) |
@@ -78,6 +99,18 @@ El vendedor completa un checklist y describe los defectos (obligatorio). El prod
 **¿Cómo se probó?**
 Pruebas unitarias y de rutas sin base de datos (`pytest`) y pruebas de integración que recorren el flujo completo contra SQL Server real (`ELECTROMARKET_DB_TESTS=1`).
 
+**¿Qué tipo de IA es y por qué esa?**
+Aprendizaje automático supervisado: clasificación de texto con regresión logística sobre TF-IDF (scikit-learn), más reglas de coherencia. Es liviana, explicable (muestra qué expresiones influyeron), corre localmente sin costo ni internet y se entrena en segundos.
+
+**¿Con qué datos se entrenó? ¿Cómo saben que funciona?**
+Con 900 descripciones sintéticas generadas con plantillas (`app/ia/datos.py`). Para medirlo de forma honesta se usaron 36 descripciones escritas a mano que el modelo nunca vio: acierta el 94,4 %. Los errores están listados en `metricas_modelo.md`.
+
+**¿Qué pasa si la IA se equivoca o falla?**
+Solo sugiere y alerta: no rechaza publicaciones. Si el modelo fallara, la publicación sigue y el error queda en el log. El vendedor puede corregir y volver a analizar.
+
+**¿Cómo se mejoraría?**
+Reentrenarla con publicaciones reales etiquetadas (`python -m app.ia.evaluar`) y agregar análisis de las fotos.
+
 ## 5. Consultas útiles en SSMS durante la demo
 
 ```sql
@@ -94,6 +127,11 @@ SELECT SC.IdSolicitud, SC.Estado, R.Valor, R.Estado AS Reembolso, R.Referencia
 FROM SolicitudesCancelacion SC LEFT JOIN Reembolsos R ON R.IdSolicitud = SC.IdSolicitud
 ORDER BY SC.IdSolicitud DESC;
 
+-- Resultados del inspector de IA
+SELECT P.Nombre, P.Condicion, II.CondicionSugerida, II.Confianza, II.Coherencia, II.Alertas
+FROM InspeccionesIA II JOIN Productos P ON P.IdProducto = II.IdProducto
+ORDER BY II.FechaAnalisis DESC;
+
 -- Historial de estados
 SELECT TOP 10 * FROM HistorialEstados ORDER BY IdHistorial DESC;
 ```
@@ -109,6 +147,7 @@ Completen esta tabla con los integrantes reales. Cada persona debe poder explica
 | | Carrito, compra y pagos | `services/carrito.py`, `services/pedidos.py`, `services/pagos.py`, `carrito.html`, `checkout.html` |
 | | Ventas, envíos, cancelaciones y reembolsos | `services/ventas.py`, `services/envios.py`, `services/cancelaciones.py`, `services/reembolsos.py`, `pedidos.html`, `ventas.html` |
 | | Base de datos | `database/scripts/`, `database/README.md` |
+| | Servicio de IA | `app/ia/`, `routes/ia.py`, `services/inspeccion_ia.py`, `docs/SERVICIO_IA.md` |
 
 ## 7. Limitaciones conocidas (decirlas antes de que las pregunten)
 

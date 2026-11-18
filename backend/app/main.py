@@ -19,6 +19,7 @@ from app.routes import pagos
 from app.routes import ventas
 from app.routes import cancelaciones
 from app.routes import reembolsos
+from app.routes import ia
 
 
 # backend/ (contiene app/ y storage/) y raíz del repositorio (contiene frontend/)
@@ -71,6 +72,7 @@ app.include_router(pagos.router)
 app.include_router(ventas.router)
 app.include_router(cancelaciones.router)
 app.include_router(reembolsos.router)
+app.include_router(ia.router)
 
 
 @app.get("/", include_in_schema=False)

@@ -9,7 +9,8 @@ SQL Server Express. Los scripts están en `scripts/` y se ejecutan en SSMS en es
 | 3 | `02_reembolsos.sql` | Agrega `FechaSolicitud` y `Referencia` a `Reembolsos` | Sí |
 | 4 | `03_verificacion_productos.sql` | Crea `VerificacionProductos` (checklist de estado) | Sí |
 | 5 | `04_datos_iniciales.sql` | Inserta las categorías de productos | Sí |
-| 6 | `99_verificar_esquema.sql` | Solo lectura: comprueba estados `CHECK` y columnas que usa el código | Sí |
+| 6 | `05_inspeccion_ia.sql` | Crea `InspeccionesIA` (resultado del inspector de estado con IA) | Sí |
+| 7 | `99_verificar_esquema.sql` | Solo lectura: comprueba estados `CHECK` y columnas que usa el código | Sí |
 
 Si ya tienes la base creada, omite `00_modelo.sql` y ejecuta del 01 en adelante. Si las consultas de `99_verificar_esquema.sql` salen vacías, el esquema es compatible con la aplicación.
 
@@ -24,6 +25,7 @@ erDiagram
     Categorias ||--o{ Productos : agrupa
     Productos ||--o{ ImagenesProducto : fotos
     Productos ||--o| VerificacionProductos : checklist
+    Productos ||--o| InspeccionesIA : "análisis de IA"
     Usuarios ||--o{ Pedidos : compra
     Pedidos ||--o{ DetallesPedido : incluye
     Pedidos ||--|| Pagos : paga
@@ -48,6 +50,7 @@ erDiagram
 | `SolicitudesCancelacion` | `PENDIENTE` (la API la muestra como `SOLICITADA`), `APROBADA`, `RECHAZADA` |
 | `Reembolsos` | `PENDIENTE`, `PROCESADO` |
 | `Productos` | `PUBLICADO`, `PAUSADO`, `AGOTADO`, `ELIMINADO` |
+| `InspeccionesIA.Coherencia` | `COHERENTE`, `REVISAR` (un producto en `REVISAR` no puede quedar verificado) |
 
 `HistorialEstados` guarda los cambios de estado de pedidos y ventas; `HistorialEnvios`, los de envíos.
 

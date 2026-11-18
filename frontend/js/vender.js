@@ -255,6 +255,56 @@ async function prepararEdicion(id) {
 }
 
 /* ------------------------------------------------------------------ */
+/* Inspector de estado con IA                                          */
+/* ------------------------------------------------------------------ */
+
+async function analizarConIA() {
+    const form = document.getElementById("form-producto");
+    const destino = document.getElementById("resultado-ia");
+    const d = leerFormulario(form);
+
+    if (d.descripcion.length < 3) {
+        destino.classList.remove("oculto");
+        destino.innerHTML = `<div class="mensaje mensaje-aviso">Escribe la descripción para que la IA la pueda analizar.</div>`;
+        return;
+    }
+
+    await conBoton(document.getElementById("analizar-ia"), async () => {
+        try {
+            const r = await api("POST", "/ia/inspeccionar", {
+                cuerpo: {
+                    nombre: d.nombre,
+                    descripcion: d.descripcion,
+                    descripcion_defectos: d.descripcion_defectos || null,
+                    condicion: d.condicion,
+                    checklist: d.checklist
+                }
+            });
+
+            const distinta = r.condicion_sugerida !== d.condicion;
+            destino.innerHTML = panelIA(r, {
+                accion: distinta
+                    ? `<button type="button" class="boton boton-chico" data-usar-condicion="${r.condicion_sugerida}">Usar condición sugerida</button>`
+                    : ""
+            });
+            destino.classList.remove("oculto");
+        } catch (e) {
+            destino.classList.remove("oculto");
+            destino.innerHTML = `<div class="mensaje mensaje-error">${esc(e.message)}</div>`;
+        }
+    }, "Analizando...");
+}
+
+function usarCondicionSugerida(e) {
+    const boton = e.target.closest("[data-usar-condicion]");
+    if (!boton) return;
+
+    document.getElementById("form-producto").condicion.value = boton.dataset.usarCondicion;
+    aviso(`Condición cambiada a «${CONDICIONES[boton.dataset.usarCondicion]}». Vuelve a analizar para confirmar.`, "exito");
+    boton.remove();
+}
+
+/* ------------------------------------------------------------------ */
 /* Mis productos                                                       */
 /* ------------------------------------------------------------------ */
 
@@ -285,7 +335,8 @@ async function cargarMisProductos() {
                                 </td>
                                 <td class="numero">${precio(p.precio)}</td>
                                 <td class="numero">${p.stock}</td>
-                                <td>${etiquetaEstado(p.estado)}<div class="u-mt-6">${insigniaVerificacion(p.nivel_verificacion, { chica: true })}</div></td>
+                                <td>${etiquetaEstado(p.estado)}<div class="u-mt-6">${insigniaVerificacion(p.nivel_verificacion, { chica: true })}</div>
+                                    ${p.coherencia_ia === "REVISAR" ? `<div class="u-mt-6"><span class="insignia insignia-parcial insignia-chica" title="La IA encontró inconsistencias. Edita la publicación para revisarla.">${icono("ia")}IA: revisar</span></div>` : ""}</td>
                                 <td>
                                     <div class="grupo-botones">
                                         <a class="boton boton-secundario boton-chico" href="vender.html?editar=${p.id_producto}">Editar</a>
@@ -341,6 +392,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     const form = document.getElementById("form-producto");
 
     form.addEventListener("submit", guardar);
+    document.getElementById("analizar-ia").addEventListener("click", analizarConIA);
+    document.getElementById("resultado-ia").addEventListener("click", usarCondicionSugerida);
     document.getElementById("fotos").addEventListener("change", elegirFotos);
     document.getElementById("fotos-actuales").addEventListener("click", accionesFotos);
     document.getElementById("tabla-productos").addEventListener("click", accionProducto);

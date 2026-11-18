@@ -26,13 +26,15 @@ PUNTOS_CONDICION = {"COMO_NUEVO": 30, "BUENO": 20, "ACEPTABLE": 10}
 SIN_DEFECTOS = ("ninguno", "ninguna", "sin defectos", "no tiene", "n/a", "na")
 
 
-def evaluar_verificacion(checklist: dict | None, total_fotos: int, condicion: str, defectos: str | None):
+def evaluar_verificacion(checklist: dict | None, total_fotos: int, condicion: str, defectos: str | None,
+                         inspeccion_ia: dict | None = None):
     """
     Calcula nivel, puntaje y requisitos faltantes. Función pura.
 
     - VERIFICADO: todos los criterios esenciales, al menos
       MIN_FOTOS_VERIFICADO fotos y defectos descritos.
-    - PARCIAL: hay checklist pero falta algún requisito.
+    - PARCIAL: hay checklist pero falta algún requisito (o el inspector de IA
+      encontró inconsistencias).
     - SIN_VERIFICAR: el vendedor no completó el checklist.
     """
     if not checklist:
@@ -61,6 +63,10 @@ def evaluar_verificacion(checklist: dict | None, total_fotos: int, condicion: st
     defectos = (defectos or "").strip()
     if not defectos:
         faltantes.append("No se describieron los defectos o el desgaste.")
+
+    # La IA encontró contradicciones entre la descripción y el checklist
+    if inspeccion_ia and inspeccion_ia.get("coherencia") == "REVISAR":
+        faltantes.append("El inspector de IA encontró inconsistencias entre la descripción y el checklist.")
 
     # 50 puntos por criterios (esenciales pesan el doble), 30 por condición,
     # 20 por fotos (proporcional hasta el mínimo).
@@ -108,7 +114,8 @@ def guardar_verificacion(cursor, id_producto: int, checklist: dict, defectos: st
         )
 
 
-def obtener_verificacion(cursor, id_producto: int, total_fotos: int, condicion: str):
+def obtener_verificacion(cursor, id_producto: int, total_fotos: int, condicion: str,
+                         inspeccion_ia: dict | None = None):
     columnas = ", ".join(col for col, _, _ in CRITERIOS.values())
 
     cursor.execute(
@@ -123,11 +130,11 @@ def obtener_verificacion(cursor, id_producto: int, total_fotos: int, condicion: 
     fila = cursor.fetchone()
 
     if fila is None:
-        return evaluar_verificacion(None, total_fotos, condicion, None)
+        return evaluar_verificacion(None, total_fotos, condicion, None, inspeccion_ia)
 
     checklist = {clave: bool(getattr(fila, col)) for clave, (col, _, _) in CRITERIOS.items()}
 
-    return evaluar_verificacion(checklist, total_fotos, condicion, fila.DescripcionDefectos)
+    return evaluar_verificacion(checklist, total_fotos, condicion, fila.DescripcionDefectos, inspeccion_ia)
 
 
 # Fragmento SQL para listados: nivel de verificación calculado en la BD
@@ -138,6 +145,8 @@ SQL_NIVEL_VERIFICACION = f"""
              AND LEN(LTRIM(RTRIM(VP.DescripcionDefectos))) > 0
              AND (SELECT COUNT(*) FROM ImagenesProducto IV
                   WHERE IV.IdProducto = P.IdProducto) >= {MIN_FOTOS_VERIFICADO}
+             AND NOT EXISTS (SELECT 1 FROM InspeccionesIA II
+                             WHERE II.IdProducto = P.IdProducto AND II.Coherencia = 'REVISAR')
             THEN 'VERIFICADO'
         ELSE 'PARCIAL'
     END

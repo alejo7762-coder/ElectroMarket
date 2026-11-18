@@ -391,6 +391,41 @@ function insigniaVerificacion(nivel, { chica = false } = {}) {
         ${simbolo}${esc(texto)}</span>`;
 }
 
+/* Resultado del inspector de estado con IA (vender y ficha del producto) */
+function panelIA(r, { vistaComprador = false, accion = "" } = {}) {
+    if (!r) return "";
+
+    const porcentaje = Math.round(r.confianza * 100);
+    const alertas = (r.alertas || []).map((a) => vistaComprador
+        ? a.replace(/^Marcaste/, "El vendedor marcó").replace(/^Declaraste/, "El vendedor declaró")
+        : a);
+    const coherente = r.coherencia === "COHERENTE";
+
+    return `
+        <div class="panel-ia ${coherente ? "ia-coherente" : "ia-revisar"}">
+            <div class="panel-ia-cabecera">
+                <span class="titulo-ia">${icono("ia")}Análisis de IA</span>
+                <span class="estado ${coherente ? "estado-ok" : "estado-alerta"}">${coherente ? "Coherente" : "Revisar"}</span>
+            </div>
+            <div class="ia-sugerencia">
+                <span>Condición según la descripción</span>
+                <strong>${esc(CONDICIONES[r.condicion_sugerida] || r.condicion_sugerida)}</strong>
+            </div>
+            <div class="ia-confianza" title="Confianza del modelo">
+                <div class="barra-puntaje barra-${porcentaje >= 70 ? "alto" : porcentaje >= 50 ? "medio" : "bajo"}"><span style="width:${porcentaje}%"></span></div>
+                <small>${porcentaje} % de confianza</small>
+            </div>
+            ${alertas.length ? `<ul class="ia-alertas">${alertas.map((a) => `<li>${icono("alerta")}<span>${esc(a)}</span></li>`).join("")}</ul>`
+                : `<p class="ia-ok">${icono("check")}La descripción coincide con el checklist${vistaComprador ? " del vendedor" : ""}.</p>`}
+            ${(r.terminos_clave || []).length ? `
+                <div class="ia-terminos"><small>Expresiones que más influyeron:</small>
+                    ${r.terminos_clave.map((t) => `<span class="ia-termino">${esc(t)}</span>`).join("")}
+                </div>` : ""}
+            ${accion}
+            <small class="ia-version">Modelo ${esc(r.version_modelo)} · local, sin servicios externos</small>
+        </div>`;
+}
+
 const METODOS_PAGO = {
     SIMULADO: "Pago simulado",
     TARJETA_SIMULADA: "Tarjeta (simulada)",

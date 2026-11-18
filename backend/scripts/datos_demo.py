@@ -1,8 +1,9 @@
 """
 Carga datos de demostración usando la propia API (con todas sus validaciones).
 
-Crea una vendedora con productos publicados (checklist y 3 fotos cada uno)
-y un comprador con una dirección. Escribe en la base configurada en .env.
+Crea una vendedora con productos publicados (checklist y fotos), uno de
+ellos incoherente para mostrar el inspector de IA, y un comprador con una
+dirección. Escribe en la base configurada en .env.
 
 Uso, desde backend/:
     python -m scripts.datos_demo
@@ -25,6 +26,15 @@ PRODUCTOS = [
     ("Televisor Samsung 50 pulgadas", 1400000, 1, "COMO_NUEVO", True, "Ninguno"),
     ("Nevera LG 300 L", 950000, 2, "ACEPTABLE", False, "Golpe en la puerta; enfría correctamente."),
 ]
+
+# Publicación incoherente: el inspector de IA la marca para REVISAR
+INCOHERENTE = {
+    "nombre": "Portátil Lenovo IdeaPad",
+    "descripcion": "Portátil como nuevo, se recalienta y se apaga solo cuando lo exijo.",
+    "precio": 1200000, "stock": 1, "condicion": "COMO_NUEVO",
+    "checklist": {"enciende": True, "pantalla_sin_danos": True, "bateria_ok": True},
+    "descripcion_defectos": "Ninguno",
+}
 
 
 def _ok(respuesta, codigo=200):
@@ -63,6 +73,9 @@ def main():
         for i in range(3 if con_fotos else 1):
             _ok(cliente.post(f"/productos/{id_producto}/imagenes", headers=vendedora,
                              files={"archivo": (f"foto{i}.png", FOTO, "image/png")}), 201)
+
+    _ok(cliente.post("/productos/publicar", headers=vendedora,
+                     json={**INCOHERENTE, "id_categoria": id_categoria}), 201)
 
     _ok(cliente.post("/direcciones/", headers=comprador, json={
         "direccion": "Calle 10 # 5-20", "ciudad": "Bogotá",

@@ -1,6 +1,8 @@
 # ElectroMarket
 
-Sistema transaccional de compraventa de productos electrónicos usados (celulares, televisores, neveras, etc.). Cualquier usuario puede comprar y vender. Los pagos son simulados.
+Sistema transaccional de compraventa de productos electrónicos usados (celulares, televisores, neveras, etc.). Cualquier usuario puede comprar y vender. Los pagos son simulados. Incluye un **inspector de estado con IA** que revisa cada publicación ([`docs/SERVICIO_IA.md`](docs/SERVICIO_IA.md)).
+
+> Entrega final (prototipo, pruebas e IA): [`docs/ENTREGA.md`](docs/ENTREGA.md)
 
 | Elemento | Tecnología |
 |---|---|
@@ -10,7 +12,8 @@ Sistema transaccional de compraventa de productos electrónicos usados (celulare
 | Conexión | pyodbc + ODBC Driver for SQL Server |
 | Contraseñas | Argon2 |
 | Autenticación | JWT (Bearer) |
-| Pruebas | pytest |
+| Inteligencia artificial | scikit-learn (modelo local) |
+| Pruebas | pytest, pytest-html, pytest-cov y Playwright (interfaz) |
 
 ---
 
@@ -24,6 +27,7 @@ ElectroMarket/
 │   │   ├── errores.py           errores de negocio y su código HTTP
 │   │   ├── security.py          tokens JWT
 │   │   ├── db/connection.py     conexión a SQL Server
+│   │   ├── ia/                  inspector de estado: modelo, datos y evaluación
 │   │   ├── routes/              endpoints: validan la entrada (Pydantic)
 │   │   └── services/            lógica de negocio y consultas SQL
 │   ├── tests/                   pruebas (pytest)
@@ -36,10 +40,14 @@ ElectroMarket/
 │   ├── js/                      api.js, iconos.js y tema.js (comunes) y un archivo por página
 │   └── *.html
 ├── docs/
-│   └── SUSTENTACION.md          guion de demostración y decisiones técnicas
+│   ├── ENTREGA.md               índice de la entrega final
+│   ├── SERVICIO_IA.md           servicio de inteligencia artificial
+│   ├── SUSTENTACION.md          guion de demostración y decisiones técnicas
+│   └── evidencias/              reportes de pruebas, métricas de IA y capturas
+├── pruebas_e2e/                 pruebas de interfaz con Playwright
 ├── database/
 │   ├── README.md                modelo, estados y orden de los scripts
-│   └── scripts/                 scripts SQL (00 a 04 y 99)
+│   └── scripts/                 scripts SQL (00 a 05 y 99)
 └── commits/                     bitácora del historial de commits
 ```
 
@@ -90,7 +98,8 @@ Ejecuta en SSMS los scripts de `database/scripts/` en orden:
 1. `00_modelo.sql`: crea la base y todas las tablas (omítelo si ya la tienes).
 2. `01_perfil_usuarios.sql`, `02_reembolsos.sql` y `03_verificacion_productos.sql`: cambios sobre el modelo; se pueden ejecutar varias veces.
 3. `04_datos_iniciales.sql`: categorías de productos.
-4. `99_verificar_esquema.sql`: solo lectura; si sus consultas salen vacías, el esquema es compatible.
+4. `05_inspeccion_ia.sql`: tabla con los resultados del inspector de IA.
+5. `99_verificar_esquema.sql`: solo lectura; si sus consultas salen vacías, el esquema es compatible.
 
 El diagrama del modelo, los estados y las reglas del esquema están en [`database/README.md`](database/README.md).
 
@@ -231,6 +240,14 @@ Al publicar o editar, el cuerpo debe incluir:
 
 `GET /productos/{id}` devuelve `verificacion` (nivel, puntaje 0-100, criterios, defectos y requisitos faltantes); los listados devuelven `nivel_verificacion`. Es `VERIFICADO` si cumple los tres criterios esenciales, tiene al menos 3 fotos y defectos declarados; `PARCIAL` si falta algo; `SIN_VERIFICAR` si no hay checklist.
 
+### Inteligencia artificial
+| Método | Ruta | Descripción |
+|---|---|---|
+| POST | `/ia/inspeccionar` | Analiza un borrador de publicación (descripción, defectos, checklist, condición) sin guardarlo |
+| GET | `/ia/modelo` | Versión, descripción y métricas del modelo |
+
+Al publicar o editar un producto, el análisis se guarda en `InspeccionesIA` y aparece en `GET /productos/{id}` como `inspeccion_ia`. Si la coherencia es `REVISAR`, el producto no puede quedar `VERIFICADO`. El modelo se entrena solo la primera vez; para reentrenarlo y regenerar las métricas: `python -m app.ia.evaluar`.
+
 ### Ventas (vendedor)
 | Método | Ruta | Descripción |
 |---|---|---|
@@ -319,7 +336,12 @@ pytest
 $env:ELECTROMARKET_DB_TESTS = "1"   # cubre compra, rechazo, cancelaciones, envíos, verificación y reembolsos
 $env:ELECTROMARKET_ID_CATEGORIA = "1"
 pytest tests/integracion -v
+
+# Reporte HTML y cobertura (evidencias)
+pytest -o addopts="" -v --html=../docs/evidencias/pruebas/reporte_pruebas.html --self-contained-html --cov=app
 ```
+
+Pruebas de interfaz en navegador: ver [`pruebas_e2e/README.md`](pruebas_e2e/README.md). Resumen de resultados: [`docs/evidencias/pruebas/RESUMEN.md`](docs/evidencias/pruebas/RESUMEN.md).
 
 ## 9. Repositorio
 

@@ -71,6 +71,14 @@
                         <textarea class="control" id="descripcion_defectos" name="descripcion_defectos" maxlength="1000" rows="3"
                                   placeholder="Ej.: rayón leve en la esquina superior, batería al 85 %. Escribe «Ninguno» si no tiene."></textarea>
                     </div>
+                    <div class="bloque-ia">
+                        <div>
+                            <strong class="titulo-ia" data-icono="ia">Inspector de estado con IA</strong>
+                            <p class="ayuda">Revisa tu descripción antes de publicar: sugiere la condición real y avisa si algo no coincide con el checklist.</p>
+                        </div>
+                        <button type="button" class="boton boton-secundario" id="analizar-ia">Analizar con IA</button>
+                    </div>
+                    <div id="resultado-ia" class="oculto"></div>
                 </fieldset>
 
                 <div class="campo" id="bloque-fotos-nuevas">

@@ -253,3 +253,38 @@ def test_verificacion_y_reembolsos(client):
     tipos = {c["tipo"] for c in _ok(client.get(f"/pedidos/{id_pedido}", headers=comprador))["cancelaciones"]}
     assert tipos == {"PARCIAL", "TOTAL"}
     assert _stock(client, id_producto) == 3
+
+
+def test_inspector_ia_en_la_publicacion(client):
+    vendedor = _crear_usuario(client, "VendedorIA")
+
+    # El vendedor marca "pantalla sin daños" pero describe una pantalla rota
+    id_producto = _ok(client.post("/productos/publicar", headers=vendedor, json={
+        "id_categoria": ID_CATEGORIA, "nombre": "Celular con detalle",
+        "descripcion": "Funciona, pero la pantalla está rota en una esquina.",
+        "precio": 300000, "stock": 1, "condicion": "BUENO",
+        "checklist": {"enciende": True, "pantalla_sin_danos": True, "bateria_ok": True},
+        "descripcion_defectos": "Pantalla rota"
+    }), 201)["id_producto"]
+
+    for i in range(3):
+        _ok(client.post(f"/productos/{id_producto}/imagenes", headers=vendedor,
+                        files={"archivo": (f"f{i}.png", _png(), "image/png")}), 201)
+
+    producto = _ok(client.get(f"/productos/{id_producto}"))
+    assert producto["inspeccion_ia"]["coherencia"] == "REVISAR"
+    assert producto["verificacion"]["nivel"] == "PARCIAL"  # la IA impide VERIFICADO
+    mis = _ok(client.get("/mis-productos/", headers=vendedor))["productos"]
+    assert mis[0]["coherencia_ia"] == "REVISAR" and mis[0]["nivel_verificacion"] == "PARCIAL"
+
+    # Corrige la publicación de forma coherente: queda VERIFICADO
+    _ok(client.put(f"/productos/{id_producto}", headers=vendedor, json={
+        "id_categoria": ID_CATEGORIA, "nombre": "Celular con detalle",
+        "descripcion": "Funciona, pero la pantalla está rota en una esquina.",
+        "precio": 250000, "stock": 1, "condicion": "ACEPTABLE",
+        "checklist": {"enciende": True, "pantalla_sin_danos": False, "bateria_ok": True},
+        "descripcion_defectos": "Pantalla rota"
+    }))
+    producto = _ok(client.get(f"/productos/{id_producto}"))
+    assert producto["inspeccion_ia"]["coherencia"] == "COHERENTE"
+    assert producto["inspeccion_ia"]["condicion_sugerida"] == "ACEPTABLE"

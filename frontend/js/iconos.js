@@ -63,6 +63,7 @@ const TRAZOS = {
     camara: '<path d="M4 8h3l1.5-2.5h7L17 8h3a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13.5" r="3.5"/>',
     calendario: '<rect x="3.5" y="5" width="17" height="15.5" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/>',
     foto: '<rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="10" r="2"/><path d="M21 16l-5-5-8 8"/>',
+    ia: '<path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9zM19 15.5l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8zM5.5 2.5l.6 1.5 1.5.6-1.5.6-.6 1.5-.6-1.5L3.4 4.6l1.5-.6z"/>',
     caja: '<path d="M3.5 7.5L12 3l8.5 4.5v9L12 21l-8.5-4.5zM3.5 7.5L12 12l8.5-4.5M12 12v9"/>'
 };
 
@@ -78,6 +79,7 @@ const ICONOS = {
     usuario: icono("cuenta"),
     buscar: icono("buscar"),
     foto: icono("foto"),
+    ia: '<path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9zM19 15.5l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8zM5.5 2.5l.6 1.5 1.5.6-1.5.6-.6 1.5-.6-1.5L3.4 4.6l1.5-.6z"/>',
     caja: icono("caja"),
     rayo: `<svg viewBox="0 0 40 60" fill="currentColor" aria-hidden="true"><path d="M24 0L4 34h14l-4 26 22-36H22z"/></svg>`
 };
@@ -85,6 +87,7 @@ const ICONOS = {
 /* Texto del botón (o enlace del menú) -> icono */
 const ICONO_POR_TEXTO = [
     // exactos
+    ["Analizar con IA", "ia"], ["Usar condición sugerida", "check"],
     ["Agregar al carrito", "carritoMas"], ["Comprar ahora", "relampago"],
     ["Ir a la tienda", "tienda"], ["Seguir comprando", "tienda"], ["Volver a la tienda", "tienda"],
     ["Eliminar", "basura"], ["Quitar", "basura"], ["Vaciar carrito", "basura"],

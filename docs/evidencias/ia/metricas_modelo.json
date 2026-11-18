@@ -1,0 +1,83 @@
+{
+  "fecha": "2026-11-18T04:57:04",
+  "version_modelo": "inspector-estado-1.0",
+  "ejemplos_entrenamiento": 900,
+  "validacion_interna": {
+    "casos": 180,
+    "exactitud": 1.0,
+    "reporte": {
+      "ACEPTABLE": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 60.0
+      },
+      "BUENO": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 60.0
+      },
+      "COMO_NUEVO": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 60.0
+      },
+      "accuracy": 1.0,
+      "macro avg": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 180.0
+      },
+      "weighted avg": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 180.0
+      }
+    }
+  },
+  "evaluacion_manual": {
+    "casos": 36,
+    "exactitud": 0.9444444444444444,
+    "reporte": {
+      "ACEPTABLE": {
+        "precision": 1.0,
+        "recall": 0.9166666666666666,
+        "f1-score": 0.9565217391304348,
+        "support": 12.0
+      },
+      "BUENO": {
+        "precision": 0.9166666666666666,
+        "recall": 0.9166666666666666,
+        "f1-score": 0.9166666666666666,
+        "support": 12.0
+      },
+      "COMO_NUEVO": {
+        "precision": 0.9230769230769231,
+        "recall": 1.0,
+        "f1-score": 0.96,
+        "support": 12.0
+      },
+      "accuracy": 0.9444444444444444,
+      "macro avg": {
+        "precision": 0.9465811965811964,
+        "recall": 0.9444444444444443,
+        "f1-score": 0.9443961352657005,
+        "support": 36.0
+      },
+      "weighted avg": {
+        "precision": 0.9465811965811967,
+        "recall": 0.9444444444444444,
+        "f1-score": 0.9443961352657004,
+        "support": 36.0
+      }
+    }
+  },
+  "coherencia": {
+    "casos": 5,
+    "aciertos": 5
+  }
+}

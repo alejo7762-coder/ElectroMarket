@@ -1,0 +1,37 @@
+texto,defectos,condicion
+"Vendo iPhone 13 comprado hace un mes, lo tengo con forro y vidrio templado, nunca se ha caído. Viene con caja y cable original.",Ninguno,COMO_NUEVO
+"PlayStation 5 casi sin estrenar, la usé dos fines de semana. Incluye control, cables y caja.",Ninguno,COMO_NUEVO
+"Portátil Asus nuevo, todavía con los stickers de fábrica y la garantía de la tienda por un año más.",No tiene,COMO_NUEVO
+"Televisor Sony de 55 pulgadas, estuvo guardado, lo encendí solo para verificar. Impecable, con control y base.",Ninguno,COMO_NUEVO
+"Audífonos inalámbricos sin usar, regalo repetido. Se entregan sellados con factura.",Ninguno,COMO_NUEVO
+"Tablet Lenovo en estado excelente, sin un solo rayón, batería al 99 %, con su cargador original.",Ninguno,COMO_NUEVO
+"Nevera LG de exhibición, nunca se usó en casa. Perfecta y con garantía del fabricante.",Ninguno,COMO_NUEVO
+"Reloj inteligente Huawei, lo usé una semana y no me gustó. Está como recién salido de la caja.",Sin defectos,COMO_NUEVO
+"Consola Nintendo Switch OLED comprada el mes pasado, perfecta, con todos sus accesorios y la factura.",Ninguno,COMO_NUEVO
+"Microondas Samsung sin uso, me lo regalaron y ya tenía uno. Está en la caja.",Ninguno,COMO_NUEVO
+"Cámara Sony con muy poco uso, menos de 200 disparos, sin marcas, con estuche y caja.",Ninguno,COMO_NUEVO
+"Parlante Bose comprado hace tres semanas, funciona perfecto y luce nuevo. Incluye cable y factura.",Ninguno,COMO_NUEVO
+"Celular Motorola con año y medio de uso, funciona muy bien, tiene unos rayoncitos en los bordes que casi no se ven.",Rayones leves en los bordes,BUENO
+"Portátil Dell para oficina, todo funciona, el teclado muestra algo de desgaste y la batería dura unas cuatro horas.",Desgaste en el teclado,BUENO
+"Televisor Samsung 40 pulgadas, buena imagen, el control tiene algunos botones gastados.",Control gastado,BUENO
+"Lavadora LG con dos años de uso, lava y centrifuga bien, tiene una marquita en la tapa.",Marca en la tapa,BUENO
+"Xbox Series S en buen estado general, la carcasa tiene un par de marcas pequeñas. Viene con un control.",Marcas pequeñas en la carcasa,BUENO
+"iPad Air usado, funciona sin problemas, batería al 87 %, un rayón fino en la parte trasera.",Rayón fino atrás,BUENO
+"Monitor LG 27 pulgadas, buena calidad de imagen, la base tiene desgaste por el uso.",Base desgastada,BUENO
+"Nevera Haceb de 250 litros, enfría bien, la puerta tiene un detalle mínimo en la pintura.",Detalle en la pintura,BUENO
+"Audífonos JBL con uso moderado, suenan bien, las almohadillas se ven un poco usadas.",Almohadillas usadas,BUENO
+"Celular Xiaomi de dos años, funciona correctamente, el cargador no es el original.",Cargador no original,BUENO
+"Licuadora Oster funcionando bien, el vaso tiene algunas marcas por el uso diario.",Marcas en el vaso,BUENO
+"Portátil Acer cuidado, todo sirve, tiene pequeñas marcas en la tapa.",Marcas en la tapa,BUENO
+"Celular Samsung con la pantalla partida en una esquina, igual se puede usar el táctil.",Pantalla partida,ACEPTABLE
+"Portátil HP que se recalienta y se apaga cuando se exige mucho. La bisagra izquierda está suelta.",Recalentamiento y bisagra suelta,ACEPTABLE
+"Televisor con una franja de líneas verticales a un lado, el resto de la imagen se ve bien.",Líneas en la imagen,ACEPTABLE
+"iPhone 11 con batería al 72 % de condición, la tapa trasera tiene una grieta.",Grieta en la tapa,ACEPTABLE
+"Lavadora que hace mucho ruido al centrifugar y la manguera gotea un poco.",Ruido y goteo,ACEPTABLE
+"PlayStation 4 que a veces no lee los discos, se le cambió la fuente en un taller.",Lector falla y fue reparada,ACEPTABLE
+"Tablet con el puerto de carga dañado, toca mover el cable para que cargue.",Puerto dañado,ACEPTABLE
+"Nevera que enfría poco y tiene óxido en la parte de abajo. Se vende para repuesto o arreglo.",Óxido y enfría poco,ACEPTABLE
+"Celular con la cámara trasera borrosa y el botón de volumen hundido.",Cámara y botón dañados,ACEPTABLE
+"Monitor con varios pixeles muertos en el centro y un golpe en el marco.",Pixeles muertos y golpe,ACEPTABLE
+"Microondas que calienta pero la puerta no cierra bien, hay que empujarla.",Puerta defectuosa,ACEPTABLE
+"Portátil Lenovo con teclado que falla en algunas teclas y batería que no dura nada.",Teclado y batería,ACEPTABLE

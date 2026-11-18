@@ -1,0 +1,1094 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8"/>
+    <title id="head-title">reporte_pruebas.html</title>
+      <style type="text/css">body {
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 12px;
+  /* do not increase min-width as some may use split screens */
+  min-width: 800px;
+  color: #999;
+}
+
+h1 {
+  font-size: 24px;
+  color: black;
+}
+
+h2 {
+  font-size: 16px;
+  color: black;
+}
+
+p {
+  color: black;
+}
+
+a {
+  color: #999;
+}
+
+table {
+  border-collapse: collapse;
+}
+
+/******************************
+ * SUMMARY INFORMATION
+ ******************************/
+#environment td {
+  padding: 5px;
+  border: 1px solid #e6e6e6;
+  vertical-align: top;
+}
+#environment tr:nth-child(odd) {
+  background-color: #f6f6f6;
+}
+#environment ul {
+  margin: 0;
+  padding: 0 20px;
+}
+
+/******************************
+ * TEST RESULT COLORS
+ ******************************/
+span.passed,
+.passed .col-result {
+  color: green;
+}
+
+span.skipped,
+span.xfailed,
+span.rerun,
+.skipped .col-result,
+.xfailed .col-result,
+.rerun .col-result {
+  color: orange;
+}
+
+span.error,
+span.failed,
+span.xpassed,
+.error .col-result,
+.failed .col-result,
+.xpassed .col-result {
+  color: red;
+}
+
+.col-links__extra {
+  margin-right: 3px;
+}
+
+/******************************
+ * RESULTS TABLE
+ *
+ * 1. Table Layout
+ * 2. Extra
+ * 3. Sorting items
+ *
+ ******************************/
+/*------------------
+ * 1. Table Layout
+ *------------------*/
+#results-table {
+  border: 1px solid #e6e6e6;
+  color: #999;
+  font-size: 12px;
+  width: 100%;
+}
+#results-table th,
+#results-table td {
+  padding: 5px;
+  border: 1px solid #e6e6e6;
+  text-align: left;
+}
+#results-table th {
+  font-weight: bold;
+}
+
+/*------------------
+ * 2. Extra
+ *------------------*/
+.logwrapper {
+  max-height: 230px;
+  overflow-y: scroll;
+  background-color: #e6e6e6;
+}
+.logwrapper.expanded {
+  max-height: none;
+}
+.logwrapper.expanded .logexpander:after {
+  content: "collapse [-]";
+}
+.logwrapper .logexpander {
+  z-index: 1;
+  position: sticky;
+  top: 10px;
+  width: max-content;
+  border: 1px solid;
+  border-radius: 3px;
+  padding: 5px 7px;
+  margin: 10px 0 10px calc(100% - 80px);
+  cursor: pointer;
+  background-color: #e6e6e6;
+}
+.logwrapper .logexpander:after {
+  content: "expand [+]";
+}
+.logwrapper .logexpander:hover {
+  color: #000;
+  border-color: #000;
+}
+.logwrapper .log {
+  min-height: 40px;
+  position: relative;
+  top: -50px;
+  height: calc(100% + 50px);
+  border: 1px solid #e6e6e6;
+  color: black;
+  display: block;
+  font-family: "Courier New", Courier, monospace;
+  padding: 5px;
+  padding-right: 80px;
+  white-space: pre-wrap;
+}
+
+div.media {
+  border: 1px solid #e6e6e6;
+  float: right;
+  height: 240px;
+  margin: 0 5px;
+  overflow: hidden;
+  width: 320px;
+}
+
+.media-container {
+  display: grid;
+  grid-template-columns: 25px auto 25px;
+  align-items: center;
+  flex: 1 1;
+  overflow: hidden;
+  height: 200px;
+}
+
+.media-container--fullscreen {
+  grid-template-columns: 0px auto 0px;
+}
+
+.media-container__nav--right,
+.media-container__nav--left {
+  text-align: center;
+  cursor: pointer;
+}
+
+.media-container__viewport {
+  cursor: pointer;
+  text-align: center;
+  height: inherit;
+}
+.media-container__viewport img,
+.media-container__viewport video {
+  object-fit: cover;
+  width: 100%;
+  max-height: 100%;
+}
+
+.media__name,
+.media__counter {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  flex: 0 0 25px;
+  align-items: center;
+}
+
+.collapsible td:not(.col-links) {
+  cursor: pointer;
+}
+.collapsible td:not(.col-links):hover::after {
+  color: #bbb;
+  font-style: italic;
+  cursor: pointer;
+}
+
+.col-result {
+  width: 130px;
+}
+.col-result:hover::after {
+  content: " (hide details)";
+}
+
+.col-result.collapsed:hover::after {
+  content: " (show details)";
+}
+
+#environment-header h2:hover::after {
+  content: " (hide details)";
+  color: #bbb;
+  font-style: italic;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+#environment-header.collapsed h2:hover::after {
+  content: " (show details)";
+  color: #bbb;
+  font-style: italic;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+/*------------------
+ * 3. Sorting items
+ *------------------*/
+.sortable {
+  cursor: pointer;
+}
+.sortable.desc:after {
+  content: " ";
+  position: relative;
+  left: 5px;
+  bottom: -12.5px;
+  border: 10px solid #4caf50;
+  border-bottom: 0;
+  border-left-color: transparent;
+  border-right-color: transparent;
+}
+.sortable.asc:after {
+  content: " ";
+  position: relative;
+  left: 5px;
+  bottom: 12.5px;
+  border: 10px solid #4caf50;
+  border-top: 0;
+  border-left-color: transparent;
+  border-right-color: transparent;
+}
+
+.hidden, .summary__reload__button.hidden {
+  display: none;
+}
+
+.summary__data {
+  flex: 0 0 550px;
+}
+.summary__reload {
+  flex: 1 1;
+  display: flex;
+  justify-content: center;
+}
+.summary__reload__button {
+  flex: 0 0 300px;
+  display: flex;
+  color: white;
+  font-weight: bold;
+  background-color: #4caf50;
+  text-align: center;
+  justify-content: center;
+  align-items: center;
+  border-radius: 3px;
+  cursor: pointer;
+}
+.summary__reload__button:hover {
+  background-color: #46a049;
+}
+.summary__spacer {
+  flex: 0 0 550px;
+}
+
+.controls {
+  display: flex;
+  justify-content: space-between;
+}
+
+.filters,
+.collapse {
+  display: flex;
+  align-items: center;
+}
+.filters button,
+.collapse button {
+  color: #999;
+  border: none;
+  background: none;
+  cursor: pointer;
+  text-decoration: underline;
+}
+.filters button:hover,
+.collapse button:hover {
+  color: #ccc;
+}
+
+.filter__label {
+  margin-right: 10px;
+}
+
+      </style>
+    
+  </head>
+  <body>
+    <h1 id="title">reporte_pruebas.html</h1>
+    <p>Report generated on 18-Nov-2026 at 05:00:01 by <a href="https://pypi.python.org/pypi/pytest-html">pytest-html</a>
+        v4.2.0</p>
+    <div id="environment-header">
+      <h2>Environment</h2>
+    </div>
+    <table id="environment"></table>
+    <!-- TEMPLATES -->
+      <template id="template_environment_row">
+      <tr>
+        <td></td>
+        <td></td>
+      </tr>
+    </template>
+    <template id="template_results-table__body--empty">
+      <tbody class="results-table-row">
+        <tr id="not-found-message">
+          <td colspan="4">No results found. Check the filters.</td>
+        </tr>
+      </tbody>
+    </template>
+    <template id="template_results-table__tbody">
+      <tbody class="results-table-row">
+        <tr class="collapsible">
+        </tr>
+        <tr class="extras-row">
+          <td class="extra" colspan="4">
+            <div class="extraHTML"></div>
+            <div class="media">
+              <div class="media-container">
+                  <div class="media-container__nav--left">&lt;</div>
+                  <div class="media-container__viewport">
+                    <img src="" />
+                    <video controls>
+                      <source src="" type="video/mp4">
+                    </video>
+                  </div>
+                  <div class="media-container__nav--right">&gt;</div>
+                </div>
+                <div class="media__name"></div>
+                <div class="media__counter"></div>
+            </div>
+            <div class="logwrapper">
+              <div class="logexpander"></div>
+              <div class="log"></div>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </template>
+    <!-- END TEMPLATES -->
+    <div class="summary">
+      <div class="summary__data">
+        <h2>Summary</h2>
+        <div class="additional-summary prefix">
+        </div>
+        <p class="run-count">92 tests took 00:00:03.</p>
+        <p class="filter">(Un)check the boxes to filter the results.</p>
+        <div class="summary__reload">
+          <div class="summary__reload__button hidden" onclick="location.reload()">
+            <div>There are still tests running. <br />Reload this page to get the latest results!</div>
+          </div>
+        </div>
+        <div class="summary__spacer"></div>
+        <div class="controls">
+          <div class="filters">
+            <input checked="true" class="filter" name="filter_checkbox" type="checkbox" data-test-result="failed" disabled>
+            <span class="failed">0 Failed,</span>
+            <input checked="true" class="filter" name="filter_checkbox" type="checkbox" data-test-result="passed" >
+            <span class="passed">92 Passed,</span>
+            <input checked="true" class="filter" name="filter_checkbox" type="checkbox" data-test-result="skipped" disabled>
+            <span class="skipped">0 Skipped,</span>
+            <input checked="true" class="filter" name="filter_checkbox" type="checkbox" data-test-result="xfailed" disabled>
+            <span class="xfailed">0 Expected failures,</span>
+            <input checked="true" class="filter" name="filter_checkbox" type="checkbox" data-test-result="xpassed" disabled>
+            <span class="xpassed">0 Unexpected passes,</span>
+            <input checked="true" class="filter" name="filter_checkbox" type="checkbox" data-test-result="error" disabled>
+            <span class="error">0 Errors,</span>
+            <input checked="true" class="filter" name="filter_checkbox" type="checkbox" data-test-result="rerun" disabled>
+            <span class="rerun">0 Reruns</span>
+            <input checked="true" class="filter" name="filter_checkbox" type="checkbox" data-test-result="retried" disabled>
+            <span class="retried">0 Retried,</span>
+          </div>
+          <div class="collapse">
+            <button id="show_all_details">Show all details</button>&nbsp;/&nbsp;<button id="hide_all_details">Hide all details</button>
+          </div>
+        </div>
+      </div>
+      <div class="additional-summary summary">
+      </div>
+      <div class="additional-summary postfix">
+      </div>
+    </div>
+    <table id="results-table">
+      <thead id="results-table-head">
+        <tr>
+          <th class="sortable" data-column-type="result">Result</th>
+          <th class="sortable" data-column-type="testId">Test</th>
+          <th class="sortable" data-column-type="duration">Duration</th>
+          <th>Links</th>
+        </tr>
+      </thead>
+    </table>
+  <footer>
+    <div id="data-container" data-jsonblob="{&#34;environment&#34;: {&#34;Python&#34;: &#34;3.13.18&#34;, &#34;Platform&#34;: &#34;Linux-6.18.44-fc-v595-x86_64-with-glibc2.39&#34;, &#34;Packages&#34;: {&#34;pytest&#34;: &#34;9.1.1&#34;, &#34;pluggy&#34;: &#34;1.6.0&#34;}, &#34;Plugins&#34;: {&#34;anyio&#34;: &#34;4.15.1&#34;, &#34;metadata&#34;: &#34;3.1.1&#34;, &#34;html&#34;: &#34;4.2.0&#34;, &#34;cov&#34;: &#34;7.1.0&#34;}, &#34;JAVA_HOME&#34;: &#34;/usr/lib/jvm/java-21-openjdk-amd64&#34;}, &#34;tests&#34;: {&#34;tests/integracion/test_flujo_sqlserver.py::test_flujo_completo&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/integracion/test_flujo_sqlserver.py::test_flujo_completo&#34;, &#34;duration&#34;: &#34;701 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/integracion/test_flujo_sqlserver.py::test_flujo_completo&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;701 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;----------------------------- Captured stderr call -----------------------------\n2026-11-18 04:59:58,475 INFO httpx2: HTTP Request: POST http://testserver/usuarios/registro &amp;quot;HTTP/1.1 201 Created&amp;quot;\n2026-11-18 04:59:58,545 INFO httpx2: HTTP Request: POST http://testserver/usuarios/login &amp;quot;HTTP/1.1 200 OK&amp;quot;\n2026-11-18 04:59:58,617 INFO httpx2: HTTP Request: POST http://testserver/usuarios/registro &amp;quot;HTTP/1.1 201 Created&amp;quot;\n2026-11-18 04:59:58,698 INFO httpx2: HTTP Request: POST http://testserver/usuarios/login &amp;quot;HTTP/1.1 200 OK&amp;quot;\n2026-11-18 04:59:58,777 INFO httpx2: HTTP Request: POST http://testserver/productos/publicar &amp;quot;HTTP/1.1 201 Created&amp;quot;\n2026-11-18 04:59:58,794 INFO httpx2: HTTP Request: POST http://testserver/productos/publicar &amp;quot;HTTP/1.1 201 Created&amp;quot;\n2026-11-18 04:59:58,821 INFO httpx2: HTTP Request: POST http://testserver/direcciones/ &amp;quot;HTTP/1.1 201 Created&amp;quot;\n2026-11-18 04:59:58,833 INFO httpx2: HTTP Request: POST http://testserver/carrito/agregar &amp;quot;HTTP/1.1 201 Created&amp;quot;\n2026-11-18 04:59:58,843 INFO httpx2: HTTP Request: POST http://testserver/carrito/agregar &amp;quot;HTTP/1.1 201 Created&amp;quot;\n2026-11-18 04:59:58,862 INFO httpx2: HTTP Request: POST http://testserver/pedidos/comprar &amp;quot;HTTP/1.1 402 Payment Required&amp;quot;\n2026-11-18 04:59:58,874 INFO httpx2: HTTP Request: GET http://testserver/productos/41 &amp;quot;HTTP/1.1 200 OK&amp;quot;\n2026-11-18 04:59:58,894 INFO httpx2: HTTP Request: POST http://testserver/pedidos/comprar &amp;quot;HTTP/1.1 201 Created&amp;quot;\n2026-11-18 04:59:58,905 INFO httpx2: HTTP Request: GET http://testserver/productos/41 &amp;quot;HTTP/1.1 200 OK&amp;quot;\n2026-11-18 04:59:58,915 INFO httpx2: HTTP Request: GET http://testserver/productos/42 &amp;quot;HTTP/1.1 200 OK&amp;quot;\n2026-11-18 04:59:58,941 INFO httpx2: HTTP Request: POST http://testserver/cancelaciones/pedidos/25/parcial &amp;quot;HTTP/1.1 201 Created&amp;quot;\n2026-11-18 04:59:58,950 INFO httpx2: HTTP Request: GET http://testserver/productos/41 &amp;quot;HTTP/1.1 200 OK&amp;quot;\n2026-11-18 04:59:58,964 INFO httpx2: HTTP Request: POST http://testserver/envios/ventas/17 &amp;quot;HTTP/1.1 201 Created&amp;quot;\n2026-11-18 04:59:58,976 INFO httpx2: HTTP Request: PATCH http://testserver/envios/8/estado &amp;quot;HTTP/1.1 200 OK&amp;quot;\n2026-11-18 04:59:58,986 INFO httpx2: HTTP Request: POST http://testserver/cancelaciones/pedidos/25/parcial &amp;quot;HTTP/1.1 409 Conflict&amp;quot;\n2026-11-18 04:59:58,998 INFO httpx2: HTTP Request: POST http://testserver/cancelaciones/ventas/17 &amp;quot;HTTP/1.1 201 Created&amp;quot;\n2026-11-18 04:59:59,020 INFO httpx2: HTTP Request: POST http://testserver/cancelaciones/31/aprobar &amp;quot;HTTP/1.1 200 OK&amp;quot;\n2026-11-18 04:59:59,028 INFO httpx2: HTTP Request: GET http://testserver/productos/41 &amp;quot;HTTP/1.1 200 OK&amp;quot;\n2026-11-18 04:59:59,037 INFO httpx2: HTTP Request: GET http://testserver/productos/42 &amp;quot;HTTP/1.1 200 OK&amp;quot;\n2026-11-18 04:59:59,047 INFO httpx2: HTTP Request: GET http://testserver/pedidos/25 &amp;quot;HTTP/1.1 200 OK&amp;quot;\n2026-11-18 04:59:59,057 INFO httpx2: HTTP Request: GET http://testserver/envios/8 &amp;quot;HTTP/1.1 200 OK&amp;quot;\n2026-11-18 04:59:59,067 INFO httpx2: HTTP Request: GET http://testserver/ventas/resumen &amp;quot;HTTP/1.1 200 OK&amp;quot;\n\n------------------------------ Captured log call -------------------------------\nINFO     httpx2:_client.py:1079 HTTP Request: POST http://testserver/usuarios/registro &amp;quot;HTTP/1.1 201 Created&amp;quot;\nINFO     httpx2:_client.py:1079 HTTP Request: POST http://testserver/usuarios/login &amp;quot;HTTP/1.1 200 OK&amp;quot;\nINFO     httpx2:_client.py:1079 HTTP Request: POST http://testserver/usuarios/registro &amp;quot;HTTP/1.1 201 Created&amp;quot;\nINFO     httpx2:_client.py:1079 HTTP Request: POST http://testserver/usuarios/login &amp;quot;HTTP/1.1 200 OK&amp;quot;\nINFO     httpx2:_client.py:1079 HTTP Request: POST http://testserver/productos/publicar &amp;quot;HTTP/1.1 201 Created&amp;quot;\nINFO     httpx2:_client.py:1079 HTTP Request: POST http://testserver/productos/publicar &amp;quot;HTTP/1.1 201 Created&amp;quot;\nINFO     httpx2:_client.py:1079 HTTP Request: POST http://testserver/direcciones/ &amp;quot;HTTP/1.1 201 Created&amp;quot;\nINFO     httpx2:_client.py:1079 HTTP Request: POST http://testserver/carrito/agregar &amp;quot;HTTP/1.1 201 Created&amp;quot;\nINFO     httpx2:_client.py:1079 HTTP Request: POST http://testserver/carrito/agregar &amp;quot;HTTP/1.1 201 Created&amp;quot;\nINFO     httpx2:_client.py:1079 HTTP Request: POST http://testserver/pedidos/comprar &amp;quot;HTTP/1.1 402 Payment Required&amp;quot;\nINFO     httpx2:_client.py:1079 HTTP Request: GET http://testserver/productos/41 &amp;quot;HTTP/1.1 200 OK&amp;quot;\nINFO     httpx2:_client.py:1079 HTTP Request: POST http://testserver/pedidos/comprar &amp;quot;HTTP/1.1 201 Created&amp;quot;\nINFO     httpx2:_client.py:1079 HTTP Request: GET http://testserver/productos/41 &amp;quot;HTTP/1.1 200 OK&amp;quot;\nINFO     httpx2:_client.py:1079 HTTP Request: GET http://testserver/productos/42 &amp;quot;HTTP/1.1 200 OK&amp;quot;\nINFO     httpx2:_client.py:1079 HTTP Request: POST http://testserver/cancelaciones/pedidos/25/parcial &amp;quot;HTTP/1.1 201 Created&amp;quot;\nINFO     httpx2:_client.py:1079 HTTP Request: GET http://testserver/productos/41 &amp;quot;HTTP/1.1 200 OK&amp;quot;\nINFO     httpx2:_client.py:1079 HTTP Request: POST http://testserver/envios/ventas/17 &amp;quot;HTTP/1.1 201 Created&amp;quot;\nINFO     httpx2:_client.py:1079 HTTP Request: PATCH http://testserver/envios/8/estado &amp;quot;HTTP/1.1 200 OK&amp;quot;\nINFO     httpx2:_client.py:1079 HTTP Request: POST http://testserver/cancelaciones/pedidos/25/parcial &amp;quot;HTTP/1.1 409 Conflict&amp;quot;\nINFO     httpx2:_client.py:1079 HTTP Request: POST http://testserver/cancelaciones/ventas/17 &amp;quot;HTTP/1.1 201 Created&amp;quot;\nINFO     httpx2:_client.py:1079 HTTP Request: POST http://testserver/cancelaciones/31/aprobar &amp;quot;HTTP/1.1 200 OK&amp;quot;\nINFO     httpx2:_client.py:1079 HTTP Request: GET http://testserver/productos/41 &amp;quot;HTTP/1.1 200 OK&amp;quot;\nINFO     httpx2:_client.py:1079 HTTP Request: GET http://testserver/productos/42 &amp;quot;HTTP/1.1 200 OK&amp;quot;\nINFO     httpx2:_client.py:1079 HTTP Request: GET http://testserver/pedidos/25 &amp;quot;HTTP/1.1 200 OK&amp;quot;\nINFO     httpx2:_client.py:1079 HTTP Request: GET http://testserver/envios/8 &amp;quot;HTTP/1.1 200 OK&amp;quot;\nINFO     httpx2:_client.py:1079 HTTP Request: GET http://testserver/ventas/resumen &amp;quot;HTTP/1.1 200 OK&amp;quot;\n\n&#34;}], &#34;tests/integracion/test_flujo_sqlserver.py::test_verificacion_y_reembolsos&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/integracion/test_flujo_sqlserver.py::test_verificacion_y_reembolsos&#34;, &#34;duration&#34;: &#34;540 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/integracion/test_flujo_sqlserver.py::test_verificacion_y_reembolsos&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;540 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;----------------------------- Captured stderr call -----------------------------\n2026-11-18 04:59:59,147 INFO httpx2: HTTP Request: POST http://testserver/usuarios/registro &amp;quot;HTTP/1.1 201 Created&amp;quot;\n2026-11-18 04:59:59,218 INFO httpx2: HTTP Request: POST http://testserver/usuarios/login &amp;quot;HTTP/1.1 200 OK&amp;quot;\n2026-11-18 04:59:59,290 INFO httpx2: HTTP Request: POST http://testserver/usuarios/registro &amp;quot;HTTP/1.1 201 Created&amp;quot;\n2026-11-18 04:59:59,362 INFO httpx2: HTTP Request: POST http://testserver/usuarios/login &amp;quot;HTTP/1.1 200 OK&amp;quot;\n2026-11-18 04:59:59,383 INFO httpx2: HTTP Request: POST http://testserver/productos/publicar &amp;quot;HTTP/1.1 201 Created&amp;quot;\n2026-11-18 04:59:59,392 INFO httpx2: HTTP Request: GET http://testserver/productos/43 &amp;quot;HTTP/1.1 200 OK&amp;quot;\n2026-11-18 04:59:59,406 INFO httpx2: HTTP Request: POST http://testserver/productos/43/imagenes &amp;quot;HTTP/1.1 201 Created&amp;quot;\n2026-11-18 04:59:59,416 INFO httpx2: HTTP Request: POST http://testserver/productos/43/imagenes &amp;quot;HTTP/1.1 201 Created&amp;quot;\n2026-11-18 04:59:59,426 INFO httpx2: HTTP Request: POST http://testserver/productos/43/imagenes &amp;quot;HTTP/1.1 201 Created&amp;quot;\n2026-11-18 04:59:59,434 INFO httpx2: HTTP Request: GET http://testserver/productos/43 &amp;quot;HTTP/1.1 200 OK&amp;quot;\n2026-11-18 04:59:59,445 INFO httpx2: HTTP Request: GET http://testserver/productos/ &amp;quot;HTTP/1.1 200 OK&amp;quot;\n2026-11-18 04:59:59,455 INFO httpx2: HTTP Request: POST http://testserver/carrito/agregar &amp;quot;HTTP/1.1 403 Forbidden&amp;quot;\n2026-11-18 04:59:59,468 INFO httpx2: HTTP Request: POST http://testserver/direcciones/ &amp;quot;HTTP/1.1 201 Created&amp;quot;\n2026-11-18 04:59:59,481 INFO httpx2: HTTP Request: POST http://testserver/carrito/agregar &amp;quot;HTTP/1.1 201 Created&amp;quot;\n2026-11-18 04:59:59,505 INFO httpx2: HTTP Request: POST http://testserver/pedidos/comprar &amp;quot;HTTP/1.1 201 Created&amp;quot;\n2026-11-18 04:59:59,521 INFO httpx2: HTTP Request: POST http://testserver/cancelaciones/pedidos/26/parcial &amp;quot;HTTP/1.1 201 Created&amp;quot;\n2026-11-18 04:59:59,534 INFO httpx2: HTTP Request: GET http://testserver/reembolsos/?id_pedido=26 &amp;quot;HTTP/1.1 200 OK&amp;quot;\n2026-11-18 04:59:59,549 INFO httpx2: HTTP Request: GET http://testserver/reembolsos/?id_pedido=26 &amp;quot;HTTP/1.1 200 OK&amp;quot;\n2026-11-18 04:59:59,559 INFO httpx2: HTTP Request: GET http://testserver/pagos/ &amp;quot;HTTP/1.1 200 OK&amp;quot;\n2026-11-18 04:59:59,574 INFO httpx2: HTTP Request: POST http://testserver/cancelaciones/pedidos/26/total &amp;quot;HTTP/1.1 201 Created&amp;quot;\n2026-11-18 04:59:59,589 INFO httpx2: HTTP Request: GET http://testserver/pagos/26 &amp;quot;HTTP/1.1 200 OK&amp;quot;\n2026-11-18 04:59:59,600 INFO httpx2: HTTP Request: GET http://testserver/pedidos/26 &amp;quot;HTTP/1.1 200 OK&amp;quot;\n2026-11-18 04:59:59,610 INFO httpx2: HTTP Request: GET http://testserver/productos/43 &amp;quot;HTTP/1.1 200 OK&amp;quot;\n\n------------------------------ Captured log call -------------------------------\nINFO     httpx2:_client.py:1079 HTTP Request: POST http://testserver/usuarios/registro &amp;quot;HTTP/1.1 201 Created&amp;quot;\nINFO     httpx2:_client.py:1079 HTTP Request: POST http://testserver/usuarios/login &amp;quot;HTTP/1.1 200 OK&amp;quot;\nINFO     httpx2:_client.py:1079 HTTP Request: POST http://testserver/usuarios/registro &amp;quot;HTTP/1.1 201 Created&amp;quot;\nINFO     httpx2:_client.py:1079 HTTP Request: POST http://testserver/usuarios/login &amp;quot;HTTP/1.1 200 OK&amp;quot;\nINFO     httpx2:_client.py:1079 HTTP Request: POST http://testserver/productos/publicar &amp;quot;HTTP/1.1 201 Created&amp;quot;\nINFO     httpx2:_client.py:1079 HTTP Request: GET http://testserver/productos/43 &amp;quot;HTTP/1.1 200 OK&amp;quot;\nINFO     httpx2:_client.py:1079 HTTP Request: POST http://testserver/productos/43/imagenes &amp;quot;HTTP/1.1 201 Created&amp;quot;\nINFO     httpx2:_client.py:1079 HTTP Request: POST http://testserver/productos/43/imagenes &amp;quot;HTTP/1.1 201 Created&amp;quot;\nINFO     httpx2:_client.py:1079 HTTP Request: POST http://testserver/productos/43/imagenes &amp;quot;HTTP/1.1 201 Created&amp;quot;\nINFO     httpx2:_client.py:1079 HTTP Request: GET http://testserver/productos/43 &amp;quot;HTTP/1.1 200 OK&amp;quot;\nINFO     httpx2:_client.py:1079 HTTP Request: GET http://testserver/productos/ &amp;quot;HTTP/1.1 200 OK&amp;quot;\nINFO     httpx2:_client.py:1079 HTTP Request: POST http://testserver/carrito/agregar &amp;quot;HTTP/1.1 403 Forbidden&amp;quot;\nINFO     httpx2:_client.py:1079 HTTP Request: POST http://testserver/direcciones/ &amp;quot;HTTP/1.1 201 Created&amp;quot;\nINFO     httpx2:_client.py:1079 HTTP Request: POST http://testserver/carrito/agregar &amp;quot;HTTP/1.1 201 Created&amp;quot;\nINFO     httpx2:_client.py:1079 HTTP Request: POST http://testserver/pedidos/comprar &amp;quot;HTTP/1.1 201 Created&amp;quot;\nINFO     httpx2:_client.py:1079 HTTP Request: POST http://testserver/cancelaciones/pedidos/26/parcial &amp;quot;HTTP/1.1 201 Created&amp;quot;\nINFO     httpx2:_client.py:1079 HTTP Request: GET http://testserver/reembolsos/?id_pedido=26 &amp;quot;HTTP/1.1 200 OK&amp;quot;\nINFO     httpx2:_client.py:1079 HTTP Request: GET http://testserver/reembolsos/?id_pedido=26 &amp;quot;HTTP/1.1 200 OK&amp;quot;\nINFO     httpx2:_client.py:1079 HTTP Request: GET http://testserver/pagos/ &amp;quot;HTTP/1.1 200 OK&amp;quot;\nINFO     httpx2:_client.py:1079 HTTP Request: POST http://testserver/cancelaciones/pedidos/26/total &amp;quot;HTTP/1.1 201 Created&amp;quot;\nINFO     httpx2:_client.py:1079 HTTP Request: GET http://testserver/pagos/26 &amp;quot;HTTP/1.1 200 OK&amp;quot;\nINFO     httpx2:_client.py:1079 HTTP Request: GET http://testserver/pedidos/26 &amp;quot;HTTP/1.1 200 OK&amp;quot;\nINFO     httpx2:_client.py:1079 HTTP Request: GET http://testserver/productos/43 &amp;quot;HTTP/1.1 200 OK&amp;quot;\n\n&#34;}], &#34;tests/integracion/test_flujo_sqlserver.py::test_inspector_ia_en_la_publicacion&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/integracion/test_flujo_sqlserver.py::test_inspector_ia_en_la_publicacion&#34;, &#34;duration&#34;: &#34;215 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/integracion/test_flujo_sqlserver.py::test_inspector_ia_en_la_publicacion&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;215 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;----------------------------- Captured stderr call -----------------------------\n2026-11-18 04:59:59,678 INFO httpx2: HTTP Request: POST http://testserver/usuarios/registro &amp;quot;HTTP/1.1 201 Created&amp;quot;\n2026-11-18 04:59:59,733 INFO httpx2: HTTP Request: POST http://testserver/usuarios/login &amp;quot;HTTP/1.1 200 OK&amp;quot;\n2026-11-18 04:59:59,751 INFO httpx2: HTTP Request: POST http://testserver/productos/publicar &amp;quot;HTTP/1.1 201 Created&amp;quot;\n2026-11-18 04:59:59,760 INFO httpx2: HTTP Request: POST http://testserver/productos/44/imagenes &amp;quot;HTTP/1.1 201 Created&amp;quot;\n2026-11-18 04:59:59,770 INFO httpx2: HTTP Request: POST http://testserver/productos/44/imagenes &amp;quot;HTTP/1.1 201 Created&amp;quot;\n2026-11-18 04:59:59,781 INFO httpx2: HTTP Request: POST http://testserver/productos/44/imagenes &amp;quot;HTTP/1.1 201 Created&amp;quot;\n2026-11-18 04:59:59,790 INFO httpx2: HTTP Request: GET http://testserver/productos/44 &amp;quot;HTTP/1.1 200 OK&amp;quot;\n2026-11-18 04:59:59,798 INFO httpx2: HTTP Request: GET http://testserver/mis-productos/ &amp;quot;HTTP/1.1 200 OK&amp;quot;\n2026-11-18 04:59:59,816 INFO httpx2: HTTP Request: PUT http://testserver/productos/44 &amp;quot;HTTP/1.1 200 OK&amp;quot;\n2026-11-18 04:59:59,825 INFO httpx2: HTTP Request: GET http://testserver/productos/44 &amp;quot;HTTP/1.1 200 OK&amp;quot;\n\n------------------------------ Captured log call -------------------------------\nINFO     httpx2:_client.py:1079 HTTP Request: POST http://testserver/usuarios/registro &amp;quot;HTTP/1.1 201 Created&amp;quot;\nINFO     httpx2:_client.py:1079 HTTP Request: POST http://testserver/usuarios/login &amp;quot;HTTP/1.1 200 OK&amp;quot;\nINFO     httpx2:_client.py:1079 HTTP Request: POST http://testserver/productos/publicar &amp;quot;HTTP/1.1 201 Created&amp;quot;\nINFO     httpx2:_client.py:1079 HTTP Request: POST http://testserver/productos/44/imagenes &amp;quot;HTTP/1.1 201 Created&amp;quot;\nINFO     httpx2:_client.py:1079 HTTP Request: POST http://testserver/productos/44/imagenes &amp;quot;HTTP/1.1 201 Created&amp;quot;\nINFO     httpx2:_client.py:1079 HTTP Request: POST http://testserver/productos/44/imagenes &amp;quot;HTTP/1.1 201 Created&amp;quot;\nINFO     httpx2:_client.py:1079 HTTP Request: GET http://testserver/productos/44 &amp;quot;HTTP/1.1 200 OK&amp;quot;\nINFO     httpx2:_client.py:1079 HTTP Request: GET http://testserver/mis-productos/ &amp;quot;HTTP/1.1 200 OK&amp;quot;\nINFO     httpx2:_client.py:1079 HTTP Request: PUT http://testserver/productos/44 &amp;quot;HTTP/1.1 200 OK&amp;quot;\nINFO     httpx2:_client.py:1079 HTTP Request: GET http://testserver/productos/44 &amp;quot;HTTP/1.1 200 OK&amp;quot;\n\n&#34;}], &#34;tests/test_cancelaciones.py::test_total_toma_todas_las_unidades_vigentes&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_cancelaciones.py::test_total_toma_todas_las_unidades_vigentes&#34;, &#34;duration&#34;: &#34;0 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_cancelaciones.py::test_total_toma_todas_las_unidades_vigentes&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;0 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_cancelaciones.py::test_parcial_por_unidades&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_cancelaciones.py::test_parcial_por_unidades&#34;, &#34;duration&#34;: &#34;0 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_cancelaciones.py::test_parcial_por_unidades&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;0 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_cancelaciones.py::test_parcial_sin_cantidad_cancela_todo_el_producto&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_cancelaciones.py::test_parcial_sin_cantidad_cancela_todo_el_producto&#34;, &#34;duration&#34;: &#34;0 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_cancelaciones.py::test_parcial_sin_cantidad_cancela_todo_el_producto&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;0 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_cancelaciones.py::test_no_permite_cancelar_mas_de_lo_vigente&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_cancelaciones.py::test_no_permite_cancelar_mas_de_lo_vigente&#34;, &#34;duration&#34;: &#34;1 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_cancelaciones.py::test_no_permite_cancelar_mas_de_lo_vigente&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;1 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_cancelaciones.py::test_no_permite_producto_ya_cancelado&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_cancelaciones.py::test_no_permite_producto_ya_cancelado&#34;, &#34;duration&#34;: &#34;0 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_cancelaciones.py::test_no_permite_producto_ya_cancelado&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;0 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_cancelaciones.py::test_no_permite_producto_ajeno_al_pedido&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_cancelaciones.py::test_no_permite_producto_ajeno_al_pedido&#34;, &#34;duration&#34;: &#34;0 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_cancelaciones.py::test_no_permite_producto_ajeno_al_pedido&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;0 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_cancelaciones.py::test_total_sin_unidades_vigentes&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_cancelaciones.py::test_total_sin_unidades_vigentes&#34;, &#34;duration&#34;: &#34;0 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_cancelaciones.py::test_total_sin_unidades_vigentes&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;0 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_cancelaciones.py::test_monto_linea_redondea_a_centavos&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_cancelaciones.py::test_monto_linea_redondea_a_centavos&#34;, &#34;duration&#34;: &#34;0 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_cancelaciones.py::test_monto_linea_redondea_a_centavos&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;0 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_cancelaciones.py::test_recortar_textos_largos&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_cancelaciones.py::test_recortar_textos_largos&#34;, &#34;duration&#34;: &#34;0 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_cancelaciones.py::test_recortar_textos_largos&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;0 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_errores.py::test_error_de_negocio_usa_su_codigo&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_errores.py::test_error_de_negocio_usa_su_codigo&#34;, &#34;duration&#34;: &#34;10 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_errores.py::test_error_de_negocio_usa_su_codigo&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;10 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;----------------------------- Captured stderr call -----------------------------\n2026-11-18 04:59:59,846 INFO httpx2: HTTP Request: GET http://testserver/pagos/3 &amp;quot;HTTP/1.1 404 Not Found&amp;quot;\n\n------------------------------ Captured log call -------------------------------\nINFO     httpx2:_client.py:1079 HTTP Request: GET http://testserver/pagos/3 &amp;quot;HTTP/1.1 404 Not Found&amp;quot;\n\n&#34;}], &#34;tests/test_errores.py::test_categorias_de_error&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_errores.py::test_categorias_de_error&#34;, &#34;duration&#34;: &#34;0 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_errores.py::test_categorias_de_error&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;0 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_errores.py::test_error_inesperado_no_expone_detalles&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_errores.py::test_error_inesperado_no_expone_detalles&#34;, &#34;duration&#34;: &#34;10 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_errores.py::test_error_inesperado_no_expone_detalles&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;10 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;----------------------------- Captured stderr call -----------------------------\n2026-11-18 04:59:59,856 ERROR electromarket: Error en GET /pagos/\nNoneType: None\n2026-11-18 04:59:59,857 INFO httpx2: HTTP Request: GET http://testserver/pagos/ &amp;quot;HTTP/1.1 500 Internal Server Error&amp;quot;\n\n------------------------------ Captured log call -------------------------------\nERROR    electromarket:main.py:56 Error en GET /pagos/\nNoneType: None\nINFO     httpx2:_client.py:1079 HTTP Request: GET http://testserver/pagos/ &amp;quot;HTTP/1.1 500 Internal Server Error&amp;quot;\n\n&#34;}], &#34;tests/test_errores.py::test_producto_inexistente_404&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_errores.py::test_producto_inexistente_404&#34;, &#34;duration&#34;: &#34;6 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_errores.py::test_producto_inexistente_404&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;6 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;----------------------------- Captured stderr call -----------------------------\n2026-11-18 04:59:59,865 INFO httpx2: HTTP Request: GET http://testserver/productos/99 &amp;quot;HTTP/1.1 404 Not Found&amp;quot;\n\n------------------------------ Captured log call -------------------------------\nINFO     httpx2:_client.py:1079 HTTP Request: GET http://testserver/productos/99 &amp;quot;HTTP/1.1 404 Not Found&amp;quot;\n\n&#34;}], &#34;tests/test_errores.py::test_ids_deben_ser_positivos&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_errores.py::test_ids_deben_ser_positivos&#34;, &#34;duration&#34;: &#34;11 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_errores.py::test_ids_deben_ser_positivos&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;11 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;----------------------------- Captured stderr call -----------------------------\n2026-11-18 04:59:59,871 INFO httpx2: HTTP Request: GET http://testserver/productos/0 &amp;quot;HTTP/1.1 422 Unprocessable Content&amp;quot;\n2026-11-18 04:59:59,877 INFO httpx2: HTTP Request: GET http://testserver/productos/?id_categoria=-1 &amp;quot;HTTP/1.1 422 Unprocessable Content&amp;quot;\n\n------------------------------ Captured log call -------------------------------\nINFO     httpx2:_client.py:1079 HTTP Request: GET http://testserver/productos/0 &amp;quot;HTTP/1.1 422 Unprocessable Content&amp;quot;\nINFO     httpx2:_client.py:1079 HTTP Request: GET http://testserver/productos/?id_categoria=-1 &amp;quot;HTTP/1.1 422 Unprocessable Content&amp;quot;\n\n&#34;}], &#34;tests/test_errores.py::test_direccion_respeta_tamano_de_columnas&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_errores.py::test_direccion_respeta_tamano_de_columnas&#34;, &#34;duration&#34;: &#34;8 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_errores.py::test_direccion_respeta_tamano_de_columnas&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;8 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;----------------------------- Captured stderr call -----------------------------\n2026-11-18 04:59:59,886 INFO httpx2: HTTP Request: POST http://testserver/direcciones/ &amp;quot;HTTP/1.1 422 Unprocessable Content&amp;quot;\n\n------------------------------ Captured log call -------------------------------\nINFO     httpx2:_client.py:1079 HTTP Request: POST http://testserver/direcciones/ &amp;quot;HTTP/1.1 422 Unprocessable Content&amp;quot;\n\n&#34;}], &#34;tests/test_errores.py::test_cantidad_del_carrito_tiene_tope&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_errores.py::test_cantidad_del_carrito_tiene_tope&#34;, &#34;duration&#34;: &#34;7 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_errores.py::test_cantidad_del_carrito_tiene_tope&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;7 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;----------------------------- Captured stderr call -----------------------------\n2026-11-18 04:59:59,894 INFO httpx2: HTTP Request: POST http://testserver/carrito/agregar &amp;quot;HTTP/1.1 422 Unprocessable Content&amp;quot;\n\n------------------------------ Captured log call -------------------------------\nINFO     httpx2:_client.py:1079 HTTP Request: POST http://testserver/carrito/agregar &amp;quot;HTTP/1.1 422 Unprocessable Content&amp;quot;\n\n&#34;}], &#34;tests/test_errores.py::test_precio_maximo_dos_decimales&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_errores.py::test_precio_maximo_dos_decimales&#34;, &#34;duration&#34;: &#34;8 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_errores.py::test_precio_maximo_dos_decimales&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;8 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;----------------------------- Captured stderr call -----------------------------\n2026-11-18 04:59:59,902 INFO httpx2: HTTP Request: POST http://testserver/productos/publicar &amp;quot;HTTP/1.1 422 Unprocessable Content&amp;quot;\n\n------------------------------ Captured log call -------------------------------\nINFO     httpx2:_client.py:1079 HTTP Request: POST http://testserver/productos/publicar &amp;quot;HTTP/1.1 422 Unprocessable Content&amp;quot;\n\n&#34;}], &#34;tests/test_ia.py::test_clasifica_la_condicion[Celular nuevo en su caja original, sin uso, con factura y garant\\xeda.-COMO_NUEVO]&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_ia.py::test_clasifica_la_condicion[Celular nuevo en su caja original, sin uso, con factura y garant\\xeda.-COMO_NUEVO]&#34;, &#34;duration&#34;: &#34;7 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_ia.py::test_clasifica_la_condicion[Celular nuevo en su caja original, sin uso, con factura y garant\\xeda.-COMO_NUEVO]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;7 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_ia.py::test_clasifica_la_condicion[Port\\xe1til con un a\\xf1o de uso, funciona bien, rayones leves en la tapa.-BUENO]&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_ia.py::test_clasifica_la_condicion[Port\\xe1til con un a\\xf1o de uso, funciona bien, rayones leves en la tapa.-BUENO]&#34;, &#34;duration&#34;: &#34;6 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_ia.py::test_clasifica_la_condicion[Port\\xe1til con un a\\xf1o de uso, funciona bien, rayones leves en la tapa.-BUENO]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;6 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_ia.py::test_clasifica_la_condicion[Televisor con la pantalla rota y l\\xedneas en la imagen, se apaga solo.-ACEPTABLE]&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_ia.py::test_clasifica_la_condicion[Televisor con la pantalla rota y l\\xedneas en la imagen, se apaga solo.-ACEPTABLE]&#34;, &#34;duration&#34;: &#34;5 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_ia.py::test_clasifica_la_condicion[Televisor con la pantalla rota y l\\xedneas en la imagen, se apaga solo.-ACEPTABLE]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;5 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_ia.py::test_detecta_contradiccion_con_el_checklist&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_ia.py::test_detecta_contradiccion_con_el_checklist&#34;, &#34;duration&#34;: &#34;5 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_ia.py::test_detecta_contradiccion_con_el_checklist&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;5 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_ia.py::test_cita_el_texto_original_con_tildes&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_ia.py::test_cita_el_texto_original_con_tildes&#34;, &#34;duration&#34;: &#34;5 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_ia.py::test_cita_el_texto_original_con_tildes&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;5 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_ia.py::test_respeta_las_negaciones&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_ia.py::test_respeta_las_negaciones&#34;, &#34;duration&#34;: &#34;5 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_ia.py::test_respeta_las_negaciones&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;5 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_ia.py::test_alerta_si_la_condicion_declarada_es_mejor_que_la_real&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_ia.py::test_alerta_si_la_condicion_declarada_es_mejor_que_la_real&#34;, &#34;duration&#34;: &#34;5 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_ia.py::test_alerta_si_la_condicion_declarada_es_mejor_que_la_real&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;5 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_ia.py::test_sin_checklist_no_hay_contradicciones&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_ia.py::test_sin_checklist_no_hay_contradicciones&#34;, &#34;duration&#34;: &#34;0 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_ia.py::test_sin_checklist_no_hay_contradicciones&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;0 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_ia.py::test_explica_con_expresiones_del_texto&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_ia.py::test_explica_con_expresiones_del_texto&#34;, &#34;duration&#34;: &#34;5 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_ia.py::test_explica_con_expresiones_del_texto&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;5 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_ia.py::test_reentrena_si_no_hay_modelo_guardado&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_ia.py::test_reentrena_si_no_hay_modelo_guardado&#34;, &#34;duration&#34;: &#34;713 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_ia.py::test_reentrena_si_no_hay_modelo_guardado&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;713 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;----------------------------- Captured stderr call -----------------------------\n2026-11-18 04:59:59,958 INFO electromarket.ia: Se entrena el modelo de IA ([Errno 2] No such file or directory: &amp;#x27;/tmp/pytest-of-root/pytest-5/test_reentrena_si_no_hay_model0/modelo.joblib&amp;#x27;).\n2026-11-18 05:00:00,667 INFO electromarket.ia: Modelo de IA entrenado con 900 ejemplos y guardado en /tmp/pytest-of-root/pytest-5/test_reentrena_si_no_hay_model0/modelo.joblib\n\n------------------------------ Captured log call -------------------------------\nINFO     electromarket.ia:inspector.py:175 Se entrena el modelo de IA ([Errno 2] No such file or directory: &amp;#x27;/tmp/pytest-of-root/pytest-5/test_reentrena_si_no_hay_model0/modelo.joblib&amp;#x27;).\nINFO     electromarket.ia:inspector.py:156 Modelo de IA entrenado con 900 ejemplos y guardado en /tmp/pytest-of-root/pytest-5/test_reentrena_si_no_hay_model0/modelo.joblib\n\n&#34;}], &#34;tests/test_ia.py::test_la_ia_bloquea_la_insignia_verificado&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_ia.py::test_la_ia_bloquea_la_insignia_verificado&#34;, &#34;duration&#34;: &#34;1 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_ia.py::test_la_ia_bloquea_la_insignia_verificado&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;1 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_ia.py::test_si_la_ia_falla_la_publicacion_sigue&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_ia.py::test_si_la_ia_falla_la_publicacion_sigue&#34;, &#34;duration&#34;: &#34;2 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_ia.py::test_si_la_ia_falla_la_publicacion_sigue&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;2 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;----------------------------- Captured stderr call -----------------------------\n2026-11-18 05:00:00,670 ERROR electromarket.ia: No fue posible analizar con IA el producto 1\nTraceback (most recent call last):\n  File &amp;quot;./backend/app/services/inspeccion_ia.py&amp;quot;, line 21, in inspeccionar_y_guardar\n    resultado = inspector.analizar(nombre, descripcion, defectos, checklist, condicion)\n  File &amp;quot;./backend/tests/test_ia.py&amp;quot;, line 75, in falla\n    raise RuntimeError(&amp;quot;modelo no disponible&amp;quot;)\nRuntimeError: modelo no disponible\n\n------------------------------ Captured log call -------------------------------\nERROR    electromarket.ia:inspeccion_ia.py:23 No fue posible analizar con IA el producto 1\nTraceback (most recent call last):\n  File &amp;quot;./backend/app/services/inspeccion_ia.py&amp;quot;, line 21, in inspeccionar_y_guardar\n    resultado = inspector.analizar(nombre, descripcion, defectos, checklist, condicion)\n  File &amp;quot;./backend/tests/test_ia.py&amp;quot;, line 75, in falla\n    raise RuntimeError(&amp;quot;modelo no disponible&amp;quot;)\nRuntimeError: modelo no disponible\n\n&#34;}], &#34;tests/test_ia.py::test_endpoint_inspeccionar_requiere_sesion&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_ia.py::test_endpoint_inspeccionar_requiere_sesion&#34;, &#34;duration&#34;: &#34;7 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_ia.py::test_endpoint_inspeccionar_requiere_sesion&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;7 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;----------------------------- Captured stderr call -----------------------------\n2026-11-18 05:00:00,678 INFO httpx2: HTTP Request: POST http://testserver/ia/inspeccionar &amp;quot;HTTP/1.1 401 Unauthorized&amp;quot;\n\n------------------------------ Captured log call -------------------------------\nINFO     httpx2:_client.py:1079 HTTP Request: POST http://testserver/ia/inspeccionar &amp;quot;HTTP/1.1 401 Unauthorized&amp;quot;\n\n&#34;}], &#34;tests/test_ia.py::test_endpoint_inspeccionar&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_ia.py::test_endpoint_inspeccionar&#34;, &#34;duration&#34;: &#34;29 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_ia.py::test_endpoint_inspeccionar&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;29 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;----------------------------- Captured stderr call -----------------------------\n2026-11-18 05:00:00,702 INFO httpx2: HTTP Request: POST http://testserver/ia/inspeccionar &amp;quot;HTTP/1.1 200 OK&amp;quot;\n\n------------------------------ Captured log call -------------------------------\nINFO     httpx2:_client.py:1079 HTTP Request: POST http://testserver/ia/inspeccionar &amp;quot;HTTP/1.1 200 OK&amp;quot;\n\n&#34;}], &#34;tests/test_ia.py::test_endpoint_modelo&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_ia.py::test_endpoint_modelo&#34;, &#34;duration&#34;: &#34;12 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_ia.py::test_endpoint_modelo&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;12 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;----------------------------- Captured stderr call -----------------------------\n2026-11-18 05:00:00,720 INFO httpx2: HTTP Request: GET http://testserver/ia/modelo &amp;quot;HTTP/1.1 200 OK&amp;quot;\n\n------------------------------ Captured log call -------------------------------\nINFO     httpx2:_client.py:1079 HTTP Request: GET http://testserver/ia/modelo &amp;quot;HTTP/1.1 200 OK&amp;quot;\n\n&#34;}], &#34;tests/test_pagos_simulados.py::test_pago_simulado_se_aprueba&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_pagos_simulados.py::test_pago_simulado_se_aprueba&#34;, &#34;duration&#34;: &#34;0 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_pagos_simulados.py::test_pago_simulado_se_aprueba&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;0 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_pagos_simulados.py::test_transferencia_simulada_se_aprueba&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_pagos_simulados.py::test_transferencia_simulada_se_aprueba&#34;, &#34;duration&#34;: &#34;0 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_pagos_simulados.py::test_transferencia_simulada_se_aprueba&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;0 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_pagos_simulados.py::test_tarjeta_valida_se_aprueba&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_pagos_simulados.py::test_tarjeta_valida_se_aprueba&#34;, &#34;duration&#34;: &#34;0 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_pagos_simulados.py::test_tarjeta_valida_se_aprueba&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;0 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_pagos_simulados.py::test_tarjeta_terminada_en_0000_se_rechaza&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_pagos_simulados.py::test_tarjeta_terminada_en_0000_se_rechaza&#34;, &#34;duration&#34;: &#34;0 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_pagos_simulados.py::test_tarjeta_terminada_en_0000_se_rechaza&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;0 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_perfil.py::test_registro_envia_fecha_y_genero&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_perfil.py::test_registro_envia_fecha_y_genero&#34;, &#34;duration&#34;: &#34;19 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_perfil.py::test_registro_envia_fecha_y_genero&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;19 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;----------------------------- Captured stderr call -----------------------------\n2026-11-18 05:00:00,744 INFO httpx2: HTTP Request: POST http://testserver/usuarios/registro &amp;quot;HTTP/1.1 201 Created&amp;quot;\n\n------------------------------ Captured log call -------------------------------\nINFO     httpx2:_client.py:1079 HTTP Request: POST http://testserver/usuarios/registro &amp;quot;HTTP/1.1 201 Created&amp;quot;\n\n&#34;}], &#34;tests/test_perfil.py::test_registro_menor_de_edad&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_perfil.py::test_registro_menor_de_edad&#34;, &#34;duration&#34;: &#34;12 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_perfil.py::test_registro_menor_de_edad&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;12 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;----------------------------- Captured stderr call -----------------------------\n2026-11-18 05:00:00,757 INFO httpx2: HTTP Request: POST http://testserver/usuarios/registro &amp;quot;HTTP/1.1 422 Unprocessable Content&amp;quot;\n\n------------------------------ Captured log call -------------------------------\nINFO     httpx2:_client.py:1079 HTTP Request: POST http://testserver/usuarios/registro &amp;quot;HTTP/1.1 422 Unprocessable Content&amp;quot;\n\n&#34;}], &#34;tests/test_perfil.py::test_registro_fecha_futura&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_perfil.py::test_registro_fecha_futura&#34;, &#34;duration&#34;: &#34;5 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_perfil.py::test_registro_fecha_futura&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;5 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;----------------------------- Captured stderr call -----------------------------\n2026-11-18 05:00:00,762 INFO httpx2: HTTP Request: POST http://testserver/usuarios/registro &amp;quot;HTTP/1.1 422 Unprocessable Content&amp;quot;\n\n------------------------------ Captured log call -------------------------------\nINFO     httpx2:_client.py:1079 HTTP Request: POST http://testserver/usuarios/registro &amp;quot;HTTP/1.1 422 Unprocessable Content&amp;quot;\n\n&#34;}], &#34;tests/test_perfil.py::test_registro_genero_invalido&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_perfil.py::test_registro_genero_invalido&#34;, &#34;duration&#34;: &#34;5 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_perfil.py::test_registro_genero_invalido&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;5 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;----------------------------- Captured stderr call -----------------------------\n2026-11-18 05:00:00,769 INFO httpx2: HTTP Request: POST http://testserver/usuarios/registro &amp;quot;HTTP/1.1 422 Unprocessable Content&amp;quot;\n\n------------------------------ Captured log call -------------------------------\nINFO     httpx2:_client.py:1079 HTTP Request: POST http://testserver/usuarios/registro &amp;quot;HTTP/1.1 422 Unprocessable Content&amp;quot;\n\n&#34;}], &#34;tests/test_perfil.py::test_registro_celular_invalido&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_perfil.py::test_registro_celular_invalido&#34;, &#34;duration&#34;: &#34;5 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_perfil.py::test_registro_celular_invalido&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;5 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;----------------------------- Captured stderr call -----------------------------\n2026-11-18 05:00:00,775 INFO httpx2: HTTP Request: POST http://testserver/usuarios/registro &amp;quot;HTTP/1.1 422 Unprocessable Content&amp;quot;\n\n------------------------------ Captured log call -------------------------------\nINFO     httpx2:_client.py:1079 HTTP Request: POST http://testserver/usuarios/registro &amp;quot;HTTP/1.1 422 Unprocessable Content&amp;quot;\n\n&#34;}], &#34;tests/test_perfil.py::test_editar_perfil&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_perfil.py::test_editar_perfil&#34;, &#34;duration&#34;: &#34;8 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_perfil.py::test_editar_perfil&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;8 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;----------------------------- Captured stderr call -----------------------------\n2026-11-18 05:00:00,784 INFO httpx2: HTTP Request: PUT http://testserver/usuarios/me &amp;quot;HTTP/1.1 200 OK&amp;quot;\n\n------------------------------ Captured log call -------------------------------\nINFO     httpx2:_client.py:1079 HTTP Request: PUT http://testserver/usuarios/me &amp;quot;HTTP/1.1 200 OK&amp;quot;\n\n&#34;}], &#34;tests/test_perfil.py::test_cambiar_contrasena_igual&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_perfil.py::test_cambiar_contrasena_igual&#34;, &#34;duration&#34;: &#34;7 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_perfil.py::test_cambiar_contrasena_igual&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;7 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;----------------------------- Captured stderr call -----------------------------\n2026-11-18 05:00:00,791 INFO httpx2: HTTP Request: PUT http://testserver/usuarios/me/contrasena &amp;quot;HTTP/1.1 422 Unprocessable Content&amp;quot;\n\n------------------------------ Captured log call -------------------------------\nINFO     httpx2:_client.py:1079 HTTP Request: PUT http://testserver/usuarios/me/contrasena &amp;quot;HTTP/1.1 422 Unprocessable Content&amp;quot;\n\n&#34;}], &#34;tests/test_perfil.py::test_cambiar_contrasena_actual_incorrecta&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_perfil.py::test_cambiar_contrasena_actual_incorrecta&#34;, &#34;duration&#34;: &#34;8 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_perfil.py::test_cambiar_contrasena_actual_incorrecta&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;8 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;----------------------------- Captured stderr call -----------------------------\n2026-11-18 05:00:00,799 INFO httpx2: HTTP Request: PUT http://testserver/usuarios/me/contrasena &amp;quot;HTTP/1.1 400 Bad Request&amp;quot;\n\n------------------------------ Captured log call -------------------------------\nINFO     httpx2:_client.py:1079 HTTP Request: PUT http://testserver/usuarios/me/contrasena &amp;quot;HTTP/1.1 400 Bad Request&amp;quot;\n\n&#34;}], &#34;tests/test_perfil.py::test_mis_productos_requiere_sesion&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_perfil.py::test_mis_productos_requiere_sesion&#34;, &#34;duration&#34;: &#34;5 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_perfil.py::test_mis_productos_requiere_sesion&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;5 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;----------------------------- Captured stderr call -----------------------------\n2026-11-18 05:00:00,805 INFO httpx2: HTTP Request: GET http://testserver/mis-productos/ &amp;quot;HTTP/1.1 401 Unauthorized&amp;quot;\n\n------------------------------ Captured log call -------------------------------\nINFO     httpx2:_client.py:1079 HTTP Request: GET http://testserver/mis-productos/ &amp;quot;HTTP/1.1 401 Unauthorized&amp;quot;\n\n&#34;}], &#34;tests/test_perfil.py::test_mis_productos_del_usuario_del_token&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_perfil.py::test_mis_productos_del_usuario_del_token&#34;, &#34;duration&#34;: &#34;7 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_perfil.py::test_mis_productos_del_usuario_del_token&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;7 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;----------------------------- Captured stderr call -----------------------------\n2026-11-18 05:00:00,813 INFO httpx2: HTTP Request: GET http://testserver/mis-productos/ &amp;quot;HTTP/1.1 200 OK&amp;quot;\n\n------------------------------ Captured log call -------------------------------\nINFO     httpx2:_client.py:1079 HTTP Request: GET http://testserver/mis-productos/ &amp;quot;HTTP/1.1 200 OK&amp;quot;\n\n&#34;}], &#34;tests/test_perfil.py::test_raiz_abre_la_tienda&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_perfil.py::test_raiz_abre_la_tienda&#34;, &#34;duration&#34;: &#34;7 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_perfil.py::test_raiz_abre_la_tienda&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;7 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;----------------------------- Captured stderr call -----------------------------\n2026-11-18 05:00:00,820 INFO httpx2: HTTP Request: GET http://testserver/ &amp;quot;HTTP/1.1 307 Temporary Redirect&amp;quot;\n\n------------------------------ Captured log call -------------------------------\nINFO     httpx2:_client.py:1079 HTTP Request: GET http://testserver/ &amp;quot;HTTP/1.1 307 Temporary Redirect&amp;quot;\n\n&#34;}], &#34;tests/test_perfil.py::test_interfaz_se_sirve&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_perfil.py::test_interfaz_se_sirve&#34;, &#34;duration&#34;: &#34;15 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_perfil.py::test_interfaz_se_sirve&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;15 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;----------------------------- Captured stderr call -----------------------------\n2026-11-18 05:00:00,835 INFO httpx2: HTTP Request: GET http://testserver/web/ &amp;quot;HTTP/1.1 200 OK&amp;quot;\n\n------------------------------ Captured log call -------------------------------\nINFO     httpx2:_client.py:1079 HTTP Request: GET http://testserver/web/ &amp;quot;HTTP/1.1 200 OK&amp;quot;\n\n&#34;}], &#34;tests/test_reembolsos_verificacion.py::test_estado_reembolso_pago&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_reembolsos_verificacion.py::test_estado_reembolso_pago&#34;, &#34;duration&#34;: &#34;0 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_reembolsos_verificacion.py::test_estado_reembolso_pago&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;0 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_reembolsos_verificacion.py::test_referencia_reembolso&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_reembolsos_verificacion.py::test_referencia_reembolso&#34;, &#34;duration&#34;: &#34;0 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_reembolsos_verificacion.py::test_referencia_reembolso&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;0 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_reembolsos_verificacion.py::test_reembolsos_requiere_sesion&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_reembolsos_verificacion.py::test_reembolsos_requiere_sesion&#34;, &#34;duration&#34;: &#34;5 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_reembolsos_verificacion.py::test_reembolsos_requiere_sesion&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;5 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;----------------------------- Captured stderr call -----------------------------\n2026-11-18 05:00:00,845 INFO httpx2: HTTP Request: GET http://testserver/reembolsos/ &amp;quot;HTTP/1.1 401 Unauthorized&amp;quot;\n\n------------------------------ Captured log call -------------------------------\nINFO     httpx2:_client.py:1079 HTTP Request: GET http://testserver/reembolsos/ &amp;quot;HTTP/1.1 401 Unauthorized&amp;quot;\n\n&#34;}], &#34;tests/test_reembolsos_verificacion.py::test_reembolsos_totales&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_reembolsos_verificacion.py::test_reembolsos_totales&#34;, &#34;duration&#34;: &#34;7 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_reembolsos_verificacion.py::test_reembolsos_totales&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;7 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;----------------------------- Captured stderr call -----------------------------\n2026-11-18 05:00:00,852 INFO httpx2: HTTP Request: GET http://testserver/reembolsos/?id_pedido=3 &amp;quot;HTTP/1.1 200 OK&amp;quot;\n\n------------------------------ Captured log call -------------------------------\nINFO     httpx2:_client.py:1079 HTTP Request: GET http://testserver/reembolsos/?id_pedido=3 &amp;quot;HTTP/1.1 200 OK&amp;quot;\n\n&#34;}], &#34;tests/test_reembolsos_verificacion.py::test_reembolso_inexistente_404&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_reembolsos_verificacion.py::test_reembolso_inexistente_404&#34;, &#34;duration&#34;: &#34;8 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_reembolsos_verificacion.py::test_reembolso_inexistente_404&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;8 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;----------------------------- Captured stderr call -----------------------------\n2026-11-18 05:00:00,860 INFO httpx2: HTTP Request: GET http://testserver/reembolsos/9 &amp;quot;HTTP/1.1 404 Not Found&amp;quot;\n\n------------------------------ Captured log call -------------------------------\nINFO     httpx2:_client.py:1079 HTTP Request: GET http://testserver/reembolsos/9 &amp;quot;HTTP/1.1 404 Not Found&amp;quot;\n\n&#34;}], &#34;tests/test_reembolsos_verificacion.py::test_sin_checklist_sin_verificar&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_reembolsos_verificacion.py::test_sin_checklist_sin_verificar&#34;, &#34;duration&#34;: &#34;0 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_reembolsos_verificacion.py::test_sin_checklist_sin_verificar&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;0 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_reembolsos_verificacion.py::test_verificado_completo&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_reembolsos_verificacion.py::test_verificado_completo&#34;, &#34;duration&#34;: &#34;0 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_reembolsos_verificacion.py::test_verificado_completo&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;0 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_reembolsos_verificacion.py::test_parcial_por_fotos_insuficientes&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_reembolsos_verificacion.py::test_parcial_por_fotos_insuficientes&#34;, &#34;duration&#34;: &#34;0 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_reembolsos_verificacion.py::test_parcial_por_fotos_insuficientes&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;0 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_reembolsos_verificacion.py::test_parcial_por_criterio_esencial&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_reembolsos_verificacion.py::test_parcial_por_criterio_esencial&#34;, &#34;duration&#34;: &#34;0 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_reembolsos_verificacion.py::test_parcial_por_criterio_esencial&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;0 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_reembolsos_verificacion.py::test_puntaje_maximo&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_reembolsos_verificacion.py::test_puntaje_maximo&#34;, &#34;duration&#34;: &#34;0 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_reembolsos_verificacion.py::test_puntaje_maximo&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;0 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_reembolsos_verificacion.py::test_publicar_exige_checklist_y_defectos&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_reembolsos_verificacion.py::test_publicar_exige_checklist_y_defectos&#34;, &#34;duration&#34;: &#34;7 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_reembolsos_verificacion.py::test_publicar_exige_checklist_y_defectos&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;7 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;----------------------------- Captured stderr call -----------------------------\n2026-11-18 05:00:00,873 INFO httpx2: HTTP Request: POST http://testserver/productos/publicar &amp;quot;HTTP/1.1 422 Unprocessable Content&amp;quot;\n\n------------------------------ Captured log call -------------------------------\nINFO     httpx2:_client.py:1079 HTTP Request: POST http://testserver/productos/publicar &amp;quot;HTTP/1.1 422 Unprocessable Content&amp;quot;\n\n&#34;}], &#34;tests/test_reembolsos_verificacion.py::test_publicar_envia_checklist&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_reembolsos_verificacion.py::test_publicar_envia_checklist&#34;, &#34;duration&#34;: &#34;7 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_reembolsos_verificacion.py::test_publicar_envia_checklist&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;7 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;----------------------------- Captured stderr call -----------------------------\n2026-11-18 05:00:00,881 INFO httpx2: HTTP Request: POST http://testserver/productos/publicar &amp;quot;HTTP/1.1 201 Created&amp;quot;\n\n------------------------------ Captured log call -------------------------------\nINFO     httpx2:_client.py:1079 HTTP Request: POST http://testserver/productos/publicar &amp;quot;HTTP/1.1 201 Created&amp;quot;\n\n&#34;}], &#34;tests/test_reembolsos_verificacion.py::test_tipo_bd_respeta_restriccion_del_esquema&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_reembolsos_verificacion.py::test_tipo_bd_respeta_restriccion_del_esquema&#34;, &#34;duration&#34;: &#34;0 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_reembolsos_verificacion.py::test_tipo_bd_respeta_restriccion_del_esquema&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;0 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_rutas.py::test_rutas_protegidas_sin_token&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_rutas.py::test_rutas_protegidas_sin_token&#34;, &#34;duration&#34;: &#34;51 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_rutas.py::test_rutas_protegidas_sin_token&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;51 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;----------------------------- Captured stderr call -----------------------------\n2026-11-18 05:00:00,889 INFO httpx2: HTTP Request: GET http://testserver/pedidos/ &amp;quot;HTTP/1.1 401 Unauthorized&amp;quot;\n2026-11-18 05:00:00,894 INFO httpx2: HTTP Request: GET http://testserver/ventas/ &amp;quot;HTTP/1.1 401 Unauthorized&amp;quot;\n2026-11-18 05:00:00,899 INFO httpx2: HTTP Request: GET http://testserver/pagos/ &amp;quot;HTTP/1.1 401 Unauthorized&amp;quot;\n2026-11-18 05:00:00,904 INFO httpx2: HTTP Request: GET http://testserver/direcciones/ &amp;quot;HTTP/1.1 401 Unauthorized&amp;quot;\n2026-11-18 05:00:00,919 INFO httpx2: HTTP Request: GET http://testserver/cancelaciones/ &amp;quot;HTTP/1.1 401 Unauthorized&amp;quot;\n2026-11-18 05:00:00,934 INFO httpx2: HTTP Request: POST http://testserver/pedidos/comprar &amp;quot;HTTP/1.1 401 Unauthorized&amp;quot;\n\n------------------------------ Captured log call -------------------------------\nINFO     httpx2:_client.py:1079 HTTP Request: GET http://testserver/pedidos/ &amp;quot;HTTP/1.1 401 Unauthorized&amp;quot;\nINFO     httpx2:_client.py:1079 HTTP Request: GET http://testserver/ventas/ &amp;quot;HTTP/1.1 401 Unauthorized&amp;quot;\nINFO     httpx2:_client.py:1079 HTTP Request: GET http://testserver/pagos/ &amp;quot;HTTP/1.1 401 Unauthorized&amp;quot;\nINFO     httpx2:_client.py:1079 HTTP Request: GET http://testserver/direcciones/ &amp;quot;HTTP/1.1 401 Unauthorized&amp;quot;\nINFO     httpx2:_client.py:1079 HTTP Request: GET http://testserver/cancelaciones/ &amp;quot;HTTP/1.1 401 Unauthorized&amp;quot;\nINFO     httpx2:_client.py:1079 HTTP Request: POST http://testserver/pedidos/comprar &amp;quot;HTTP/1.1 401 Unauthorized&amp;quot;\n\n&#34;}], &#34;tests/test_rutas.py::test_token_invalido&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_rutas.py::test_token_invalido&#34;, &#34;duration&#34;: &#34;18 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_rutas.py::test_token_invalido&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;18 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;----------------------------- Captured stderr call -----------------------------\n2026-11-18 05:00:00,955 INFO httpx2: HTTP Request: GET http://testserver/pedidos/ &amp;quot;HTTP/1.1 401 Unauthorized&amp;quot;\n\n------------------------------ Captured log call -------------------------------\nINFO     httpx2:_client.py:1079 HTTP Request: GET http://testserver/pedidos/ &amp;quot;HTTP/1.1 401 Unauthorized&amp;quot;\n\n&#34;}], &#34;tests/test_rutas.py::test_compra_con_tarjeta_requiere_numero&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_rutas.py::test_compra_con_tarjeta_requiere_numero&#34;, &#34;duration&#34;: &#34;8 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_rutas.py::test_compra_con_tarjeta_requiere_numero&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;8 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;----------------------------- Captured stderr call -----------------------------\n2026-11-18 05:00:00,964 INFO httpx2: HTTP Request: POST http://testserver/pedidos/comprar &amp;quot;HTTP/1.1 422 Unprocessable Content&amp;quot;\n\n------------------------------ Captured log call -------------------------------\nINFO     httpx2:_client.py:1079 HTTP Request: POST http://testserver/pedidos/comprar &amp;quot;HTTP/1.1 422 Unprocessable Content&amp;quot;\n\n&#34;}], &#34;tests/test_rutas.py::test_compra_metodo_invalido&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_rutas.py::test_compra_metodo_invalido&#34;, &#34;duration&#34;: &#34;9 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_rutas.py::test_compra_metodo_invalido&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;9 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;----------------------------- Captured stderr call -----------------------------\n2026-11-18 05:00:00,973 INFO httpx2: HTTP Request: POST http://testserver/pedidos/comprar &amp;quot;HTTP/1.1 422 Unprocessable Content&amp;quot;\n\n------------------------------ Captured log call -------------------------------\nINFO     httpx2:_client.py:1079 HTTP Request: POST http://testserver/pedidos/comprar &amp;quot;HTTP/1.1 422 Unprocessable Content&amp;quot;\n\n&#34;}], &#34;tests/test_rutas.py::test_compra_carrito_vacio&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_rutas.py::test_compra_carrito_vacio&#34;, &#34;duration&#34;: &#34;10 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_rutas.py::test_compra_carrito_vacio&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;10 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;----------------------------- Captured stderr call -----------------------------\n2026-11-18 05:00:00,984 INFO httpx2: HTTP Request: POST http://testserver/pedidos/comprar &amp;quot;HTTP/1.1 400 Bad Request&amp;quot;\n\n------------------------------ Captured log call -------------------------------\nINFO     httpx2:_client.py:1079 HTTP Request: POST http://testserver/pedidos/comprar &amp;quot;HTTP/1.1 400 Bad Request&amp;quot;\n\n&#34;}], &#34;tests/test_rutas.py::test_compra_stock_insuficiente&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_rutas.py::test_compra_stock_insuficiente&#34;, &#34;duration&#34;: &#34;9 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_rutas.py::test_compra_stock_insuficiente&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;9 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;----------------------------- Captured stderr call -----------------------------\n2026-11-18 05:00:00,994 INFO httpx2: HTTP Request: POST http://testserver/pedidos/comprar &amp;quot;HTTP/1.1 409 Conflict&amp;quot;\n\n------------------------------ Captured log call -------------------------------\nINFO     httpx2:_client.py:1079 HTTP Request: POST http://testserver/pedidos/comprar &amp;quot;HTTP/1.1 409 Conflict&amp;quot;\n\n&#34;}], &#34;tests/test_rutas.py::test_pago_rechazado_responde_402&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_rutas.py::test_pago_rechazado_responde_402&#34;, &#34;duration&#34;: &#34;8 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_rutas.py::test_pago_rechazado_responde_402&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;8 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;----------------------------- Captured stderr call -----------------------------\n2026-11-18 05:00:01,003 INFO httpx2: HTTP Request: POST http://testserver/pedidos/comprar &amp;quot;HTTP/1.1 402 Payment Required&amp;quot;\n\n------------------------------ Captured log call -------------------------------\nINFO     httpx2:_client.py:1079 HTTP Request: POST http://testserver/pedidos/comprar &amp;quot;HTTP/1.1 402 Payment Required&amp;quot;\n\n&#34;}], &#34;tests/test_rutas.py::test_mis_pedidos_usa_el_usuario_del_token&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_rutas.py::test_mis_pedidos_usa_el_usuario_del_token&#34;, &#34;duration&#34;: &#34;8 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_rutas.py::test_mis_pedidos_usa_el_usuario_del_token&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;8 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;----------------------------- Captured stderr call -----------------------------\n2026-11-18 05:00:01,012 INFO httpx2: HTTP Request: GET http://testserver/pedidos/?estado=pagado &amp;quot;HTTP/1.1 200 OK&amp;quot;\n\n------------------------------ Captured log call -------------------------------\nINFO     httpx2:_client.py:1079 HTTP Request: GET http://testserver/pedidos/?estado=pagado &amp;quot;HTTP/1.1 200 OK&amp;quot;\n\n&#34;}], &#34;tests/test_rutas.py::test_mis_pedidos_estado_invalido&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_rutas.py::test_mis_pedidos_estado_invalido&#34;, &#34;duration&#34;: &#34;8 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_rutas.py::test_mis_pedidos_estado_invalido&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;8 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;----------------------------- Captured stderr call -----------------------------\n2026-11-18 05:00:01,020 INFO httpx2: HTTP Request: GET http://testserver/pedidos/?estado=PERDIDO &amp;quot;HTTP/1.1 422 Unprocessable Content&amp;quot;\n\n------------------------------ Captured log call -------------------------------\nINFO     httpx2:_client.py:1079 HTTP Request: GET http://testserver/pedidos/?estado=PERDIDO &amp;quot;HTTP/1.1 422 Unprocessable Content&amp;quot;\n\n&#34;}], &#34;tests/test_rutas.py::test_resumen_no_se_confunde_con_id&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_rutas.py::test_resumen_no_se_confunde_con_id&#34;, &#34;duration&#34;: &#34;8 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_rutas.py::test_resumen_no_se_confunde_con_id&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;8 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;----------------------------- Captured stderr call -----------------------------\n2026-11-18 05:00:01,030 INFO httpx2: HTTP Request: GET http://testserver/ventas/resumen &amp;quot;HTTP/1.1 200 OK&amp;quot;\n\n------------------------------ Captured log call -------------------------------\nINFO     httpx2:_client.py:1079 HTTP Request: GET http://testserver/ventas/resumen &amp;quot;HTTP/1.1 200 OK&amp;quot;\n\n&#34;}], &#34;tests/test_rutas.py::test_direccion_con_espacios_es_invalida&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_rutas.py::test_direccion_con_espacios_es_invalida&#34;, &#34;duration&#34;: &#34;7 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_rutas.py::test_direccion_con_espacios_es_invalida&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;7 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;----------------------------- Captured stderr call -----------------------------\n2026-11-18 05:00:01,037 INFO httpx2: HTTP Request: POST http://testserver/direcciones/ &amp;quot;HTTP/1.1 422 Unprocessable Content&amp;quot;\n\n------------------------------ Captured log call -------------------------------\nINFO     httpx2:_client.py:1079 HTTP Request: POST http://testserver/direcciones/ &amp;quot;HTTP/1.1 422 Unprocessable Content&amp;quot;\n\n&#34;}], &#34;tests/test_rutas.py::test_direccion_en_uso_responde_409&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_rutas.py::test_direccion_en_uso_responde_409&#34;, &#34;duration&#34;: &#34;7 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_rutas.py::test_direccion_en_uso_responde_409&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;7 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;----------------------------- Captured stderr call -----------------------------\n2026-11-18 05:00:01,045 INFO httpx2: HTTP Request: DELETE http://testserver/direcciones/3 &amp;quot;HTTP/1.1 409 Conflict&amp;quot;\n\n------------------------------ Captured log call -------------------------------\nINFO     httpx2:_client.py:1079 HTTP Request: DELETE http://testserver/direcciones/3 &amp;quot;HTTP/1.1 409 Conflict&amp;quot;\n\n&#34;}], &#34;tests/test_rutas.py::test_cancelacion_parcial_valida_productos&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_rutas.py::test_cancelacion_parcial_valida_productos&#34;, &#34;duration&#34;: &#34;7 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_rutas.py::test_cancelacion_parcial_valida_productos&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;7 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;----------------------------- Captured stderr call -----------------------------\n2026-11-18 05:00:01,053 INFO httpx2: HTTP Request: POST http://testserver/cancelaciones/pedidos/1/parcial &amp;quot;HTTP/1.1 422 Unprocessable Content&amp;quot;\n\n------------------------------ Captured log call -------------------------------\nINFO     httpx2:_client.py:1079 HTTP Request: POST http://testserver/cancelaciones/pedidos/1/parcial &amp;quot;HTTP/1.1 422 Unprocessable Content&amp;quot;\n\n&#34;}], &#34;tests/test_rutas.py::test_cancelacion_parcial_no_admite_repetidos&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_rutas.py::test_cancelacion_parcial_no_admite_repetidos&#34;, &#34;duration&#34;: &#34;9 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_rutas.py::test_cancelacion_parcial_no_admite_repetidos&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;9 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;----------------------------- Captured stderr call -----------------------------\n2026-11-18 05:00:01,063 INFO httpx2: HTTP Request: POST http://testserver/cancelaciones/pedidos/1/parcial &amp;quot;HTTP/1.1 422 Unprocessable Content&amp;quot;\n\n------------------------------ Captured log call -------------------------------\nINFO     httpx2:_client.py:1079 HTTP Request: POST http://testserver/cancelaciones/pedidos/1/parcial &amp;quot;HTTP/1.1 422 Unprocessable Content&amp;quot;\n\n&#34;}], &#34;tests/test_rutas.py::test_cancelacion_parcial_envia_cantidades&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_rutas.py::test_cancelacion_parcial_envia_cantidades&#34;, &#34;duration&#34;: &#34;9 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_rutas.py::test_cancelacion_parcial_envia_cantidades&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;9 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;----------------------------- Captured stderr call -----------------------------\n2026-11-18 05:00:01,072 INFO httpx2: HTTP Request: POST http://testserver/cancelaciones/pedidos/5/parcial &amp;quot;HTTP/1.1 201 Created&amp;quot;\n\n------------------------------ Captured log call -------------------------------\nINFO     httpx2:_client.py:1079 HTTP Request: POST http://testserver/cancelaciones/pedidos/5/parcial &amp;quot;HTTP/1.1 201 Created&amp;quot;\n\n&#34;}], &#34;tests/test_rutas.py::test_cancelacion_motivo_obligatorio&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_rutas.py::test_cancelacion_motivo_obligatorio&#34;, &#34;duration&#34;: &#34;7 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_rutas.py::test_cancelacion_motivo_obligatorio&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;7 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;----------------------------- Captured stderr call -----------------------------\n2026-11-18 05:00:01,080 INFO httpx2: HTTP Request: POST http://testserver/cancelaciones/pedidos/1/total &amp;quot;HTTP/1.1 422 Unprocessable Content&amp;quot;\n\n------------------------------ Captured log call -------------------------------\nINFO     httpx2:_client.py:1079 HTTP Request: POST http://testserver/cancelaciones/pedidos/1/total &amp;quot;HTTP/1.1 422 Unprocessable Content&amp;quot;\n\n&#34;}], &#34;tests/test_rutas.py::test_cancelacion_conflicto_responde_409&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_rutas.py::test_cancelacion_conflicto_responde_409&#34;, &#34;duration&#34;: &#34;11 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_rutas.py::test_cancelacion_conflicto_responde_409&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;11 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;----------------------------- Captured stderr call -----------------------------\n2026-11-18 05:00:01,091 INFO httpx2: HTTP Request: POST http://testserver/cancelaciones/pedidos/1/total &amp;quot;HTTP/1.1 409 Conflict&amp;quot;\n\n------------------------------ Captured log call -------------------------------\nINFO     httpx2:_client.py:1079 HTTP Request: POST http://testserver/cancelaciones/pedidos/1/total &amp;quot;HTTP/1.1 409 Conflict&amp;quot;\n\n&#34;}], &#34;tests/test_rutas.py::test_cancelacion_pedido_ajeno_responde_404&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_rutas.py::test_cancelacion_pedido_ajeno_responde_404&#34;, &#34;duration&#34;: &#34;7 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_rutas.py::test_cancelacion_pedido_ajeno_responde_404&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;7 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;----------------------------- Captured stderr call -----------------------------\n2026-11-18 05:00:01,099 INFO httpx2: HTTP Request: POST http://testserver/cancelaciones/pedidos/99/total &amp;quot;HTTP/1.1 404 Not Found&amp;quot;\n\n------------------------------ Captured log call -------------------------------\nINFO     httpx2:_client.py:1079 HTTP Request: POST http://testserver/cancelaciones/pedidos/99/total &amp;quot;HTTP/1.1 404 Not Found&amp;quot;\n\n&#34;}], &#34;tests/test_sincronizacion_pedido.py::test_estado_del_pedido[ventas0-PAGADO]&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_sincronizacion_pedido.py::test_estado_del_pedido[ventas0-PAGADO]&#34;, &#34;duration&#34;: &#34;1 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_sincronizacion_pedido.py::test_estado_del_pedido[ventas0-PAGADO]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;1 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_sincronizacion_pedido.py::test_estado_del_pedido[ventas1-EN_PROCESO]&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_sincronizacion_pedido.py::test_estado_del_pedido[ventas1-EN_PROCESO]&#34;, &#34;duration&#34;: &#34;1 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_sincronizacion_pedido.py::test_estado_del_pedido[ventas1-EN_PROCESO]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;1 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_sincronizacion_pedido.py::test_estado_del_pedido[ventas2-PARCIALMENTE_ENVIADO]&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_sincronizacion_pedido.py::test_estado_del_pedido[ventas2-PARCIALMENTE_ENVIADO]&#34;, &#34;duration&#34;: &#34;1 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_sincronizacion_pedido.py::test_estado_del_pedido[ventas2-PARCIALMENTE_ENVIADO]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;1 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_sincronizacion_pedido.py::test_estado_del_pedido[ventas3-EN_PROCESO]&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_sincronizacion_pedido.py::test_estado_del_pedido[ventas3-EN_PROCESO]&#34;, &#34;duration&#34;: &#34;1 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_sincronizacion_pedido.py::test_estado_del_pedido[ventas3-EN_PROCESO]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;1 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_sincronizacion_pedido.py::test_estado_del_pedido[ventas4-COMPLETADO]&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_sincronizacion_pedido.py::test_estado_del_pedido[ventas4-COMPLETADO]&#34;, &#34;duration&#34;: &#34;1 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_sincronizacion_pedido.py::test_estado_del_pedido[ventas4-COMPLETADO]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;1 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_sincronizacion_pedido.py::test_estado_del_pedido[ventas5-COMPLETADO]&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_sincronizacion_pedido.py::test_estado_del_pedido[ventas5-COMPLETADO]&#34;, &#34;duration&#34;: &#34;1 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_sincronizacion_pedido.py::test_estado_del_pedido[ventas5-COMPLETADO]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;1 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_sincronizacion_pedido.py::test_estado_del_pedido[ventas6-CANCELADO]&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_sincronizacion_pedido.py::test_estado_del_pedido[ventas6-CANCELADO]&#34;, &#34;duration&#34;: &#34;1 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_sincronizacion_pedido.py::test_estado_del_pedido[ventas6-CANCELADO]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;1 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_sincronizacion_pedido.py::test_estado_del_pedido[ventas7-EN_PROCESO]&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_sincronizacion_pedido.py::test_estado_del_pedido[ventas7-EN_PROCESO]&#34;, &#34;duration&#34;: &#34;1 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_sincronizacion_pedido.py::test_estado_del_pedido[ventas7-EN_PROCESO]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;1 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_sincronizacion_pedido.py::test_estado_del_pedido[ventas8-PARCIALMENTE_ENVIADO]&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_sincronizacion_pedido.py::test_estado_del_pedido[ventas8-PARCIALMENTE_ENVIADO]&#34;, &#34;duration&#34;: &#34;1 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_sincronizacion_pedido.py::test_estado_del_pedido[ventas8-PARCIALMENTE_ENVIADO]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;1 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_sincronizacion_pedido.py::test_no_actualiza_si_el_estado_no_cambia&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_sincronizacion_pedido.py::test_no_actualiza_si_el_estado_no_cambia&#34;, &#34;duration&#34;: &#34;0 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_sincronizacion_pedido.py::test_no_actualiza_si_el_estado_no_cambia&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;0 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}]}, &#34;renderCollapsed&#34;: [&#34;passed&#34;], &#34;initialSort&#34;: &#34;result&#34;, &#34;title&#34;: &#34;reporte_pruebas.html&#34;}"></div>
+    <script>
+      (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
+const { getCollapsedCategory, setCollapsedIds } = require('./storage.js')
+
+class DataManager {
+    setManager(data) {
+        const collapsedCategories = [...getCollapsedCategory(data.renderCollapsed)]
+        const collapsedIds = []
+        const tests = Object.values(data.tests).flat().map((test, index) => {
+            const collapsed = collapsedCategories.includes(test.result.toLowerCase())
+            const id = `test_${index}`
+            if (collapsed) {
+                collapsedIds.push(id)
+            }
+            return {
+                ...test,
+                id,
+                collapsed,
+            }
+        })
+        const dataBlob = { ...data, tests }
+        this.data = { ...dataBlob }
+        this.renderData = { ...dataBlob }
+        setCollapsedIds(collapsedIds)
+    }
+
+    get allData() {
+        return { ...this.data }
+    }
+
+    resetRender() {
+        this.renderData = { ...this.data }
+    }
+
+    setRender(data) {
+        this.renderData.tests = [...data]
+    }
+
+    toggleCollapsedItem(id) {
+        this.renderData.tests = this.renderData.tests.map((test) =>
+            test.id === id ? { ...test, collapsed: !test.collapsed } : test,
+        )
+    }
+
+    set allCollapsed(collapsed) {
+        this.renderData = { ...this.renderData, tests: [...this.renderData.tests.map((test) => (
+            { ...test, collapsed }
+        ))] }
+    }
+
+    get testSubset() {
+        return [...this.renderData.tests]
+    }
+
+    get environment() {
+        return this.renderData.environment
+    }
+
+    get initialSort() {
+        return this.data.initialSort
+    }
+}
+
+module.exports = {
+    manager: new DataManager(),
+}
+
+},{"./storage.js":8}],2:[function(require,module,exports){
+const mediaViewer = require('./mediaviewer.js')
+const templateEnvRow = document.getElementById('template_environment_row')
+const templateResult = document.getElementById('template_results-table__tbody')
+
+function htmlToElements(html) {
+    const temp = document.createElement('template')
+    temp.innerHTML = html
+    return temp.content.childNodes
+}
+
+const find = (selector, elem) => {
+    if (!elem) {
+        elem = document
+    }
+    return elem.querySelector(selector)
+}
+
+const findAll = (selector, elem) => {
+    if (!elem) {
+        elem = document
+    }
+    return [...elem.querySelectorAll(selector)]
+}
+
+const dom = {
+    getStaticRow: (key, value) => {
+        const envRow = templateEnvRow.content.cloneNode(true)
+        const isObj = typeof value === 'object' && value !== null
+        const values = isObj ? Object.keys(value).map((k) => `${k}: ${value[k]}`) : null
+
+        const valuesElement = htmlToElements(
+            values ? `<ul>${values.map((val) => `<li>${val}</li>`).join('')}<ul>` : `<div>${value}</div>`)[0]
+        const td = findAll('td', envRow)
+        td[0].textContent = key
+        td[1].appendChild(valuesElement)
+
+        return envRow
+    },
+    getResultTBody: ({ testId, id, log, extras, resultsTableRow, tableHtml, result, collapsed }) => {
+        const resultBody = templateResult.content.cloneNode(true)
+        resultBody.querySelector('tbody').classList.add(result.toLowerCase())
+        resultBody.querySelector('tbody').id = testId
+        resultBody.querySelector('.collapsible').dataset.id = id
+
+        resultsTableRow.forEach((html) => {
+            const t = document.createElement('template')
+            t.innerHTML = html
+            resultBody.querySelector('.collapsible').appendChild(t.content)
+        })
+
+        if (log) {
+            // Wrap lines starting with "E" with span.error to color those lines red
+            const wrappedLog = log.replace(/^E.*$/gm, (match) => `<span class="error">${match}</span>`)
+            resultBody.querySelector('.log').innerHTML = wrappedLog
+        } else {
+            resultBody.querySelector('.log').remove()
+        }
+
+        if (collapsed) {
+            resultBody.querySelector('.collapsible > .col-result')?.classList.add('collapsed')
+            resultBody.querySelector('.extras-row').classList.add('hidden')
+        } else {
+            resultBody.querySelector('.collapsible > .col-result')?.classList.remove('collapsed')
+        }
+
+        const media = []
+        extras?.forEach(({ name, format_type, content }) => {
+            if (['image', 'video'].includes(format_type)) {
+                media.push({ path: content, name, format_type })
+            }
+
+            if (format_type === 'html') {
+                resultBody.querySelector('.extraHTML').insertAdjacentHTML('beforeend', `<div>${content}</div>`)
+            }
+        })
+        mediaViewer.setup(resultBody, media)
+
+        // Add custom html from the pytest_html_results_table_html hook
+        tableHtml?.forEach((item) => {
+            resultBody.querySelector('td[class="extra"]').insertAdjacentHTML('beforeend', item)
+        })
+
+        return resultBody
+    },
+}
+
+module.exports = {
+    dom,
+    htmlToElements,
+    find,
+    findAll,
+}
+
+},{"./mediaviewer.js":6}],3:[function(require,module,exports){
+const { manager } = require('./datamanager.js')
+const { doSort } = require('./sort.js')
+const storageModule = require('./storage.js')
+
+const getFilteredSubSet = (filter) =>
+    manager.allData.tests.filter(({ result }) => filter.includes(result.toLowerCase()))
+
+const doInitFilter = () => {
+    const currentFilter = storageModule.getVisible()
+    const filteredSubset = getFilteredSubSet(currentFilter)
+    manager.setRender(filteredSubset)
+}
+
+const doFilter = (type, show) => {
+    if (show) {
+        storageModule.showCategory(type)
+    } else {
+        storageModule.hideCategory(type)
+    }
+
+    const currentFilter = storageModule.getVisible()
+    const filteredSubset = getFilteredSubSet(currentFilter)
+    manager.setRender(filteredSubset)
+
+    const sortColumn = storageModule.getSort()
+    doSort(sortColumn, true)
+}
+
+module.exports = {
+    doFilter,
+    doInitFilter,
+}
+
+},{"./datamanager.js":1,"./sort.js":7,"./storage.js":8}],4:[function(require,module,exports){
+const { redraw, bindEvents, renderStatic } = require('./main.js')
+const { doInitFilter } = require('./filter.js')
+const { doInitSort } = require('./sort.js')
+const { manager } = require('./datamanager.js')
+const data = JSON.parse(document.getElementById('data-container').dataset.jsonblob)
+
+function init() {
+    manager.setManager(data)
+    doInitFilter()
+    doInitSort()
+    renderStatic()
+    redraw()
+    bindEvents()
+}
+
+init()
+
+},{"./datamanager.js":1,"./filter.js":3,"./main.js":5,"./sort.js":7}],5:[function(require,module,exports){
+const { dom, find, findAll } = require('./dom.js')
+const { manager } = require('./datamanager.js')
+const { doSort } = require('./sort.js')
+const { doFilter } = require('./filter.js')
+const {
+    getVisible,
+    getCollapsedIds,
+    setCollapsedIds,
+    getSort,
+    getSortDirection,
+    possibleFilters,
+} = require('./storage.js')
+
+const removeChildren = (node) => {
+    while (node.firstChild) {
+        node.removeChild(node.firstChild)
+    }
+}
+
+const renderStatic = () => {
+    const renderEnvironmentTable = () => {
+        const environment = manager.environment
+        const rows = Object.keys(environment).map((key) => dom.getStaticRow(key, environment[key]))
+        const table = document.getElementById('environment')
+        removeChildren(table)
+        rows.forEach((row) => table.appendChild(row))
+    }
+    renderEnvironmentTable()
+}
+
+const addItemToggleListener = (elem) => {
+    elem.addEventListener('click', ({ target }) => {
+        const id = target.parentElement.dataset.id
+        manager.toggleCollapsedItem(id)
+
+        const collapsedIds = getCollapsedIds()
+        if (collapsedIds.includes(id)) {
+            const updated = collapsedIds.filter((item) => item !== id)
+            setCollapsedIds(updated)
+        } else {
+            collapsedIds.push(id)
+            setCollapsedIds(collapsedIds)
+        }
+        redraw()
+    })
+}
+
+const renderContent = (tests) => {
+    const sortAttr = getSort(manager.initialSort)
+    const sortAsc = JSON.parse(getSortDirection())
+    const rows = tests.map(dom.getResultTBody)
+    const table = document.getElementById('results-table')
+    const tableHeader = document.getElementById('results-table-head')
+
+    const newTable = document.createElement('table')
+    newTable.id = 'results-table'
+
+    // remove all sorting classes and set the relevant
+    findAll('.sortable', tableHeader).forEach((elem) => elem.classList.remove('asc', 'desc'))
+    tableHeader.querySelector(`.sortable[data-column-type="${sortAttr}"]`)?.classList.add(sortAsc ? 'desc' : 'asc')
+    newTable.appendChild(tableHeader)
+
+    if (!rows.length) {
+        const emptyTable = document.getElementById('template_results-table__body--empty').content.cloneNode(true)
+        newTable.appendChild(emptyTable)
+    } else {
+        rows.forEach((row) => {
+            if (!!row) {
+                findAll('.collapsible td:not(.col-links', row).forEach(addItemToggleListener)
+                find('.logexpander', row).addEventListener('click',
+                    (evt) => evt.target.parentNode.classList.toggle('expanded'),
+                )
+                newTable.appendChild(row)
+            }
+        })
+    }
+
+    table.replaceWith(newTable)
+}
+
+const renderDerived = () => {
+    const currentFilter = getVisible()
+    possibleFilters.forEach((result) => {
+        const input = document.querySelector(`input[data-test-result="${result}"]`)
+        input.checked = currentFilter.includes(result)
+    })
+}
+
+const bindEvents = () => {
+    const filterColumn = (evt) => {
+        const { target: element } = evt
+        const { testResult } = element.dataset
+
+        doFilter(testResult, element.checked)
+        const collapsedIds = getCollapsedIds()
+        const updated = manager.renderData.tests.map((test) => {
+            return {
+                ...test,
+                collapsed: collapsedIds.includes(test.id),
+            }
+        })
+        manager.setRender(updated)
+        redraw()
+    }
+
+    const header = document.getElementById('environment-header')
+    header.addEventListener('click', () => {
+        const table = document.getElementById('environment')
+        table.classList.toggle('hidden')
+        header.classList.toggle('collapsed')
+    })
+
+    findAll('input[name="filter_checkbox"]').forEach((elem) => {
+        elem.addEventListener('click', filterColumn)
+    })
+
+    findAll('.sortable').forEach((elem) => {
+        elem.addEventListener('click', (evt) => {
+            const { target: element } = evt
+            const { columnType } = element.dataset
+            doSort(columnType)
+            redraw()
+        })
+    })
+
+    document.getElementById('show_all_details').addEventListener('click', () => {
+        manager.allCollapsed = false
+        setCollapsedIds([])
+        redraw()
+    })
+    document.getElementById('hide_all_details').addEventListener('click', () => {
+        manager.allCollapsed = true
+        const allIds = manager.renderData.tests.map((test) => test.id)
+        setCollapsedIds(allIds)
+        redraw()
+    })
+}
+
+const redraw = () => {
+    const { testSubset } = manager
+
+    renderContent(testSubset)
+    renderDerived()
+}
+
+module.exports = {
+    redraw,
+    bindEvents,
+    renderStatic,
+}
+
+},{"./datamanager.js":1,"./dom.js":2,"./filter.js":3,"./sort.js":7,"./storage.js":8}],6:[function(require,module,exports){
+class MediaViewer {
+    constructor(assets) {
+        this.assets = assets
+        this.index = 0
+    }
+
+    nextActive() {
+        this.index = this.index === this.assets.length - 1 ? 0 : this.index + 1
+        return [this.activeFile, this.index]
+    }
+
+    prevActive() {
+        this.index = this.index === 0 ? this.assets.length - 1 : this.index -1
+        return [this.activeFile, this.index]
+    }
+
+    get currentIndex() {
+        return this.index
+    }
+
+    get activeFile() {
+        return this.assets[this.index]
+    }
+}
+
+
+const setup = (resultBody, assets) => {
+    if (!assets.length) {
+        resultBody.querySelector('.media').classList.add('hidden')
+        return
+    }
+
+    const mediaViewer = new MediaViewer(assets)
+    const container = resultBody.querySelector('.media-container')
+    const leftArrow = resultBody.querySelector('.media-container__nav--left')
+    const rightArrow = resultBody.querySelector('.media-container__nav--right')
+    const mediaName = resultBody.querySelector('.media__name')
+    const counter = resultBody.querySelector('.media__counter')
+    const imageEl = resultBody.querySelector('img')
+    const sourceEl = resultBody.querySelector('source')
+    const videoEl = resultBody.querySelector('video')
+
+    const setImg = (media, index) => {
+        if (media?.format_type === 'image') {
+            imageEl.src = media.path
+
+            imageEl.classList.remove('hidden')
+            videoEl.classList.add('hidden')
+        } else if (media?.format_type === 'video') {
+            sourceEl.src = media.path
+
+            videoEl.classList.remove('hidden')
+            imageEl.classList.add('hidden')
+        }
+
+        mediaName.innerText = media?.name
+        counter.innerText = `${index + 1} / ${assets.length}`
+    }
+    setImg(mediaViewer.activeFile, mediaViewer.currentIndex)
+
+    const moveLeft = () => {
+        const [media, index] = mediaViewer.prevActive()
+        setImg(media, index)
+    }
+    const doRight = () => {
+        const [media, index] = mediaViewer.nextActive()
+        setImg(media, index)
+    }
+    const openImg = () => {
+        window.open(mediaViewer.activeFile.path, '_blank')
+    }
+    if (assets.length === 1) {
+        container.classList.add('media-container--fullscreen')
+    } else {
+        leftArrow.addEventListener('click', moveLeft)
+        rightArrow.addEventListener('click', doRight)
+    }
+    imageEl.addEventListener('click', openImg)
+}
+
+module.exports = {
+    setup,
+}
+
+},{}],7:[function(require,module,exports){
+const { manager } = require('./datamanager.js')
+const storageModule = require('./storage.js')
+
+const genericSort = (list, key, ascending, customOrder) => {
+    let sorted
+    if (customOrder) {
+        sorted = list.sort((a, b) => {
+            const aValue = a.result.toLowerCase()
+            const bValue = b.result.toLowerCase()
+
+            const aIndex = customOrder.findIndex((item) => item.toLowerCase() === aValue)
+            const bIndex = customOrder.findIndex((item) => item.toLowerCase() === bValue)
+
+            // Compare the indices to determine the sort order
+            return aIndex - bIndex
+        })
+    } else {
+        sorted = list.sort((a, b) => a[key] === b[key] ? 0 : a[key] > b[key] ? 1 : -1)
+    }
+
+    if (ascending) {
+        sorted.reverse()
+    }
+    return sorted
+}
+
+const durationSort = (list, ascending) => {
+    const parseDuration = (duration) => {
+        if (duration.includes(':')) {
+            // If it's in the format "HH:mm:ss"
+            const [hours, minutes, seconds] = duration.split(':').map(Number)
+            return (hours * 3600 + minutes * 60 + seconds) * 1000
+        } else {
+            // If it's in the format "nnn ms"
+            return parseInt(duration)
+        }
+    }
+    const sorted = list.sort((a, b) => parseDuration(a['duration']) - parseDuration(b['duration']))
+    if (ascending) {
+        sorted.reverse()
+    }
+    return sorted
+}
+
+const doInitSort = () => {
+    const type = storageModule.getSort(manager.initialSort)
+    const ascending = storageModule.getSortDirection()
+    const list = manager.testSubset
+    const initialOrder = ['Error', 'Failed', 'Rerun', 'XFailed', 'XPassed', 'Skipped', 'Passed']
+
+    storageModule.setSort(type)
+    storageModule.setSortDirection(ascending)
+
+    if (type?.toLowerCase() === 'original') {
+        manager.setRender(list)
+    } else {
+        let sortedList
+        switch (type) {
+        case 'duration':
+            sortedList = durationSort(list, ascending)
+            break
+        case 'result':
+            sortedList = genericSort(list, type, ascending, initialOrder)
+            break
+        default:
+            sortedList = genericSort(list, type, ascending)
+            break
+        }
+        manager.setRender(sortedList)
+    }
+}
+
+const doSort = (type, skipDirection) => {
+    const newSortType = storageModule.getSort(manager.initialSort) !== type
+    const currentAsc = storageModule.getSortDirection()
+    let ascending
+    if (skipDirection) {
+        ascending = currentAsc
+    } else {
+        ascending = newSortType ? false : !currentAsc
+    }
+    storageModule.setSort(type)
+    storageModule.setSortDirection(ascending)
+
+    const list = manager.testSubset
+    const sortedList = type === 'duration' ? durationSort(list, ascending) : genericSort(list, type, ascending)
+    manager.setRender(sortedList)
+}
+
+module.exports = {
+    doInitSort,
+    doSort,
+}
+
+},{"./datamanager.js":1,"./storage.js":8}],8:[function(require,module,exports){
+const possibleFilters = [
+    'passed',
+    'skipped',
+    'failed',
+    'error',
+    'xfailed',
+    'xpassed',
+    'rerun',
+]
+
+const getVisible = () => {
+    const url = new URL(window.location.href)
+    const settings = new URLSearchParams(url.search).get('visible')
+    const lower = (item) => {
+        const lowerItem = item.toLowerCase()
+        if (possibleFilters.includes(lowerItem)) {
+            return lowerItem
+        }
+        return null
+    }
+    return settings === null ?
+        possibleFilters :
+        [...new Set(settings?.split(',').map(lower).filter((item) => item))]
+}
+
+const hideCategory = (categoryToHide) => {
+    const url = new URL(window.location.href)
+    const visibleParams = new URLSearchParams(url.search).get('visible')
+    const currentVisible = visibleParams ? visibleParams.split(',') : [...possibleFilters]
+    const settings = [...new Set(currentVisible)].filter((f) => f !== categoryToHide).join(',')
+
+    url.searchParams.set('visible', settings)
+    window.history.pushState({}, null, unescape(url.href))
+}
+
+const showCategory = (categoryToShow) => {
+    if (typeof window === 'undefined') {
+        return
+    }
+    const url = new URL(window.location.href)
+    const currentVisible = new URLSearchParams(url.search).get('visible')?.split(',').filter(Boolean) ||
+        [...possibleFilters]
+    const settings = [...new Set([categoryToShow, ...currentVisible])]
+    const noFilter = possibleFilters.length === settings.length || !settings.length
+
+    noFilter ? url.searchParams.delete('visible') : url.searchParams.set('visible', settings.join(','))
+    window.history.pushState({}, null, unescape(url.href))
+}
+
+const getSort = (initialSort) => {
+    const url = new URL(window.location.href)
+    let sort = new URLSearchParams(url.search).get('sort')
+    if (!sort) {
+        sort = initialSort || 'result'
+    }
+    return sort
+}
+
+const setSort = (type) => {
+    const url = new URL(window.location.href)
+    url.searchParams.set('sort', type)
+    window.history.pushState({}, null, unescape(url.href))
+}
+
+const getCollapsedCategory = (renderCollapsed) => {
+    let categories
+    if (typeof window !== 'undefined') {
+        const url = new URL(window.location.href)
+        const collapsedItems = new URLSearchParams(url.search).get('collapsed')
+        switch (true) {
+        case !renderCollapsed && collapsedItems === null:
+            categories = ['passed']
+            break
+        case collapsedItems?.length === 0 || /^["']{2}$/.test(collapsedItems):
+            categories = []
+            break
+        case /^all$/.test(collapsedItems) || collapsedItems === null && /^all$/.test(renderCollapsed):
+            categories = [...possibleFilters]
+            break
+        default:
+            categories = collapsedItems?.split(',').map((item) => item.toLowerCase()) || renderCollapsed
+            break
+        }
+    } else {
+        categories = []
+    }
+    return categories
+}
+
+const getSortDirection = () => JSON.parse(sessionStorage.getItem('sortAsc')) || false
+const setSortDirection = (ascending) => sessionStorage.setItem('sortAsc', ascending)
+
+const getCollapsedIds = () => JSON.parse(sessionStorage.getItem('collapsedIds')) || []
+const setCollapsedIds = (list) => sessionStorage.setItem('collapsedIds', JSON.stringify(list))
+
+module.exports = {
+    getVisible,
+    hideCategory,
+    showCategory,
+    getCollapsedIds,
+    setCollapsedIds,
+    getSort,
+    setSort,
+    getSortDirection,
+    setSortDirection,
+    getCollapsedCategory,
+    possibleFilters,
+}
+
+},{}]},{},[4]);
+    </script>
+  </footer>
+  </body>
+</html>

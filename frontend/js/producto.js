@@ -4,6 +4,8 @@ const NIVEL_CONDICION = { COMO_NUEVO: 3, BUENO: 2, ACEPTABLE: 1 };
 
 function panelVerificacion(p) {
     const v = p.verificacion || { nivel: "SIN_VERIFICAR", puntaje: 0, criterios: [], faltantes: [] };
+    const usuario = Sesion.usuario();
+    const propio = Boolean(usuario && usuario.id_usuario === p.id_vendedor);
     const nivel = NIVEL_CONDICION[p.condicion] || 0;
     const tono = v.puntaje >= 80 ? "alto" : v.puntaje >= 50 ? "medio" : "bajo";
 
@@ -40,6 +42,8 @@ function panelVerificacion(p) {
                     <strong>${v.sin_defectos ? "Sin defectos declarados" : "Defectos declarados por el vendedor"}</strong>
                     ${v.sin_defectos ? "" : `<p>${esc(v.defectos)}</p>`}
                 </div>` : ""}
+
+            ${panelIA(p.inspeccion_ia, { vistaComprador: !propio })}
 
             ${v.faltantes.length ? `
                 <details class="faltantes">

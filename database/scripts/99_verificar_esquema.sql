@@ -109,7 +109,10 @@ INSERT INTO @columnas (Tabla, Columna) VALUES
     -- 02_reembolsos.sql y 03_verificacion_productos.sql
     ('Reembolsos', 'FechaReembolso'), ('Reembolsos', 'FechaSolicitud'),
     ('Reembolsos', 'Referencia'),
-    ('VerificacionProductos', 'IdProducto'), ('VerificacionProductos', 'DescripcionDefectos');
+    ('VerificacionProductos', 'IdProducto'), ('VerificacionProductos', 'DescripcionDefectos'),
+    -- 05_inspeccion_ia.sql
+    ('InspeccionesIA', 'CondicionSugerida'), ('InspeccionesIA', 'Confianza'),
+    ('InspeccionesIA', 'Coherencia'), ('InspeccionesIA', 'Alertas');
 
 SELECT Tabla, Columna AS ColumnaInexistente
 FROM @columnas

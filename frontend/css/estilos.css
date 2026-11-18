@@ -2154,6 +2154,128 @@ input[type="file"].control::file-selector-button {
     stroke-width: 2.2;
 }
 
+
+/* ------------------------------------------------------------------ */
+/* Inspector de estado con IA                                          */
+/* ------------------------------------------------------------------ */
+
+.bloque-ia {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+    padding: 12px 14px;
+    margin: 4px 0 14px;
+    border-radius: var(--radio);
+    background: var(--acento-suave);
+}
+
+.bloque-ia .ayuda {
+    margin: 2px 0 0;
+}
+
+.titulo-ia {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-weight: 700;
+    color: var(--tinta);
+}
+
+.titulo-ia .icono {
+    color: var(--acento);
+}
+
+.panel-ia {
+    border: 1px solid var(--borde);
+    border-left: 4px solid var(--acento);
+    border-radius: var(--radio);
+    background: var(--superficie);
+    padding: 12px 14px;
+    margin: 12px 0 14px;
+    display: grid;
+    gap: 10px;
+    font-size: 14px;
+}
+
+.panel-ia.ia-revisar {
+    border-left-color: var(--aviso);
+}
+
+.panel-ia-cabecera,
+.ia-sugerencia {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+}
+
+.ia-sugerencia span {
+    color: var(--texto-suave);
+}
+
+.ia-sugerencia strong {
+    font-size: 16px;
+    color: var(--tinta);
+}
+
+.ia-confianza .barra-puntaje {
+    margin-bottom: 4px;
+}
+
+.ia-confianza small,
+.ia-version,
+.ia-terminos small {
+    color: var(--texto-suave);
+    font-size: 12px;
+}
+
+.ia-alertas {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 6px;
+}
+
+.ia-alertas li,
+.ia-ok {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    margin: 0;
+}
+
+.ia-alertas .icono {
+    color: var(--aviso);
+    margin-top: 2px;
+}
+
+.ia-ok .icono {
+    color: var(--exito);
+    margin-top: 2px;
+}
+
+.ia-terminos {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+}
+
+.ia-termino {
+    font-size: 12px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: var(--superficie-2);
+    color: var(--tinta);
+}
+
+.panel-ia .boton {
+    justify-self: start;
+}
+
 @media (max-width: 900px) {
     .encabezado-contenido {
         flex-wrap: wrap;

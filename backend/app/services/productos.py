@@ -1,6 +1,7 @@
 from decimal import Decimal
 
 from app.db.connection import get_connection
+from app.services.inspeccion_ia import inspeccionar_y_guardar, obtener_inspeccion
 from app.services.verificacion import (
     guardar_verificacion,
     obtener_verificacion,
@@ -87,6 +88,9 @@ def publicar_producto(
 
         if checklist is not None:
             guardar_verificacion(cursor, id_producto, checklist, defectos or "")
+
+        # Inspector de estado con IA: analiza el texto contra el checklist
+        inspeccionar_y_guardar(cursor, id_producto, nombre, descripcion, defectos, checklist, condicion)
 
         connection.commit()
 
@@ -238,6 +242,8 @@ def obtener_producto(id_producto: int):
             for img in cursor.fetchall()
         ]
 
+        inspeccion = obtener_inspeccion(cursor, fila.IdProducto)
+
         return {
             "id_producto": fila.IdProducto,
             "nombre": fila.Nombre,
@@ -253,8 +259,9 @@ def obtener_producto(id_producto: int):
             "vendedor": fila.Vendedor,
             "imagen_principal": imagenes[0]["ruta"] if imagenes else None,
             "imagenes": imagenes,
+            "inspeccion_ia": inspeccion,
             "verificacion": obtener_verificacion(
-                cursor, fila.IdProducto, len(imagenes), fila.Condicion
+                cursor, fila.IdProducto, len(imagenes), fila.Condicion, inspeccion
             )
         }
 
@@ -371,6 +378,9 @@ def modificar_producto(
 
         if checklist is not None:
             guardar_verificacion(cursor, id_producto, checklist, defectos or "")
+
+        # Inspector de estado con IA: analiza el texto contra el checklist
+        inspeccionar_y_guardar(cursor, id_producto, nombre, descripcion, defectos, checklist, condicion)
 
         connection.commit()
 
@@ -531,6 +541,8 @@ def listar_productos_vendedor(id_vendedor: int):
                     FROM ImagenesProducto I2
                     WHERE I2.IdProducto = P.IdProducto
                 ) AS TotalImagenes,
+                II.Coherencia AS CoherenciaIA,
+                II.CondicionSugerida AS CondicionSugeridaIA,
                 """ + SQL_NIVEL_VERIFICACION + """ AS NivelVerificacion
             FROM Productos P
             INNER JOIN Categorias C
@@ -540,6 +552,8 @@ def listar_productos_vendedor(id_vendedor: int):
                AND IP.EsPrincipal = 1
             LEFT JOIN VerificacionProductos VP
                 ON VP.IdProducto = P.IdProducto
+            LEFT JOIN InspeccionesIA II
+                ON II.IdProducto = P.IdProducto
             WHERE P.IdVendedor = ?
               AND P.Estado <> 'ELIMINADO'
             ORDER BY P.FechaPublicacion DESC;
@@ -561,7 +575,9 @@ def listar_productos_vendedor(id_vendedor: int):
                 "categoria": fila.Categoria,
                 "imagen_principal": fila.RutaImagen,
                 "total_imagenes": fila.TotalImagenes,
-                "nivel_verificacion": fila.NivelVerificacion
+                "nivel_verificacion": fila.NivelVerificacion,
+                "coherencia_ia": fila.CoherenciaIA,
+                "condicion_sugerida_ia": fila.CondicionSugeridaIA
             }
             for fila in cursor.fetchall()
         ]
