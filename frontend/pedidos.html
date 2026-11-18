@@ -11,7 +11,7 @@
     <header id="encabezado"></header>
 
     <main class="contenedor">
-        <h1 class="titulo-seccion">Mis compras</h1>
+        <h1 class="titulo-seccion" data-icono="bolsa">Mis compras</h1>
         <p class="subtitulo-seccion">Consulta tus pedidos, sigue los envíos, gestiona cancelaciones y revisa tus reembolsos.</p>
 
         <div class="filtros" id="filtros">
@@ -26,7 +26,7 @@
         <div id="lista" class="lista-tarjetas"><div class="cargando">Cargando pedidos...</div></div>
 
         <section class="seccion-reembolsos" aria-labelledby="titulo-reembolsos">
-            <h2 class="titulo-seccion" id="titulo-reembolsos">Mis reembolsos</h2>
+            <h2 class="titulo-seccion" id="titulo-reembolsos" data-icono="reembolso">Mis reembolsos</h2>
             <p class="subtitulo-seccion">Cuando cancelas un pedido o parte de él, el dinero vuelve a tu método de pago. Aquí puedes seguir cada reembolso.</p>
             <div id="reembolsos"><div class="cargando">Cargando reembolsos...</div></div>
         </section>
@@ -34,6 +34,7 @@
 
     <footer id="pie"></footer>
 
+    <script src="js/iconos.js"></script>
     <script src="js/api.js"></script>
     <script src="js/comunes_pedidos.js"></script>
     <script src="js/pedidos.js"></script>

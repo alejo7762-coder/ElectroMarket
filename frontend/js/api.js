@@ -302,14 +302,7 @@ function urlImagen(ruta) {
     return "/" + String(ruta).replace(/^\/+/, "").replace(/\\/g, "/");
 }
 
-const ICONOS = {
-    carrito: `<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 5h4l3.2 15.2a2 2 0 0 0 2 1.6h11.6a2 2 0 0 0 2-1.5L28 11H8.4"/><circle cx="13" cy="27" r="1.8"/><circle cx="24" cy="27" r="1.8"/></svg>`,
-    usuario: `<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="16" cy="16" r="13"/><circle cx="16" cy="16" r="3.2" fill="currentColor"/></svg>`,
-    buscar: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M20 20l-4.6-4.6"/></svg>`,
-    foto: `<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="10" width="36" height="28" rx="3"/><circle cx="17" cy="20" r="4"/><path d="M42 32l-10-10-16 16"/></svg>`,
-    caja: `<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round" aria-hidden="true"><path d="M6 15l18-9 18 9v18l-18 9-18-9z"/><path d="M6 15l18 9 18-9M24 24v18"/></svg>`,
-    rayo: `<svg viewBox="0 0 40 60" fill="currentColor" aria-hidden="true"><path d="M24 0L4 34h14l-4 26 22-36H22z"/></svg>`
-};
+/* ICONOS e icono() están en js/iconos.js (se carga antes que este archivo). */
 
 const LOGO = `<svg viewBox="0 0 56 42" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
     <path d="M14 6h6l5 22h20l5-15H23"/>
@@ -393,9 +386,9 @@ const NIVELES_VERIFICACION = {
 function insigniaVerificacion(nivel, { chica = false } = {}) {
     const [texto, ayuda] = NIVELES_VERIFICACION[nivel] || NIVELES_VERIFICACION.SIN_VERIFICAR;
     const clase = (nivel || "SIN_VERIFICAR").toLowerCase().replace("_", "-");
-    const icono = nivel === "VERIFICADO" ? "✔" : nivel === "PARCIAL" ? "◐" : "?";
+    const simbolo = icono(nivel === "VERIFICADO" ? "escudoCheck" : nivel === "PARCIAL" ? "escudoMedio" : "escudoPregunta");
     return `<span class="insignia insignia-${clase}${chica ? " insignia-chica" : ""}" title="${esc(ayuda)}">
-        <span aria-hidden="true">${icono}</span>${esc(texto)}</span>`;
+        ${simbolo}${esc(texto)}</span>`;
 }
 
 const METODOS_PAGO = {
@@ -589,7 +582,7 @@ function montarEncabezado({ busqueda = "" } = {}) {
     const botonTema = document.getElementById("boton-tema");
     const iconoTema = () => {
         const oscuro = document.documentElement.getAttribute("data-tema") === "oscuro";
-        botonTema.textContent = oscuro ? "☀" : "☾";
+        botonTema.innerHTML = icono(oscuro ? "sol" : "luna");
         botonTema.setAttribute("aria-pressed", String(oscuro));
     };
     iconoTema();
@@ -655,7 +648,7 @@ function montarPie() {
     destino.innerHTML = `
         <div class="pie-contenido">
             <span>© ${new Date().getFullYear()} ElectroMarket · Compra y vende tecnología usada</span>
-            <span>Pagos simulados · <a href="/docs" target="_blank" rel="noopener">Documentación de la API</a></span>
+            <span>${icono("escudoCheck")} Pagos simulados · <a href="/docs" target="_blank" rel="noopener">Documentación de la API</a></span>
         </div>`;
 }
 

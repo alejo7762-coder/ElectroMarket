@@ -56,9 +56,9 @@ function lineaTiempoReembolso(r) {
     const procesado = r.estado === "PROCESADO";
     return `
         <ol class="linea-reembolso" aria-label="Progreso del reembolso">
-            <li class="hecho"><strong>Cancelación aprobada</strong><span>${fecha(r.fecha_solicitud, true)}</span></li>
-            <li class="hecho"><strong>Reembolso registrado</strong><span>${esc(METODOS_PAGO[r.metodo_destino] || r.metodo_destino)}</span></li>
-            <li class="${procesado ? "hecho" : "actual"}"><strong>${procesado ? "Dinero devuelto" : "En proceso"}</strong>
+            <li class="hecho"><strong>${icono("check")}Cancelación aprobada</strong><span>${fecha(r.fecha_solicitud, true)}</span></li>
+            <li class="hecho"><strong>${icono("reembolso")}Reembolso registrado</strong><span>${esc(METODOS_PAGO[r.metodo_destino] || r.metodo_destino)}</span></li>
+            <li class="${procesado ? "hecho" : "actual"}"><strong>${icono(procesado ? "billetera" : "historial")}${procesado ? "Dinero devuelto" : "En proceso"}</strong>
                 <span>${procesado ? `${fecha(r.fecha_procesado, true)} · ${esc(r.referencia)}` : "La pasarela lo procesa en pocos minutos"}</span></li>
         </ol>`;
 }

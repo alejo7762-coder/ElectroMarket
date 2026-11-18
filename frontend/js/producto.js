@@ -26,13 +26,13 @@ function panelVerificacion(p) {
                 <ul class="checklist-resultado">
                     ${v.criterios.map((c) => `
                         <li class="${c.cumple ? "cumple" : "no-cumple"}">
-                            <span aria-hidden="true">${c.cumple ? "✔" : "✕"}</span>
+                            ${icono(c.cumple ? "check" : "cerrar")}
                             ${esc(c.texto)}${c.esencial ? ' <em>esencial</em>' : ""}
                         </li>`).join("")}
                 </ul>` : ""}
 
             <div class="fotos-verificacion ${v.total_fotos >= v.fotos_requeridas ? "cumple" : "no-cumple"}">
-                ${v.total_fotos} de ${v.fotos_requeridas} fotos mínimas
+                ${icono("camara")}${v.total_fotos} de ${v.fotos_requeridas} fotos mínimas
             </div>
 
             ${v.defectos ? `
@@ -101,18 +101,18 @@ function pintarProducto(p) {
                 <div class="precio-grande">${precio(p.precio)}</div>
 
                 <ul class="lista-datos">
-                    <li><span>Condición</span><span>${esc(CONDICIONES[p.condicion] || p.condicion)}</span></li>
-                    <li><span>Disponibles</span><span>${p.stock} unidad${p.stock === 1 ? "" : "es"}</span></li>
-                    <li><span>Categoría</span><span>${esc(p.categoria)}</span></li>
-                    <li><span>Vendedor</span><span>${esc(p.vendedor)}</span></li>
-                    <li><span>Publicado</span><span>${fecha(p.fecha_publicacion)}</span></li>
+                    <li><span>${icono("estrella")}Condición</span><span>${esc(CONDICIONES[p.condicion] || p.condicion)}</span></li>
+                    <li><span>${icono("inventario")}Disponibles</span><span>${p.stock} unidad${p.stock === 1 ? "" : "es"}</span></li>
+                    <li><span>${icono("etiqueta")}Categoría</span><span>${esc(p.categoria)}</span></li>
+                    <li><span>${icono("usuario")}Vendedor</span><span>${esc(p.vendedor)}</span></li>
+                    <li><span>${icono("calendario")}Publicado</span><span>${fecha(p.fecha_publicacion)}</span></li>
                 </ul>
 
                 ${panelVerificacion(p)}
 
                 ${accion}
 
-                <h2 class="subtitulo-bloque">Descripción</h2>
+                <h2 class="subtitulo-bloque" data-icono="info">Descripción</h2>
                 <p class="u-pre-linea u-m-0">${esc(p.descripcion)}</p>
             </div>
         </article>`;

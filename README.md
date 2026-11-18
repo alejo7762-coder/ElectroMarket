@@ -33,7 +33,7 @@ ElectroMarket/
 │   └── .env.example
 ├── frontend/                    interfaz web (HTML, CSS y JS sin dependencias)
 │   ├── css/estilos.css          paleta, temas, componentes y utilidades
-│   ├── js/                      api.js y tema.js (comunes) y un archivo por página
+│   ├── js/                      api.js, iconos.js y tema.js (comunes) y un archivo por página
 │   └── *.html
 ├── docs/
 │   └── SUSTENTACION.md          guion de demostración y decisiones técnicas
@@ -108,7 +108,7 @@ En Swagger usa **Authorize** y pega el `access_token` que devuelve `/usuarios/lo
 
 ### Interfaz gráfica
 
-Paleta: `#1E1E1C` (carbón), `#D8CBB3` (arena) y `#2F6BFF` (azul eléctrico). Tiene tema claro y oscuro; el botón ☾/☀ del encabezado cambia entre ellos y la elección se recuerda en el navegador.
+Paleta: `#1E1E1C` (carbón), `#D8CBB3` (arena) y `#2F6BFF` (azul eléctrico). Tiene tema claro y oscuro; el botón de luna/sol del encabezado cambia entre ellos y la elección se recuerda en el navegador. Los iconos son SVG propios definidos en `js/iconos.js` (no dependen de internet): los botones reciben su icono según el texto y en el HTML se puede usar `data-icono="nombre"`.
 
 La interfaz está en `frontend/` (HTML, CSS y JavaScript sin dependencias) y la sirve FastAPI en `/web/`, por lo que no necesita un servidor aparte. Las fotos de los productos se sirven en `/storage/`.
 

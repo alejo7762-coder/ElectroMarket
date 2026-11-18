@@ -28,25 +28,28 @@ function pintarPagina() {
         <div class="distribucion-compra">
             <div>
                 <section class="tarjeta">
-                    <h2>1. Dirección de entrega</h2>
+                    <h2 data-icono="ubicacion">1. Dirección de entrega</h2>
                     <div id="lista-direcciones"></div>
-                    <button type="button" class="boton boton-secundario boton-chico" id="nueva-direccion">+ Agregar dirección</button>
+                    <button type="button" class="boton boton-secundario boton-chico" id="nueva-direccion">Agregar dirección</button>
                 </section>
 
                 <section class="tarjeta">
-                    <h2>2. Método de pago</h2>
+                    <h2 data-icono="tarjeta">2. Método de pago</h2>
                     <div class="mensaje mensaje-info">Los pagos son simulados: no se realiza ningún cobro real.</div>
 
                     <label class="opcion">
                         <input type="radio" name="metodo" value="SIMULADO" checked>
+                        <span class="opcion-icono">${icono("billetera")}</span>
                         <span>Pago simulado<small>Se aprueba automáticamente.</small></span>
                     </label>
                     <label class="opcion">
                         <input type="radio" name="metodo" value="TRANSFERENCIA_SIMULADA">
+                        <span class="opcion-icono">${icono("banco")}</span>
                         <span>Transferencia bancaria (simulada)<small>Se aprueba automáticamente.</small></span>
                     </label>
                     <label class="opcion">
                         <input type="radio" name="metodo" value="TARJETA_SIMULADA">
+                        <span class="opcion-icono">${icono("tarjeta")}</span>
                         <span>Tarjeta de crédito o débito (simulada)<small>Las tarjetas terminadas en 0000 se rechazan, para probar pagos fallidos.</small></span>
                     </label>
 
