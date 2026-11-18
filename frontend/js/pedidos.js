@@ -36,7 +36,7 @@ async function cargarLista() {
                         Pago ${esc(textoEstado(p.estado_pago || "—").toLowerCase())}
                     </div>
                     <div style="margin-top:6px">
-                        <strong style="color:var(--tinta)">${precio(p.estado_pago === "APROBADO" ? p.total_neto : p.total)}</strong>
+                        <strong style="color:var(--tinta)">${precio(["APROBADO", "REEMBOLSO_PARCIAL", "REEMBOLSADO"].includes(p.estado_pago) ? p.total_neto : p.total)}</strong>
                         ${p.total_cancelado > 0 ? `<span class="ayuda" style="display:inline"> · ${precio(p.total_cancelado)} reembolsado</span>` : ""}
                     </div>
                 </div>

@@ -7,10 +7,12 @@ Ciclo de vida de los reembolsos simulados.
    minutos: queda PROCESADO, con referencia y fecha de procesamiento.
    El procesamiento se aplica cada vez que el comprador consulta sus
    reembolsos o pagos, así no se necesita un proceso en segundo plano.
-3. El pago muestra su estado de reembolso: SIN_REEMBOLSO,
-   REEMBOLSO_PARCIAL o REEMBOLSADO.
+3. El pago pasa a REEMBOLSO_PARCIAL o REEMBOLSADO (Pagos.Estado) y la
+   API expone además estado_reembolso: SIN_REEMBOLSO, REEMBOLSO_PARCIAL
+   o REEMBOLSADO.
 
-Columnas añadidas por database/scripts/04_reembolsos.sql.
+Usa Reembolsos.FechaReembolso como fecha de procesamiento; las columnas
+FechaSolicitud y Referencia las agrega database/scripts/04_reembolsos.sql.
 """
 
 from app.db.connection import get_connection
@@ -38,12 +40,15 @@ def estado_reembolso_pago(valor_pago: float, reembolsado: float) -> str:
 
 
 def procesar_reembolsos_pendientes(cursor, id_comprador: int):
-    """Simula la pasarela: procesa los reembolsos pendientes que ya cumplieron el tiempo."""
+    """
+    Simula la pasarela: procesa los reembolsos pendientes que ya cumplieron
+    el tiempo y actualiza el estado del pago (REEMBOLSO_PARCIAL o REEMBOLSADO).
+    """
     cursor.execute(
         """
         UPDATE R
         SET R.Estado = 'PROCESADO',
-            R.FechaProcesado = SYSDATETIME(),
+            R.FechaReembolso = SYSDATETIME(),
             R.Referencia = 'RMB-' + RIGHT('00000000' + CAST(R.IdReembolso AS VARCHAR(10)), 8)
         FROM Reembolsos R
         INNER JOIN Pagos PG ON PG.IdPago = R.IdPago
@@ -53,6 +58,30 @@ def procesar_reembolsos_pendientes(cursor, id_comprador: int):
           AND R.FechaSolicitud <= DATEADD(MINUTE, -?, SYSDATETIME());
         """,
         (id_comprador, MINUTOS_PROCESAMIENTO),
+    )
+
+    if cursor.rowcount <= 0:
+        return
+
+    cursor.execute(
+        """
+        UPDATE PG
+        SET PG.Estado = CASE
+                WHEN T.Devuelto >= PG.Valor THEN 'REEMBOLSADO'
+                ELSE 'REEMBOLSO_PARCIAL'
+            END
+        FROM Pagos PG
+        INNER JOIN Pedidos P ON P.IdPedido = PG.IdPedido
+        INNER JOIN (
+            SELECT IdPago, SUM(Valor) AS Devuelto
+            FROM Reembolsos
+            WHERE Estado = 'PROCESADO'
+            GROUP BY IdPago
+        ) T ON T.IdPago = PG.IdPago
+        WHERE P.IdComprador = ?
+          AND PG.Estado IN ('APROBADO', 'REEMBOLSO_PARCIAL');
+        """,
+        (id_comprador,),
     )
 
 
@@ -65,10 +94,19 @@ _SELECT_REEMBOLSOS = """
         R.Estado,
         R.Referencia,
         R.FechaSolicitud,
-        R.FechaProcesado,
+        R.FechaReembolso,
         PG.IdPedido,
         PG.Metodo,
-        SC.TipoSolicitud,
+        CASE
+            WHEN SC.IdVenta IS NULL THEN SC.TipoSolicitud
+            WHEN (SELECT SUM(DSCT.CantidadSolicitada) FROM DetalleSolicitudCancelacion DSCT
+                  WHERE DSCT.IdSolicitud = SC.IdSolicitud)
+              >= (SELECT SUM(DPT.Cantidad) FROM DetalleVenta DVT
+                  INNER JOIN DetallesPedido DPT ON DPT.IdDetallePedido = DVT.IdDetallePedido
+                  WHERE DVT.IdVenta = SC.IdVenta)
+                THEN 'TOTAL'
+            ELSE 'PARCIAL'
+        END AS TipoSolicitud,
         SC.Motivo
     FROM Reembolsos R
     INNER JOIN Pagos PG ON PG.IdPago = R.IdPago
@@ -90,7 +128,7 @@ def _a_diccionario(fila):
         "metodo_destino": fila.Metodo,
         "referencia": fila.Referencia,
         "fecha_solicitud": iso(fila.FechaSolicitud),
-        "fecha_procesado": iso(fila.FechaProcesado),
+        "fecha_procesado": iso(fila.FechaReembolso),
     }
 
 

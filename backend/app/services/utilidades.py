@@ -10,6 +10,9 @@ from app.services.carrito import UserNotActive
 
 # Posibles nombres de la columna de fecha de creación en cada tabla.
 # Se consulta con SELECT * para no depender del nombre exacto.
+# Un pago con reembolso parcial o total sigue contando como cobrado
+ESTADOS_PAGO_COBRADO = ("APROBADO", "REEMBOLSO_PARCIAL", "REEMBOLSADO")
+
 COLUMNAS_FECHA = (
     "FechaPedido",
     "FechaVenta",

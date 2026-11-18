@@ -219,7 +219,16 @@ def obtener_venta(id_vendedor: int, id_venta: int):
             """
             SELECT
                 SC.IdSolicitud AS IdCancelacion,
-                SC.TipoSolicitud AS Tipo,
+                CASE
+            WHEN SC.IdVenta IS NULL THEN SC.TipoSolicitud
+            WHEN (SELECT SUM(DSCT.CantidadSolicitada) FROM DetalleSolicitudCancelacion DSCT
+                  WHERE DSCT.IdSolicitud = SC.IdSolicitud)
+              >= (SELECT SUM(DPT.Cantidad) FROM DetalleVenta DVT
+                  INNER JOIN DetallesPedido DPT ON DPT.IdDetallePedido = DVT.IdDetallePedido
+                  WHERE DVT.IdVenta = SC.IdVenta)
+                THEN 'TOTAL'
+            ELSE 'PARCIAL'
+        END AS Tipo,
                 CASE
                     WHEN SC.Estado = 'PENDIENTE' THEN 'SOLICITADA'
                     ELSE SC.Estado
@@ -359,7 +368,7 @@ def resumen_ventas(id_vendedor: int):
             FROM DetallesPedido DP
             INNER JOIN Pagos PG
                 ON PG.IdPedido = DP.IdPedido
-               AND PG.Estado = 'APROBADO'
+               AND PG.Estado IN ('APROBADO', 'REEMBOLSO_PARCIAL', 'REEMBOLSADO')
             INNER JOIN DetalleVenta DV
                 ON DV.IdDetallePedido = DP.IdDetallePedido
                AND DV.IdVendedor = DP.IdVendedor

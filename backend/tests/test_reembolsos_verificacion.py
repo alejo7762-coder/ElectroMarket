@@ -103,3 +103,14 @@ def test_publicar_envia_checklist(client, auth, monkeypatch):
     assert recibido["checklist"]["enciende"] is True
     assert recibido["checklist"]["con_garantia"] is False
     assert recibido["defectos"] == "Ninguno"
+
+
+# ---------------- Tipo de solicitud (CK_Solicitudes_Tipo) ----------------
+
+def test_tipo_bd_respeta_restriccion_del_esquema():
+    from app.services.cancelaciones import _tipo_bd
+
+    # Con IdVenta la BD solo acepta PARCIAL; sin IdVenta, TOTAL
+    assert _tipo_bd("TOTAL", 5) == "PARCIAL"
+    assert _tipo_bd("PARCIAL", 5) == "PARCIAL"
+    assert _tipo_bd("TOTAL", None) == "TOTAL"

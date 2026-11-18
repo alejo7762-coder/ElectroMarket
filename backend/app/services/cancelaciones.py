@@ -142,6 +142,15 @@ def _estado_api(estado: str) -> str:
     return "SOLICITADA" if estado == "PENDIENTE" else estado
 
 
+def _tipo_bd(tipo: str, id_venta) -> str:
+    """
+    CK_Solicitudes_Tipo exige TOTAL sin IdVenta y PARCIAL con IdVenta.
+    Cada solicitud corresponde a una venta, así que se guarda como PARCIAL;
+    la API calcula TOTAL/PARCIAL al consultar (todas las unidades o no).
+    """
+    return "PARCIAL" if id_venta is not None else tipo
+
+
 def _estado_bd(estado: str) -> str:
     """Convierte el estado recibido por la API al estado de SQL Server."""
     return "PENDIENTE" if estado == "SOLICITADA" else estado
@@ -249,7 +258,7 @@ def _obtener_pago(cursor, id_pedido: int):
             "No es posible registrar el reembolso."
         )
 
-    if pago.Estado != "APROBADO":
+    if pago.Estado not in ("APROBADO", "REEMBOLSO_PARCIAL"):
         raise CancellationConflict(
             "El pago original no está aprobado. "
             "No es posible registrar el reembolso."
@@ -334,7 +343,7 @@ def _insertar_cancelacion(
             id_pedido,
             venta.IdVenta,
             id_solicitante,
-            tipo,
+            _tipo_bd(tipo, venta.IdVenta),
             motivo,
             estado_bd
         )
@@ -1125,7 +1134,16 @@ _SELECT_CANCELACIONES = """
         SC.IdPedido,
         SC.IdVenta,
         SC.IdUsuario AS IdSolicitante,
-        SC.TipoSolicitud AS Tipo,
+        CASE
+            WHEN SC.IdVenta IS NULL THEN SC.TipoSolicitud
+            WHEN (SELECT SUM(DSCT.CantidadSolicitada) FROM DetalleSolicitudCancelacion DSCT
+                  WHERE DSCT.IdSolicitud = SC.IdSolicitud)
+              >= (SELECT SUM(DPT.Cantidad) FROM DetalleVenta DVT
+                  INNER JOIN DetallesPedido DPT ON DPT.IdDetallePedido = DVT.IdDetallePedido
+                  WHERE DVT.IdVenta = SC.IdVenta)
+                THEN 'TOTAL'
+            ELSE 'PARCIAL'
+        END AS Tipo,
         CASE
             WHEN SC.Estado = 'PENDIENTE' THEN 'SOLICITADA'
             ELSE SC.Estado

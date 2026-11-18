@@ -65,13 +65,14 @@ python -m app.db.connection
 
 ## 2. Base de datos
 
-1. Crea la base de datos y sus tablas con el script del modelo relacional.
+1. Crea la base de datos y sus tablas con `database/scripts/00_modelo.sql` (esquema completo exportado desde SSMS; ajusta las rutas de los archivos `.mdf`/`.ldf` si tu instalación es distinta).
 2. Ejecuta en SSMS, en este orden:
-   - `database/scripts/01_cancelaciones.sql`: crea `Cancelaciones` y `DetallesCancelacion` (etapa 10). Puedes ejecutarlo varias veces sin problema.
-   - `database/scripts/03_perfil_usuarios.sql`: agrega `FechaNacimiento` y `Genero` a `Usuarios` (necesario para el registro y el perfil).
-   - `database/scripts/04_reembolsos.sql`: completa `Reembolsos` (estado `PENDIENTE`/`PROCESADO`, referencia y fechas).
+   - `database/scripts/03_perfil_usuarios.sql`: agrega `FechaNacimiento` y `Genero` a `Usuarios` si faltan (ya incluidas en `00_modelo.sql`).
+   - `database/scripts/04_reembolsos.sql`: agrega `FechaSolicitud` y `Referencia` a `Reembolsos`.
    - `database/scripts/05_verificacion_productos.sql`: crea `VerificacionProductos` (checklist de estado del producto).
-   - `database/scripts/02_verificar_esquema.sql`: solo lectura. Comprueba que las restricciones `CHECK` acepten todos los estados que usa el código. Si las tres consultas salen vacías, el esquema es compatible.
+   - `database/scripts/02_verificar_esquema.sql`: solo lectura. Comprueba que las restricciones `CHECK` acepten todos los estados que usa el código y que existan las columnas. Si las tres consultas salen vacías, el esquema es compatible.
+
+`database/scripts/01_cancelaciones.sql` es de una versión anterior: crea `Cancelaciones` y `DetallesCancelacion`, que el código ya no usa (las cancelaciones se guardan en `SolicitudesCancelacion` y `DetalleSolicitudCancelacion`). No es necesario ejecutarlo.
 
 ## 3. Ejecutar la aplicación
 
@@ -185,7 +186,7 @@ Métodos de pago simulados: `SIMULADO`, `TRANSFERENCIA_SIMULADA` y `TARJETA_SIMU
 | GET | `/reembolsos/` | Mis reembolsos con totales devuelto y en proceso (filtro `id_pedido`) |
 | GET | `/reembolsos/{id}` | Detalle: valor, estado, referencia y fechas |
 
-Cuando se aprueba una cancelación (inmediata o por el vendedor) se registra un reembolso `PENDIENTE` por el valor cancelado. La pasarela simulada lo pasa a `PROCESADO` (con referencia `RMB-########`) un minuto después; el cambio se aplica al consultar reembolsos o pagos. `GET /pagos/` y `GET /pagos/{id}` incluyen `reembolsado`, `reembolso_pendiente` y `estado_reembolso` (`SIN_REEMBOLSO`, `REEMBOLSO_PARCIAL`, `REEMBOLSADO`).
+Cuando se aprueba una cancelación (inmediata o por el vendedor) se registra un reembolso `PENDIENTE` por el valor cancelado. La pasarela simulada lo pasa a `PROCESADO` (con referencia `RMB-########` y `FechaReembolso`) un minuto después, y el pago queda en `REEMBOLSO_PARCIAL` o `REEMBOLSADO`; el cambio se aplica al consultar reembolsos o pagos. `GET /pagos/` y `GET /pagos/{id}` incluyen `reembolsado`, `reembolso_pendiente` y `estado_reembolso` (`SIN_REEMBOLSO`, `REEMBOLSO_PARCIAL`, `REEMBOLSADO`).
 
 ### Verificación del estado del producto
 Al publicar o editar, el cuerpo debe incluir:

@@ -5,6 +5,7 @@ from decimal import Decimal, ROUND_HALF_UP
 from app.db.connection import get_connection
 from app.services.carrito import UserNotActive, CartProcessed
 from app.services.utilidades import (
+    ESTADOS_PAGO_COBRADO,
     a_float,
     fecha_creacion,
     iso,
@@ -567,7 +568,7 @@ def listar_pedidos(id_comprador: int, estado: str | None = None):
         for fila in cursor.fetchall():
             total = a_float(fila.Total)
             cancelado = a_float(fila.TotalCancelado)
-            pagado = fila.EstadoPago == "APROBADO"
+            pagado = fila.EstadoPago in ESTADOS_PAGO_COBRADO
 
             pedidos.append({
                 "id_pedido": fila.IdPedido,
@@ -740,7 +741,16 @@ def obtener_pedido(id_comprador: int, id_pedido: int):
             SELECT
                 SC.IdSolicitud AS IdCancelacion,
                 SC.IdVenta,
-                SC.TipoSolicitud AS Tipo,
+                CASE
+            WHEN SC.IdVenta IS NULL THEN SC.TipoSolicitud
+            WHEN (SELECT SUM(DSCT.CantidadSolicitada) FROM DetalleSolicitudCancelacion DSCT
+                  WHERE DSCT.IdSolicitud = SC.IdSolicitud)
+              >= (SELECT SUM(DPT.Cantidad) FROM DetalleVenta DVT
+                  INNER JOIN DetallesPedido DPT ON DPT.IdDetallePedido = DVT.IdDetallePedido
+                  WHERE DVT.IdVenta = SC.IdVenta)
+                THEN 'TOTAL'
+            ELSE 'PARCIAL'
+        END AS Tipo,
                 CASE
                     WHEN SC.Estado = 'PENDIENTE' THEN 'SOLICITADA'
                     ELSE SC.Estado
@@ -793,7 +803,7 @@ def obtener_pedido(id_comprador: int, id_pedido: int):
             "total_cancelado": round(total_cancelado, 2),
             "total_neto": (
                 round(total - total_cancelado, 2)
-                if any(p["estado"] == "APROBADO" for p in pagos)
+                if any(p["estado"] in ESTADOS_PAGO_COBRADO for p in pagos)
                 else 0.0
             ),
             "entrega": {

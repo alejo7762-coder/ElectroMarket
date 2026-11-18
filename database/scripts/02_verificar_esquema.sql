@@ -56,7 +56,9 @@ INSERT INTO @valores (Tabla, Columna, Valor) VALUES
     ('Productos', 'Estado', 'ELIMINADO'),
     -- Reembolsos (04_reembolsos.sql)
     ('Reembolsos', 'Estado', 'PENDIENTE'),
-    ('Reembolsos', 'Estado', 'PROCESADO');
+    ('Reembolsos', 'Estado', 'PROCESADO'),
+    ('Pagos', 'Estado', 'REEMBOLSO_PARCIAL'),
+    ('Pagos', 'Estado', 'REEMBOLSADO');
 
 /* 1. Valores que alguna restricción CHECK de la columna NO acepta */
 SELECT
@@ -100,7 +102,11 @@ INSERT INTO @columnas (Tabla, Columna) VALUES
     ('HistorialEnvios', 'Observacion'),
     ('HistorialEstados', 'TipoOperacion'), ('HistorialEstados', 'IdOperacion'),
     ('HistorialEstados', 'EstadoAnterior'), ('HistorialEstados', 'EstadoNuevo'),
-    ('HistorialEstados', 'Observacion');
+    ('HistorialEstados', 'Observacion'),
+    -- 04_reembolsos.sql y 05_verificacion_productos.sql
+    ('Reembolsos', 'FechaReembolso'), ('Reembolsos', 'FechaSolicitud'),
+    ('Reembolsos', 'Referencia'),
+    ('VerificacionProductos', 'IdProducto'), ('VerificacionProductos', 'DescripcionDefectos');
 
 SELECT Tabla, Columna AS ColumnaInexistente
 FROM @columnas
