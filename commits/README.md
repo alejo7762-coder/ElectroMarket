@@ -19,3 +19,5 @@ python commits/generar_bitacora.py
 | 008 | [`82914f1`](008_82914f1.md) | 2026-11-18 03:23 | Claude | Rediseña la interfaz con la paleta #1E1E1C, #D8CBB3 y #2F6BFF |
 | 009 | [`ccc409b`](009_ccc409b.md) | 2026-11-18 03:23 | Claude | Actualiza el README con la nueva estructura, reembolsos y verificación |
 | 010 | [`90843aa`](010_90843aa.md) | 2026-11-18 03:41 | Claude | Ajusta el código al esquema real de la base de datos |
+| 011 | [`3343e89`](011_3343e89.md) | 2026-11-18 04:19 | Claude | Centraliza el manejo de errores y alinea las validaciones con la BD |
+| 012 | [`0208a32`](012_0208a32.md) | 2026-11-18 04:22 | Claude | Ordena la base de datos, unifica estilos de la interfaz y actualiza la documentación |
