@@ -2322,6 +2322,349 @@ input[type="file"].control::file-selector-button {
     font-weight: 700;
 }
 
+
+/* ------------------------------------------------------------------ */
+/* Calificaciones, vendedor y reseñas                                  */
+/* ------------------------------------------------------------------ */
+
+:root { --oro: #E8A317; }
+:root[data-tema="oscuro"] { --oro: #F2B93B; }
+
+.estrellas {
+    position: relative;
+    display: inline-flex;
+    vertical-align: -2px;
+    line-height: 0;
+}
+
+.estrellas svg {
+    width: 15px;
+    height: 15px;
+    flex-shrink: 0;
+}
+
+.estrellas-grandes svg {
+    width: 22px;
+    height: 22px;
+}
+
+.estrellas-vacias,
+.estrellas-llenas {
+    display: inline-flex;
+    white-space: nowrap;
+}
+
+.estrellas-vacias svg {
+    fill: var(--superficie-2);
+    stroke: var(--borde);
+    stroke-width: 1;
+}
+
+.estrellas-llenas {
+    position: absolute;
+    left: 0;
+    top: 0;
+    overflow: hidden;
+}
+
+.estrellas-llenas svg {
+    fill: var(--oro);
+}
+
+.resumen-estrellas {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin: 2px 0;
+}
+
+.resumen-estrellas small {
+    color: var(--texto-suave);
+    font-size: 12px;
+}
+
+/* Selector de estrellas (de derecha a izquierda para pintar las anteriores) */
+.selector-estrellas {
+    display: inline-flex;
+    flex-direction: row-reverse;
+    gap: 4px;
+}
+
+.selector-estrellas input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.selector-estrellas label {
+    cursor: pointer;
+    line-height: 0;
+}
+
+.selector-estrellas svg {
+    width: 32px;
+    height: 32px;
+    fill: var(--superficie-2);
+    stroke: var(--borde);
+    stroke-width: 1;
+    transition: fill 0.1s, transform 0.1s;
+}
+
+.selector-estrellas label:hover svg,
+.selector-estrellas label:hover ~ label svg,
+.selector-estrellas input:checked ~ label svg {
+    fill: var(--oro);
+    stroke: var(--oro);
+}
+
+.selector-estrellas label:hover svg {
+    transform: scale(1.1);
+}
+
+.selector-estrellas input:focus-visible + label svg {
+    outline: 2px solid var(--acento);
+    outline-offset: 2px;
+}
+
+/* Ficha del producto: vendedor y reseñas */
+.producto-secundario,
+.perfil-vendedor {
+    display: grid;
+    grid-template-columns: minmax(280px, 1fr) 2fr;
+    gap: 18px;
+    margin-top: 18px;
+    align-items: start;
+}
+
+.titulo-tarjeta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 18px;
+    margin: 0 0 14px;
+    color: var(--tinta);
+}
+
+.titulo-tarjeta .icono {
+    color: var(--acento);
+}
+
+.vendedor-cabecera {
+    display: flex;
+    gap: 14px;
+    align-items: center;
+}
+
+.vendedor-cabecera h2 {
+    font-size: 18px;
+    color: var(--tinta);
+}
+
+.avatar {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: var(--carbon);
+    color: var(--arena);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 20px;
+    flex-shrink: 0;
+    border: 3px solid var(--acento);
+}
+
+.avatar-chico {
+    width: 30px;
+    height: 30px;
+    font-size: 12px;
+    border-width: 2px;
+}
+
+.vendedor-datos {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin: 16px 0;
+}
+
+.vendedor-datos > div {
+    background: var(--superficie-2);
+    border-radius: 8px;
+    padding: 8px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+}
+
+.vendedor-datos strong {
+    font-size: 20px;
+    color: var(--tinta);
+}
+
+.vendedor-datos span {
+    font-size: 11px;
+    color: var(--texto-suave);
+}
+
+.fiabilidad {
+    display: grid;
+    gap: 10px;
+    border-top: 1px solid var(--borde);
+    padding-top: 14px;
+}
+
+.fiabilidad .barra-puntaje {
+    margin: 0;
+}
+
+.fiabilidad-factores {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 6px;
+    font-size: 13px;
+}
+
+.fiabilidad-factores li {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.fiabilidad-factores small {
+    display: block;
+    color: var(--texto-suave);
+    font-size: 12px;
+}
+
+.resumen-resenas {
+    display: flex;
+    gap: 24px;
+    align-items: center;
+    flex-wrap: wrap;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--borde);
+    margin-bottom: 8px;
+}
+
+.promedio-resenas {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    min-width: 120px;
+}
+
+.promedio-resenas strong {
+    font-size: 40px;
+    line-height: 1;
+    color: var(--tinta);
+}
+
+.promedio-resenas small {
+    color: var(--texto-suave);
+}
+
+.distribucion {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    flex: 1;
+    min-width: 200px;
+    display: grid;
+    gap: 5px;
+    font-size: 13px;
+}
+
+.distribucion li {
+    display: grid;
+    grid-template-columns: 38px 1fr 28px;
+    align-items: center;
+    gap: 8px;
+}
+
+.distribucion li > span:first-child {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+}
+
+.distribucion svg {
+    width: 13px;
+    height: 13px;
+    fill: var(--oro);
+}
+
+.barra-dist {
+    height: 8px;
+    border-radius: 99px;
+    background: var(--superficie-2);
+    overflow: hidden;
+}
+
+.barra-dist span {
+    display: block;
+    height: 100%;
+    background: var(--oro);
+}
+
+.lista-resenas {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.resena {
+    padding: 14px 0;
+    border-bottom: 1px solid var(--borde);
+    display: grid;
+    gap: 6px;
+}
+
+.resena:last-child {
+    border-bottom: none;
+}
+
+.resena p {
+    margin: 4px 0 0;
+}
+
+.resena-calificaciones {
+    display: flex;
+    gap: 18px;
+    flex-wrap: wrap;
+    font-size: 13px;
+    color: var(--texto-suave);
+}
+
+.resena .estado .icono {
+    width: 12px;
+    height: 12px;
+}
+
+.celda-resena {
+    text-align: right;
+    white-space: nowrap;
+}
+
+.celda-resena .boton-texto {
+    margin-left: 6px;
+}
+
+.producto .resumen-estrellas {
+    margin: 0 0 2px;
+}
+
+@media (max-width: 900px) {
+    .producto-secundario,
+    .perfil-vendedor {
+        grid-template-columns: 1fr;
+    }
+}
+
 @media (max-width: 900px) {
     .encabezado-contenido {
         flex-wrap: wrap;

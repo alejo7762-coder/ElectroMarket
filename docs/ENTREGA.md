@@ -17,9 +17,9 @@
 
 Índice: [`evidencias/pruebas/RESUMEN.md`](evidencias/pruebas/RESUMEN.md)
 
-- 104 pruebas automatizadas, todas aprobadas; 3 de ellas recorren el sistema contra SQL Server real.
+- 116 pruebas automatizadas, todas aprobadas; 4 de ellas recorren el sistema contra SQL Server real.
 - Reporte HTML de pytest: [`evidencias/pruebas/reporte_pruebas.html`](evidencias/pruebas/reporte_pruebas.html)
-- Cobertura del backend: 64 % ([`salida_pytest.txt`](evidencias/pruebas/salida_pytest.txt))
+- Cobertura del backend: 66 % ([`salida_pytest.txt`](evidencias/pruebas/salida_pytest.txt))
 - Pruebas de interfaz en navegador real con capturas: [`evidencias/capturas/`](evidencias/capturas/)
 
 ## 3. Evidencia del servicio de Inteligencia Artificial

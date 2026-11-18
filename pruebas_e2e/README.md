@@ -5,6 +5,7 @@ Recorren la tienda en un navegador real (Chromium, con Playwright) contra el bac
 | Script | Qué prueba |
 |---|---|
 | `recorrido_compra.js` | Registro, ficha del producto, carrito, compra, cancelación, reembolso y Mis ventas |
+| `recorrido_resenas.js` | Compra entregada, calificación con estrellas y comentario desde Mis compras, vendedor con fiabilidad y reseñas en la ficha, y perfil público del vendedor |
 | `recorrido_ia.js` | Inspector de IA: análisis incoherente, uso de la condición sugerida, publicación con fotos, alerta en Mis productos y análisis en la ficha |
 
 Cada script termina con error si un paso falla e informa los errores de JavaScript de la página.

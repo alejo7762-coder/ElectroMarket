@@ -3,6 +3,7 @@
 const ESTADOS_PEDIDO_CANCELABLES = ["PAGADO", "EN_PROCESO", "PARCIALMENTE_ENVIADO"];
 
 let filtroEstado = "";
+let resenasDelPedido = {};   // "idVenta-idProducto" -> reseña del comprador
 
 /* ------------------------------------------------------------------ */
 /* Lista de pedidos                                                    */
@@ -123,6 +124,81 @@ async function cargarReembolsosPedido(idPedido) {
 /* Detalle del pedido                                                  */
 /* ------------------------------------------------------------------ */
 
+/* ------------------------------------------------------------------ */
+/* Reseñas de productos entregados                                     */
+/* ------------------------------------------------------------------ */
+
+function botonResena(venta, p) {
+    const r = resenasDelPedido[`${venta.id_venta}-${p.id_producto}`];
+    const datos = `data-resenar="${venta.id_venta}" data-producto="${p.id_producto}" data-nombre="${esc(p.nombre)}"`;
+    return r
+        ? `${estrellas(r.calificacion_producto)}<button type="button" class="boton-texto" ${datos}>Editar reseña</button>`
+        : `<button type="button" class="boton boton-chico" ${datos}>Calificar</button>`;
+}
+
+function formularioResena({ idVenta, idProducto, nombre }) {
+    const existente = resenasDelPedido[`${idVenta}-${idProducto}`];
+
+    return new Promise((resolver) => {
+        const { elemento, cerrar } = abrirModal({
+            titulo: existente ? "Editar reseña" : "Calificar compra",
+            chico: true,
+            contenido: `
+                <form id="form-resena" novalidate>
+                    <p class="u-mt-0">${esc(nombre)}</p>
+                    <div class="campo"><label>¿Qué tal el producto?</label>${selectorEstrellas("estrellas-producto", existente ? existente.calificacion_producto : 0)}</div>
+                    <div class="campo"><label>¿Qué tal el vendedor? <span class="ayuda u-en-linea">(atención, empaque y envío)</span></label>${selectorEstrellas("estrellas-vendedor", existente ? existente.calificacion_vendedor : 0)}</div>
+                    <div class="campo">
+                        <label for="comentario">Comentario <span class="ayuda u-en-linea">(opcional)</span></label>
+                        <textarea class="control" id="comentario" maxlength="1000" rows="4" placeholder="Cuenta cómo llegó el producto y cómo fue la experiencia">${esc(existente ? existente.comentario || "" : "")}</textarea>
+                    </div>
+                    <div class="mensaje mensaje-error oculto" id="error-resena"></div>
+                    <div class="grupo-botones u-al-final">
+                        <button type="button" class="boton boton-secundario" data-cancelar>Volver</button>
+                        <button type="submit" class="boton" id="enviar-resena">${existente ? "Guardar reseña" : "Publicar reseña"}</button>
+                    </div>
+                </form>`
+        });
+
+        const form = elemento.querySelector("#form-resena");
+        const error = elemento.querySelector("#error-resena");
+        let guardada = false;
+        elemento.querySelector("[data-cancelar]").addEventListener("click", cerrar);
+
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const producto = Number((form.querySelector("[name=estrellas-producto]:checked") || {}).value);
+            const vendedor = Number((form.querySelector("[name=estrellas-vendedor]:checked") || {}).value);
+
+            if (!producto || !vendedor) {
+                error.textContent = "Elige de 1 a 5 estrellas para el producto y para el vendedor.";
+                error.classList.remove("oculto");
+                return;
+            }
+
+            const cuerpo = { calificacion_producto: producto, calificacion_vendedor: vendedor, comentario: form.comentario.value.trim() || null };
+
+            await conBoton(elemento.querySelector("#enviar-resena"), async () => {
+                try {
+                    if (existente) await api("PUT", `/resenas/${existente.id_resena}`, { cuerpo });
+                    else await api("POST", "/resenas/", { cuerpo: { ...cuerpo, id_venta: idVenta, id_producto: idProducto } });
+                    guardada = true;
+                    aviso(existente ? "Reseña actualizada." : "¡Gracias! Tu reseña ya es visible para otros compradores.", "exito");
+                    cerrar();
+                } catch (err) {
+                    error.textContent = err.message;
+                    error.classList.remove("oculto");
+                }
+            }, "Guardando...");
+        });
+
+        const observador = new MutationObserver(() => {
+            if (!document.body.contains(elemento)) { observador.disconnect(); resolver(guardada); }
+        });
+        observador.observe(document.body, { childList: true });
+    });
+}
+
 function bloqueVenta(venta, productos) {
     const envio = venta.envio;
     let acciones = "";
@@ -167,6 +243,7 @@ function bloqueVenta(venta, productos) {
                                         : `${p.cantidad} und.`}
                                 </td>
                                 <td class="numero">${precio(p.precio_unitario * p.cantidad_vigente)}</td>
+                                ${venta.estado === "ENTREGADA" && p.cantidad_vigente > 0 ? `<td class="celda-resena">${botonResena(venta, p)}</td>` : ""}
                             </tr>`).join("")}
                     </tbody>
                 </table>
@@ -184,7 +261,11 @@ async function abrirDetalle(idPedido) {
 
     async function recargar() {
         try {
-            const pedido = await api("GET", `/pedidos/${idPedido}`);
+            const [pedido, resenas] = await Promise.all([
+                api("GET", `/pedidos/${idPedido}`),
+                api("GET", `/resenas/mias?id_pedido=${idPedido}`).catch(() => [])
+            ]);
+            resenasDelPedido = Object.fromEntries(resenas.map((r) => [`${r.id_venta}-${r.id_producto}`, r]));
             pintarDetalle(cuerpo, pedido, recargar);
         } catch (e) {
             cuerpo.innerHTML = `<div class="mensaje mensaje-error">${esc(e.message)}</div>`;
@@ -252,6 +333,16 @@ function pintarDetalle(cuerpo, pedido, recargar) {
     cargarReembolsosPedido(pedido.id_pedido);
 
     const avisarCambio = () => cuerpo.closest(".modal").dispatchEvent(new Event("pedido-cambio"));
+
+    // Calificar productos entregados
+    cuerpo.querySelectorAll("[data-resenar]").forEach((b) =>
+        b.addEventListener("click", async () => {
+            const guardada = await formularioResena({
+                idVenta: Number(b.dataset.resenar), idProducto: Number(b.dataset.producto), nombre: b.dataset.nombre
+            });
+            if (guardada) avisarCambio();
+        })
+    );
 
     // Seguimiento
     cuerpo.querySelectorAll("[data-seguimiento]").forEach((b) =>

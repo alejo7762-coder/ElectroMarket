@@ -48,7 +48,7 @@ ElectroMarket/
 ├── pruebas_e2e/                 pruebas de interfaz con Playwright
 ├── database/
 │   ├── README.md                modelo, estados y orden de los scripts
-│   └── scripts/                 scripts SQL (00 a 05 y 99)
+│   └── scripts/                 scripts SQL (00 a 06 y 99)
 └── commits/                     bitácora del historial de commits
 ```
 
@@ -100,6 +100,7 @@ Ejecuta en SSMS los scripts de `database/scripts/` en orden:
 2. `01_perfil_usuarios.sql`, `02_reembolsos.sql` y `03_verificacion_productos.sql`: cambios sobre el modelo; se pueden ejecutar varias veces.
 3. `04_datos_iniciales.sql`: categorías de productos.
 4. `05_inspeccion_ia.sql`: tabla con los resultados del inspector de IA.
+   `06_resenas.sql`: tabla de reseñas y calificaciones.
 5. `99_verificar_esquema.sql`: solo lectura; si sus consultas salen vacías, el esquema es compatible.
 
 El diagrama del modelo, los estados y las reglas del esquema están en [`database/README.md`](database/README.md).
@@ -127,10 +128,11 @@ La interfaz está en `frontend/` (HTML, CSS y JavaScript sin dependencias) y la 
 | Inicio | `index.html` | Productos destacados, catálogo por categoría y búsqueda |
 | Crear cuenta | `registro.html` | Registro con fecha de nacimiento y género |
 | Ingresar | `login.html` | Inicio de sesión |
-| Producto | `producto.html` | Fotos, detalle, verificación del estado y agregar al carrito |
+| Producto | `producto.html` | Fotos, detalle, verificación del estado, vendedor con su fiabilidad, reseñas y agregar al carrito |
+| Vendedor | `vendedor.html` | Perfil público: fiabilidad, opiniones y productos del vendedor |
 | Carrito | `carrito.html` | Cambiar cantidades, quitar y vaciar |
 | Finalizar compra | `checkout.html` | Dirección, método de pago simulado y pago |
-| Mis compras | `pedidos.html` | Pedidos, seguimiento, cancelaciones parciales o totales y seguimiento de reembolsos |
+| Mis compras | `pedidos.html` | Pedidos, seguimiento, cancelaciones parciales o totales, reembolsos y calificación de compras entregadas |
 | Mi perfil | `perfil.html` | Datos personales, contraseña y direcciones |
 | Vender | `vender.html` | Publicar y editar artículos con checklist de estado y mínimo 3 fotos; pausar, reactivar y eliminar |
 | Mis ventas | `ventas.html` | Envíos, cambios de estado y respuesta a solicitudes de cancelación |
@@ -240,6 +242,18 @@ Al publicar o editar, el cuerpo debe incluir:
 ```
 
 `GET /productos/{id}` devuelve `verificacion` (nivel, puntaje 0-100, criterios, defectos y requisitos faltantes); los listados devuelven `nivel_verificacion`. Es `VERIFICADO` si cumple los tres criterios esenciales, tiene al menos 3 fotos y defectos declarados; `PARCIAL` si falta algo; `SIN_VERIFICAR` si no hay checklist.
+
+### Reseñas y vendedores
+| Método | Ruta | Descripción |
+|---|---|---|
+| GET | `/productos/{id}/resenas` | Promedio, distribución de estrellas y reseñas del producto (público) |
+| GET | `/vendedores/{id}` | Perfil público del vendedor e índice de fiabilidad con sus factores |
+| GET | `/vendedores/{id}/resenas` | Opiniones sobre el vendedor |
+| POST | `/resenas/` | Calificar un producto comprado: 1 a 5 estrellas al producto y al vendedor, y comentario opcional |
+| PUT | `/resenas/{id}` | Editar la propia reseña |
+| GET | `/resenas/mias` | Reseñas del comprador (filtro `id_pedido`) |
+
+Solo el comprador de una venta **entregada** puede reseñar, una vez por producto en cada compra; así cada reseña corresponde a una compra verificada. El **índice de fiabilidad** (0 a 100) combina la calificación del vendedor (40, promedio bayesiano para que una sola reseña no lo defina), las ventas entregadas (25), el cumplimiento, es decir, las ventas que no canceló por su cuenta (20), los productos con estado verificado (10) y la antigüedad (5). Niveles: alta, media, baja o vendedor nuevo.
 
 ### Inteligencia artificial
 | Método | Ruta | Descripción |

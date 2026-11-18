@@ -166,3 +166,21 @@ class CancellationConflict(Conflicto):
 
 class CancellationForbidden(AccesoDenegado):
     pass
+
+
+# Reseñas y vendedores --------------------------------------------------
+
+class SellerNotFound(NoEncontrado):
+    pass
+
+
+class ReviewNotFound(NoEncontrado):
+    pass
+
+
+class ReviewForbidden(AccesoDenegado):
+    pass
+
+
+class ReviewConflict(Conflicto):
+    pass

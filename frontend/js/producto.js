@@ -53,6 +53,30 @@ function panelVerificacion(p) {
         </section>`;
 }
 
+/* ------------------------------------------------------------------ */
+/* Vendedor y reseñas                                                  */
+/* ------------------------------------------------------------------ */
+
+async function cargarVendedor(idVendedor) {
+    const destino = document.getElementById("vendedor-producto");
+    try {
+        const v = await api("GET", `/vendedores/${idVendedor}`, { autenticado: false });
+        destino.innerHTML = `<h2 class="titulo-tarjeta" data-icono="usuario">Sobre el vendedor</h2>${tarjetaVendedor(v)}`;
+    } catch (e) {
+        destino.innerHTML = `<div class="mensaje mensaje-error">${esc(e.message)}</div>`;
+    }
+}
+
+async function cargarResenas(idProducto) {
+    const destino = document.getElementById("resenas-producto");
+    try {
+        const r = await api("GET", `/productos/${idProducto}/resenas`, { autenticado: false });
+        destino.innerHTML = `<h2 class="titulo-tarjeta" data-icono="estrella">Reseñas del producto</h2>${distribucionEstrellas(r)}${listaResenas(r.resenas)}`;
+    } catch (e) {
+        destino.innerHTML = `<div class="mensaje mensaje-error">${esc(e.message)}</div>`;
+    }
+}
+
 function pintarProducto(p) {
     const usuario = Sesion.usuario();
     const propio = usuario && usuario.id_usuario === p.id_vendedor;
@@ -108,7 +132,8 @@ function pintarProducto(p) {
                     <li><span>${icono("estrella")}Condición</span><span>${esc(CONDICIONES[p.condicion] || p.condicion)}</span></li>
                     <li><span>${icono("inventario")}Disponibles</span><span>${p.stock} unidad${p.stock === 1 ? "" : "es"}</span></li>
                     <li><span>${icono("etiqueta")}Categoría</span><span>${esc(p.categoria)}</span></li>
-                    <li><span>${icono("usuario")}Vendedor</span><span>${esc(p.vendedor)}</span></li>
+                    <li><span>${icono("usuario")}Vendedor</span><span><a href="vendedor.html?id=${p.id_vendedor}">${esc(p.vendedor)}</a></span></li>
+                    <li><span>${icono("estrella")}Calificación</span><span>${resumenEstrellas(p.calificacion)}</span></li>
                     <li><span>${icono("calendario")}Publicado</span><span>${fecha(p.fecha_publicacion)}</span></li>
                 </ul>
 
@@ -119,7 +144,12 @@ function pintarProducto(p) {
                 <h2 class="subtitulo-bloque" data-icono="info">Descripción</h2>
                 <p class="u-pre-linea u-m-0">${esc(p.descripcion)}</p>
             </div>
-        </article>`;
+        </article>
+
+        <div class="producto-secundario">
+            <section class="tarjeta" id="vendedor-producto" aria-label="Información del vendedor"><div class="cargando">Cargando vendedor...</div></section>
+            <section class="tarjeta" id="resenas-producto" aria-label="Reseñas del producto"><div class="cargando">Cargando reseñas...</div></section>
+        </div>`;
 
     // Galería
     document.querySelectorAll(".miniaturas button").forEach((b) =>
@@ -170,6 +200,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
 
         pintarProducto(p);
+        cargarVendedor(p.id_vendedor);
+        cargarResenas(p.id_producto);
     } catch (e) {
         contenido.innerHTML = `<div class="vacio">${esc(e.message)} <a href="index.html">Volver a la tienda</a></div>`;
     }

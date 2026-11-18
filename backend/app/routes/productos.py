@@ -77,8 +77,11 @@ class ProductoDatos(BaseModel):
 # ----------------------------------------------------------------------
 
 @router.get("/")
-def consultar_productos(id_categoria: int | None = Query(default=None, gt=0)):
-    productos = listar_productos(id_categoria)
+def consultar_productos(
+    id_categoria: int | None = Query(default=None, gt=0),
+    id_vendedor: int | None = Query(default=None, gt=0)
+):
+    productos = listar_productos(id_categoria, id_vendedor)
     return {"total": len(productos), "productos": productos}
 
 

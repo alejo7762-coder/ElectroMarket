@@ -87,6 +87,8 @@ const ICONOS = {
 /* Texto del botón (o enlace del menú) -> icono */
 const ICONO_POR_TEXTO = [
     // exactos
+    ["Calificar", "estrella"], ["Editar reseña", "editar"], ["Publicar reseña", "enviar"], ["Guardar reseña", "guardar"],
+    ["Ver perfil del vendedor", "usuario"], ["Ver todas las reseñas", "mensaje"],
     ["Analizar con IA", "ia"], ["Usar condición sugerida", "check"],
     ["Sugerir precio con IA", "ia"], ["Usar precio sugerido", "check"],
     ["Agregar al carrito", "carritoMas"], ["Comprar ahora", "relampago"],

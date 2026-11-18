@@ -288,3 +288,52 @@ def test_inspector_ia_en_la_publicacion(client):
     producto = _ok(client.get(f"/productos/{id_producto}"))
     assert producto["inspeccion_ia"]["coherencia"] == "COHERENTE"
     assert producto["inspeccion_ia"]["condicion_sugerida"] == "ACEPTABLE"
+
+
+def test_resenas_y_fiabilidad(client):
+    vendedor = _crear_usuario(client, "VendedorResenas")
+    comprador = _crear_usuario(client, "CompradorResenas")
+    otro = _crear_usuario(client, "Curioso")
+
+    id_producto = _publicar(client, vendedor, "Parlante para reseñar", 150000, 3)
+    id_vendedor = _ok(client.get(f"/productos/{id_producto}"))["id_vendedor"]
+    assert _ok(client.get(f"/vendedores/{id_vendedor}"))["fiabilidad"]["nivel"] == "NUEVO"
+
+    id_direccion = _ok(client.post("/direcciones/", headers=comprador, json={
+        "direccion": "Calle 50 # 10-20", "ciudad": "Cali", "departamento": "Valle del Cauca"
+    }), 201)["id_direccion"]
+    _ok(client.post("/carrito/agregar", headers=comprador, json={"id_producto": id_producto, "cantidad": 1}), 201)
+    compra = _ok(client.post("/pedidos/comprar", headers=comprador, json={"id_direccion": id_direccion}), 201)
+    id_venta = compra["ventas"][0]["id_venta"]
+    resena = {"id_venta": id_venta, "id_producto": id_producto, "calificacion_producto": 5,
+              "calificacion_vendedor": 4, "comentario": "Suena muy bien"}
+
+    # Antes de la entrega no se puede reseñar
+    _ok(client.post("/resenas/", headers=comprador, json=resena), 409)
+
+    id_envio = _ok(client.post(f"/envios/ventas/{id_venta}", headers=vendedor, json={}), 201)["id_envio"]
+    for estado in ("ENVIADO", "EN_TRANSITO", "ENTREGADO"):
+        _ok(client.patch(f"/envios/{id_envio}/estado", headers=vendedor, json={"estado": estado}))
+
+    _ok(client.post("/resenas/", headers=otro, json=resena), 403)          # no es el comprador
+    creada = _ok(client.post("/resenas/", headers=comprador, json=resena), 201)
+    assert creada["comprador"].endswith("P.")                             # nombre abreviado
+    _ok(client.post("/resenas/", headers=comprador, json=resena), 409)     # una por producto
+
+    _ok(client.put(f"/resenas/{creada['id_resena']}", headers=comprador, json={
+        "calificacion_producto": 4, "calificacion_vendedor": 5, "comentario": "Actualizo: excelente vendedor"
+    }))
+    _ok(client.put(f"/resenas/{creada['id_resena']}", headers=otro, json={
+        "calificacion_producto": 1, "calificacion_vendedor": 1
+    }), 403)
+
+    del_producto = _ok(client.get(f"/productos/{id_producto}/resenas"))
+    assert del_producto["promedio"] == 4 and del_producto["total"] == 1
+    assert del_producto["resenas"][0]["editada"] is True
+    assert _ok(client.get(f"/productos/{id_producto}"))["calificacion"]["total"] == 1
+
+    perfil = _ok(client.get(f"/vendedores/{id_vendedor}"))
+    assert perfil["ventas_entregadas"] == 1
+    assert perfil["calificacion_vendedor"]["promedio"] == 5
+    assert perfil["fiabilidad"]["nivel"] != "NUEVO"
+    assert len(_ok(client.get("/resenas/mias", headers=comprador))) == 1

@@ -426,6 +426,54 @@ function panelIA(r, { vistaComprador = false, accion = "" } = {}) {
         </div>`;
 }
 
+/* ------------------------------------------------------------------ */
+/* Calificaciones y fiabilidad                                         */
+/* ------------------------------------------------------------------ */
+
+const ESTRELLA_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.8l2.8 5.8 6.3.9-4.6 4.4 1.1 6.3L12 17.2l-5.6 3 1.1-6.3L2.9 9.5l6.3-.9z"/></svg>';
+
+/* Estrellas de solo lectura; admite medias estrellas (p. ej. 4,3) */
+function estrellas(valor, { tamano = "" } = {}) {
+    const porcentaje = Math.max(0, Math.min(5, Number(valor) || 0)) / 5 * 100;
+    const fila = ESTRELLA_SVG.repeat(5);
+    const texto = valor == null ? "Sin calificaciones" : `${Number(valor).toLocaleString("es-CO", { maximumFractionDigits: 1 })} de 5 estrellas`;
+    return `<span class="estrellas ${tamano}" role="img" aria-label="${texto}" title="${texto}">
+        <span class="estrellas-vacias">${fila}</span><span class="estrellas-llenas" style="width:${porcentaje}%">${fila}</span></span>`;
+}
+
+/* Selector de 1 a 5 estrellas para formularios (radios accesibles) */
+function selectorEstrellas(nombre, valor = 0) {
+    return `<div class="selector-estrellas" role="radiogroup">
+        ${[5, 4, 3, 2, 1].map((n) => `
+            <input type="radio" id="${nombre}-${n}" name="${nombre}" value="${n}" ${n === valor ? "checked" : ""}>
+            <label for="${nombre}-${n}" title="${n} estrella${n === 1 ? "" : "s"}">${ESTRELLA_SVG}</label>`).join("")}
+    </div>`;
+}
+
+function resumenEstrellas(calificacion, { mostrarVacio = true } = {}) {
+    if (!calificacion || !calificacion.total) {
+        return mostrarVacio ? `<span class="resumen-estrellas">${estrellas(null)}<small>Sin reseñas</small></span>` : "";
+    }
+    return `<span class="resumen-estrellas">${estrellas(calificacion.promedio)}
+        <small>${calificacion.promedio.toLocaleString("es-CO", { maximumFractionDigits: 1 })} (${calificacion.total})</small></span>`;
+}
+
+const NIVELES_FIABILIDAD = {
+    ALTA: ["Fiabilidad alta", "ok"],
+    MEDIA: ["Fiabilidad media", "alerta"],
+    BAJA: ["Fiabilidad baja", "error"],
+    NUEVO: ["Vendedor nuevo", "proceso"]
+};
+
+function insigniaFiabilidad(f) {
+    const [texto, tipo] = NIVELES_FIABILIDAD[f.nivel] || [f.texto, ""];
+    return `<span class="estado estado-${tipo}">${icono("escudoCheck")} ${esc(texto)}${f.nivel === "NUEVO" ? "" : ` · ${f.indice}/100`}</span>`;
+}
+
+function iniciales(nombre) {
+    return esc((nombre || "?").split(/\s+/).filter(Boolean).slice(0, 2).map((p) => p[0].toUpperCase()).join(""));
+}
+
 const METODOS_PAGO = {
     SIMULADO: "Pago simulado",
     TARJETA_SIMULADA: "Tarjeta (simulada)",
@@ -700,6 +748,7 @@ function tarjetaProducto(p) {
             <a class="foto" href="producto.html?id=${p.id_producto}">${imagenProducto(p.imagen_principal, p.nombre)}</a>
             <a class="nombre" href="producto.html?id=${p.id_producto}">${esc(p.nombre)}</a>
             <div class="precio">${precio(p.precio)}</div>
+            ${resumenEstrellas(p.calificacion, { mostrarVacio: false })}
             ${insigniaVerificacion(p.nivel_verificacion, { chica: true })}
             <div class="detalle">${esc(CONDICIONES[p.condicion] || p.condicion)} · ${p.stock} disponible${p.stock === 1 ? "" : "s"}</div>
             ${propio

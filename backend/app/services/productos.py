@@ -108,7 +108,7 @@ def publicar_producto(
             connection.close()
 
 
-def listar_productos(id_categoria=None):
+def listar_productos(id_categoria=None, id_vendedor=None):
     connection = None
     cursor = None
 
@@ -131,6 +131,8 @@ def listar_productos(id_categoria=None):
                 U.IdUsuario AS IdVendedor,
                 U.Nombre + ' ' + U.Apellido AS Vendedor,
                 IP.RutaImagen,
+                RS.Promedio AS PromedioResenas,
+                RS.Total AS TotalResenas,
                 """ + SQL_NIVEL_VERIFICACION + """ AS NivelVerificacion
             FROM Productos P
             INNER JOIN Categorias C
@@ -142,6 +144,11 @@ def listar_productos(id_categoria=None):
                AND IP.EsPrincipal = 1
             LEFT JOIN VerificacionProductos VP
                 ON VP.IdProducto = P.IdProducto
+            OUTER APPLY (
+                SELECT AVG(CAST(R.CalificacionProducto AS DECIMAL(4,2))) AS Promedio, COUNT(*) AS Total
+                FROM Resenas R
+                WHERE R.IdProducto = P.IdProducto
+            ) RS
             WHERE P.Estado = 'PUBLICADO'
               AND P.Stock > 0
               AND U.Estado = 'ACTIVO'
@@ -152,6 +159,10 @@ def listar_productos(id_categoria=None):
         if id_categoria is not None:
             consulta += " AND P.IdCategoria = ?"
             parametros.append(id_categoria)
+
+        if id_vendedor is not None:
+            consulta += " AND P.IdVendedor = ?"
+            parametros.append(id_vendedor)
 
         consulta += " ORDER BY P.FechaPublicacion DESC;"
 
@@ -174,7 +185,11 @@ def listar_productos(id_categoria=None):
                 "id_vendedor": fila.IdVendedor,
                 "vendedor": fila.Vendedor,
                 "imagen_principal": fila.RutaImagen,
-                "nivel_verificacion": fila.NivelVerificacion
+                "nivel_verificacion": fila.NivelVerificacion,
+                "calificacion": {
+                    "promedio": round(float(fila.PromedioResenas), 2) if fila.PromedioResenas is not None else None,
+                    "total": fila.TotalResenas,
+                }
             })
 
         return productos
@@ -244,6 +259,15 @@ def obtener_producto(id_producto: int):
 
         inspeccion = obtener_inspeccion(cursor, fila.IdProducto)
 
+        cursor.execute(
+            """
+            SELECT AVG(CAST(CalificacionProducto AS DECIMAL(4,2))) AS Promedio, COUNT(*) AS Total
+            FROM Resenas WHERE IdProducto = ?;
+            """,
+            fila.IdProducto
+        )
+        resenas = cursor.fetchone()
+
         return {
             "id_producto": fila.IdProducto,
             "nombre": fila.Nombre,
@@ -260,6 +284,10 @@ def obtener_producto(id_producto: int):
             "imagen_principal": imagenes[0]["ruta"] if imagenes else None,
             "imagenes": imagenes,
             "inspeccion_ia": inspeccion,
+            "calificacion": {
+                "promedio": round(float(resenas.Promedio), 2) if resenas.Promedio is not None else None,
+                "total": resenas.Total,
+            },
             "verificacion": obtener_verificacion(
                 cursor, fila.IdProducto, len(imagenes), fila.Condicion, inspeccion
             )
