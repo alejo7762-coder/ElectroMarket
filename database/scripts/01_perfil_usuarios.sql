@@ -7,6 +7,9 @@
    Es seguro ejecutarlo varias veces.
    ===================================================================== */
 
+USE [ElectroMarket];
+GO
+
 SET NOCOUNT ON;
 GO
 

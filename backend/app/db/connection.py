@@ -11,12 +11,21 @@ def get_connection():
     database = os.getenv("DB_NAME")
     driver = os.getenv("DB_DRIVER")
     trust_certificate = os.getenv("DB_TRUST_CERTIFICATE", "yes")
+    usuario = os.getenv("DB_USER")
+    contrasena = os.getenv("DB_PASSWORD")
+
+    # Sin DB_USER se usa autenticación de Windows; con DB_USER, de SQL Server
+    autenticacion = (
+        f"UID={usuario};PWD={contrasena};"
+        if usuario
+        else "Trusted_Connection=yes;"
+    )
 
     connection_string = (
         f"DRIVER={{{driver}}};"
         f"SERVER={server};"
         f"DATABASE={database};"
-        "Trusted_Connection=yes;"
+        f"{autenticacion}"
         f"TrustServerCertificate={trust_certificate};"
     )
 

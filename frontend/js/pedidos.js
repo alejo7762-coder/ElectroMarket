@@ -37,7 +37,7 @@ async function cargarLista() {
                     </div>
                     <div class="u-mt-6">
                         <strong class="u-tinta">${precio(["APROBADO", "REEMBOLSO_PARCIAL", "REEMBOLSADO"].includes(p.estado_pago) ? p.total_neto : p.total)}</strong>
-                        ${p.total_cancelado > 0 ? `<span class="ayuda u-en-linea"> · ${precio(p.total_cancelado)} reembolsado</span>` : ""}
+                        ${p.total_cancelado > 0 ? `<span class="ayuda u-en-linea"> · ${precio(p.total_cancelado)} cancelado</span>` : ""}
                     </div>
                 </div>
                 <button type="button" class="boton boton-secundario" data-ver="${p.id_pedido}">Ver detalle</button>
@@ -224,10 +224,10 @@ function pintarDetalle(cuerpo, pedido, recargar) {
         <ul class="lista-datos">
             <li><span>Entrega</span><span>${esc(pedido.entrega.direccion)}, ${esc(pedido.entrega.ciudad)}, ${esc(pedido.entrega.departamento)}</span></li>
             <li><span>Pago</span><span>${pago ? `${esc(METODOS_PAGO[pago.metodo] || pago.metodo)} · ${etiquetaEstado(pago.estado)} · Ref. ${esc(pago.referencia)}` : "—"}</span></li>
-            ${pedido.total_cancelado > 0 ? `<li><span>Estado del reembolso</span><span>${etiquetaEstado(pedido.total_cancelado + 0.005 >= pedido.total ? "REEMBOLSADO" : "REEMBOLSO_PARCIAL")}</span></li>` : ""}
+            ${pedido.total_cancelado > 0 ? `<li><span>Estado del reembolso</span><span>${pago && ["REEMBOLSO_PARCIAL", "REEMBOLSADO"].includes(pago.estado) ? etiquetaEstado(pago.estado) : '<span class="estado estado-alerta">En proceso</span>'}</span></li>` : ""}
             <li><span>Total</span><span>${precio(pedido.total)}</span></li>
             ${pedido.total_cancelado > 0 ? `
-                <li><span>Reembolsado (simulado)</span><span>− ${precio(pedido.total_cancelado)}</span></li>
+                <li><span>Valor cancelado (se reembolsa)</span><span>− ${precio(pedido.total_cancelado)}</span></li>
                 <li><span><strong>Total final</strong></span><span><strong>${precio(pedido.total_neto)}</strong></span></li>` : ""}
         </ul>
 

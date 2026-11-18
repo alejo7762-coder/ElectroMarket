@@ -7,6 +7,9 @@
    debe agregarse a la restricción CHECK correspondiente.
    ===================================================================== */
 
+USE [ElectroMarket];
+GO
+
 SET NOCOUNT ON;
 
 DECLARE @valores TABLE (

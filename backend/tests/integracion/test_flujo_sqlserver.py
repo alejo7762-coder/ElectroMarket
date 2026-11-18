@@ -162,3 +162,94 @@ def test_flujo_completo(client):
 
     resumen = _ok(client.get("/ventas/resumen", headers=vendedor))
     assert resumen["ingresos_netos"] == 0
+
+
+def _png():
+    """Imagen PNG mínima válida (1x1)."""
+    import base64
+    return base64.b64decode(
+        "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=="
+    )
+
+
+def _adelantar_reembolsos(id_pedido):
+    """Simula que pasó el tiempo de la pasarela para los reembolsos del pedido."""
+    from app.db.connection import get_connection
+
+    conexion = get_connection()
+    try:
+        conexion.cursor().execute(
+            """
+            UPDATE R SET FechaSolicitud = DATEADD(MINUTE, -5, SYSDATETIME())
+            FROM Reembolsos R INNER JOIN Pagos PG ON PG.IdPago = R.IdPago
+            WHERE PG.IdPedido = ?;
+            """,
+            (id_pedido,)
+        )
+        conexion.commit()
+    finally:
+        conexion.close()
+
+
+def test_verificacion_y_reembolsos(client):
+    vendedor = _crear_usuario(client, "Vendedora")
+    comprador = _crear_usuario(client, "Comprador")
+
+    # Verificación: sin fotos queda PARCIAL; con 3 fotos, VERIFICADO
+    id_producto = _publicar(client, vendedor, "Portátil de prueba", 500000, 3)
+    assert _ok(client.get(f"/productos/{id_producto}"))["verificacion"]["nivel"] == "PARCIAL"
+
+    for i in range(3):
+        _ok(client.post(
+            f"/productos/{id_producto}/imagenes", headers=vendedor,
+            files={"archivo": (f"foto{i}.png", _png(), "image/png")}
+        ), 201)
+
+    verificacion = _ok(client.get(f"/productos/{id_producto}"))["verificacion"]
+    assert verificacion["nivel"] == "VERIFICADO"
+    assert verificacion["total_fotos"] == 3
+
+    catalogo = _ok(client.get("/productos/"))["productos"]
+    assert any(p["id_producto"] == id_producto and p["nivel_verificacion"] == "VERIFICADO" for p in catalogo)
+
+    # El vendedor no puede comprar su propio producto
+    _ok(client.post("/carrito/agregar", headers=vendedor, json={"id_producto": id_producto, "cantidad": 1}), 403)
+
+    id_direccion = _ok(client.post("/direcciones/", headers=comprador, json={
+        "direccion": "Carrera 7 # 45-10", "ciudad": "Medellín", "departamento": "Antioquia"
+    }), 201)["id_direccion"]
+    _ok(client.post("/carrito/agregar", headers=comprador, json={"id_producto": id_producto, "cantidad": 2}), 201)
+    compra = _ok(client.post("/pedidos/comprar", headers=comprador, json={"id_direccion": id_direccion}), 201)
+    id_pedido = compra["id_pedido"]
+
+    # Cancelación parcial: reembolso PENDIENTE y pago todavía APROBADO
+    _ok(client.post(f"/cancelaciones/pedidos/{id_pedido}/parcial", headers=comprador, json={
+        "motivo": "Solo necesito una unidad", "productos": [{"id_producto": id_producto, "cantidad": 1}]
+    }), 201)
+    reembolsos = _ok(client.get(f"/reembolsos/?id_pedido={id_pedido}", headers=comprador))
+    assert reembolsos["total_pendiente"] == 500000
+    assert reembolsos["reembolsos"][0]["estado"] == "PENDIENTE"
+
+    # La pasarela procesa el reembolso: pago REEMBOLSO_PARCIAL
+    _adelantar_reembolsos(id_pedido)
+    reembolsos = _ok(client.get(f"/reembolsos/?id_pedido={id_pedido}", headers=comprador))
+    assert reembolsos["total_reembolsado"] == 500000
+    assert reembolsos["reembolsos"][0]["referencia"].startswith("RMB-")
+    pago = _ok(client.get("/pagos/", headers=comprador))[0]
+    assert pago["estado"] == "REEMBOLSO_PARCIAL"
+
+    # Cancelación del resto: la API la informa como TOTAL y el pago queda REEMBOLSADO
+    total = _ok(client.post(f"/cancelaciones/pedidos/{id_pedido}/total", headers=comprador, json={
+        "motivo": "Ya no necesito el portátil"
+    }), 201)
+    assert total["monto_reembolsado"] == 500000
+
+    _adelantar_reembolsos(id_pedido)
+    pago = _ok(client.get(f"/pagos/{pago['id_pago']}", headers=comprador))
+    assert pago["estado"] == "REEMBOLSADO"
+    assert pago["estado_reembolso"] == "REEMBOLSADO"
+    assert pago["reembolsado"] == 1000000
+
+    tipos = {c["tipo"] for c in _ok(client.get(f"/pedidos/{id_pedido}", headers=comprador))["cancelaciones"]}
+    assert tipos == {"PARCIAL", "TOTAL"}
+    assert _stock(client, id_producto) == 3

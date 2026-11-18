@@ -13,6 +13,30 @@ from app.services.carrito import UserNotActive
 # Un pago con reembolso parcial o total sigue contando como cobrado
 ESTADOS_PAGO_COBRADO = ("APROBADO", "REEMBOLSO_PARCIAL", "REEMBOLSADO")
 
+# Tipo de una solicitud de cancelación para la API. En la BD toda solicitud
+# con venta es PARCIAL (CK_Solicitudes_Tipo); es TOTAL si cubrió todas las
+# unidades que seguían vigentes en la venta cuando se hizo.
+SQL_TIPO_CANCELACION = """
+    CASE
+        WHEN SC.IdVenta IS NULL THEN SC.TipoSolicitud
+        WHEN (SELECT SUM(DSCT.CantidadSolicitada)
+              FROM DetalleSolicitudCancelacion DSCT
+              WHERE DSCT.IdSolicitud = SC.IdSolicitud)
+          >= (SELECT SUM(DPT.Cantidad)
+              FROM DetalleVenta DVT
+              INNER JOIN DetallesPedido DPT ON DPT.IdDetallePedido = DVT.IdDetallePedido
+              WHERE DVT.IdVenta = SC.IdVenta)
+           - (SELECT COALESCE(SUM(DAT.CantidadSolicitada), 0)
+              FROM DetalleSolicitudCancelacion DAT
+              INNER JOIN SolicitudesCancelacion SAT ON SAT.IdSolicitud = DAT.IdSolicitud
+              WHERE SAT.IdVenta = SC.IdVenta
+                AND SAT.Estado = 'APROBADA'
+                AND SAT.IdSolicitud < SC.IdSolicitud)
+            THEN 'TOTAL'
+        ELSE 'PARCIAL'
+    END
+"""
+
 COLUMNAS_FECHA = (
     "FechaPedido",
     "FechaVenta",

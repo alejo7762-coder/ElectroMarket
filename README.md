@@ -27,6 +27,7 @@ ElectroMarket/
 │   │   ├── routes/              endpoints: validan la entrada (Pydantic)
 │   │   └── services/            lógica de negocio y consultas SQL
 │   ├── tests/                   pruebas (pytest)
+│   ├── scripts/datos_demo.py    datos de demostración
 │   ├── storage/productos/       fotos subidas de los productos
 │   ├── requirements.txt
 │   └── .env.example
@@ -34,6 +35,8 @@ ElectroMarket/
 │   ├── css/estilos.css          paleta, temas, componentes y utilidades
 │   ├── js/                      api.js y tema.js (comunes) y un archivo por página
 │   └── *.html
+├── docs/
+│   └── SUSTENTACION.md          guion de demostración y decisiones técnicas
 ├── database/
 │   ├── README.md                modelo, estados y orden de los scripts
 │   └── scripts/                 scripts SQL (00 a 04 y 99)
@@ -72,7 +75,7 @@ JWT_ALGORITHM=HS256
 JWT_ACCESS_TOKEN_EXPIRE_MINUTES=60
 ```
 
-La conexión usa autenticación de Windows (`Trusted_Connection=yes`).
+La conexión usa autenticación de Windows (`Trusted_Connection=yes`). Para usar un usuario de SQL Server, completa `DB_USER` y `DB_PASSWORD`.
 
 Prueba la conexión:
 
@@ -125,6 +128,14 @@ La interfaz está en `frontend/` (HTML, CSS y JavaScript sin dependencias) y la 
 La sesión se guarda en el navegador (token JWT). Si el token vence, la interfaz pide ingresar de nuevo.
 
 ---
+
+### Datos de demostración
+
+```powershell
+python -m scripts.datos_demo
+```
+
+Crea una vendedora con productos publicados y un comprador con dirección, e imprime sus correos (contraseña `Demo12345`). La guía de la presentación está en [`docs/SUSTENTACION.md`](docs/SUSTENTACION.md).
 
 ## 4. Flujo de uso
 
@@ -305,7 +316,7 @@ pytest
 
 # Prueba de integración del flujo completo contra SQL Server
 # (escribe datos reales: usa preferiblemente una copia de la base)
-$env:ELECTROMARKET_DB_TESTS = "1"
+$env:ELECTROMARKET_DB_TESTS = "1"   # cubre compra, rechazo, cancelaciones, envíos, verificación y reembolsos
 $env:ELECTROMARKET_ID_CATEGORIA = "1"
 pytest tests/integracion -v
 ```

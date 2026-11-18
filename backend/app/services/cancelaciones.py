@@ -18,6 +18,7 @@ from app.db.connection import get_connection
 from app.services.envios import _sincronizar_estado_pedido
 from app.services.pedidos import _registrar_historial
 from app.services.utilidades import (
+    SQL_TIPO_CANCELACION,
     a_float,
     iso,
     verificar_usuario_activo
@@ -1121,16 +1122,7 @@ _SELECT_CANCELACIONES = """
         SC.IdPedido,
         SC.IdVenta,
         SC.IdUsuario AS IdSolicitante,
-        CASE
-            WHEN SC.IdVenta IS NULL THEN SC.TipoSolicitud
-            WHEN (SELECT SUM(DSCT.CantidadSolicitada) FROM DetalleSolicitudCancelacion DSCT
-                  WHERE DSCT.IdSolicitud = SC.IdSolicitud)
-              >= (SELECT SUM(DPT.Cantidad) FROM DetalleVenta DVT
-                  INNER JOIN DetallesPedido DPT ON DPT.IdDetallePedido = DVT.IdDetallePedido
-                  WHERE DVT.IdVenta = SC.IdVenta)
-                THEN 'TOTAL'
-            ELSE 'PARCIAL'
-        END AS Tipo,
+        """ + SQL_TIPO_CANCELACION + """ AS Tipo,
         CASE
             WHEN SC.Estado = 'PENDIENTE' THEN 'SOLICITADA'
             ELSE SC.Estado

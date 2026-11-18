@@ -546,6 +546,12 @@ body.pagina-cuenta {
 
 .caja-cuenta .boton {
     margin-top: 10px;
+    background: var(--carbon);
+    color: #FFFFFF;
+}
+
+.caja-cuenta .boton:hover {
+    background: #000000;
 }
 
 .caja-cuenta .enlace-pie {

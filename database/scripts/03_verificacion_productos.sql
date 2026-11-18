@@ -7,6 +7,9 @@
    SIN_VERIFICAR. Es seguro ejecutarlo más de una vez.
    ===================================================================== */
 
+USE [ElectroMarket];
+GO
+
 SET NOCOUNT ON;
 GO
 

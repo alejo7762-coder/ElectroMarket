@@ -16,7 +16,7 @@ FechaSolicitud y Referencia las agrega database/scripts/02_reembolsos.sql.
 """
 
 from app.db.connection import get_connection
-from app.services.utilidades import a_float, iso, verificar_usuario_activo
+from app.services.utilidades import SQL_TIPO_CANCELACION, a_float, iso, verificar_usuario_activo
 from app.errores import (
     RefundNotFound,
 )
@@ -96,16 +96,7 @@ _SELECT_REEMBOLSOS = """
         R.FechaReembolso,
         PG.IdPedido,
         PG.Metodo,
-        CASE
-            WHEN SC.IdVenta IS NULL THEN SC.TipoSolicitud
-            WHEN (SELECT SUM(DSCT.CantidadSolicitada) FROM DetalleSolicitudCancelacion DSCT
-                  WHERE DSCT.IdSolicitud = SC.IdSolicitud)
-              >= (SELECT SUM(DPT.Cantidad) FROM DetalleVenta DVT
-                  INNER JOIN DetallesPedido DPT ON DPT.IdDetallePedido = DVT.IdDetallePedido
-                  WHERE DVT.IdVenta = SC.IdVenta)
-                THEN 'TOTAL'
-            ELSE 'PARCIAL'
-        END AS TipoSolicitud,
+        """ + SQL_TIPO_CANCELACION + """ AS TipoSolicitud,
         SC.Motivo
     FROM Reembolsos R
     INNER JOIN Pagos PG ON PG.IdPago = R.IdPago

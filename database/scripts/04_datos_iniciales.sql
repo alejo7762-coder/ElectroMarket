@@ -5,6 +5,9 @@
    Solo inserta las que no existen; es seguro ejecutarlo varias veces.
    ===================================================================== */
 
+USE [ElectroMarket];
+GO
+
 SET NOCOUNT ON;
 GO
 

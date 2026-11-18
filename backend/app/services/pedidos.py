@@ -5,6 +5,7 @@ from decimal import Decimal, ROUND_HALF_UP
 from app.db.connection import get_connection
 from app.services.carrito import UserNotActive, CartProcessed
 from app.services.utilidades import (
+    SQL_TIPO_CANCELACION,
     ESTADOS_PAGO_COBRADO,
     a_float,
     fecha_creacion,
@@ -727,16 +728,7 @@ def obtener_pedido(id_comprador: int, id_pedido: int):
             SELECT
                 SC.IdSolicitud AS IdCancelacion,
                 SC.IdVenta,
-                CASE
-            WHEN SC.IdVenta IS NULL THEN SC.TipoSolicitud
-            WHEN (SELECT SUM(DSCT.CantidadSolicitada) FROM DetalleSolicitudCancelacion DSCT
-                  WHERE DSCT.IdSolicitud = SC.IdSolicitud)
-              >= (SELECT SUM(DPT.Cantidad) FROM DetalleVenta DVT
-                  INNER JOIN DetallesPedido DPT ON DPT.IdDetallePedido = DVT.IdDetallePedido
-                  WHERE DVT.IdVenta = SC.IdVenta)
-                THEN 'TOTAL'
-            ELSE 'PARCIAL'
-        END AS Tipo,
+                """ + SQL_TIPO_CANCELACION + """ AS Tipo,
                 CASE
                     WHEN SC.Estado = 'PENDIENTE' THEN 'SOLICITADA'
                     ELSE SC.Estado
