@@ -359,7 +359,13 @@ const ESTADOS = {
     PUBLICADO: ["Publicado", "ok"],
     PAUSADO: ["Pausado", "alerta"],
     AGOTADO: ["Agotado", "error"],
-    ELIMINADO: ["Eliminado", "error"]
+    ELIMINADO: ["Eliminado", "error"],
+    // Reembolsos
+    PROCESADO: ["Reembolsado", "ok"],
+    FALLIDO: ["Fallido", "error"],
+    SIN_REEMBOLSO: ["Sin reembolso", ""],
+    REEMBOLSO_PARCIAL: ["Reembolso parcial", "alerta"],
+    REEMBOLSADO: ["Reembolsado", "ok"]
 };
 
 function textoEstado(estado) {
@@ -377,6 +383,20 @@ const CONDICIONES = {
     BUENO: "Buen estado",
     ACEPTABLE: "Aceptable"
 };
+
+const NIVELES_VERIFICACION = {
+    VERIFICADO: ["Estado verificado", "Cumple el checklist esencial, tiene fotos suficientes y defectos declarados."],
+    PARCIAL: ["Verificación parcial", "El vendedor completó el checklist, pero falta algún requisito."],
+    SIN_VERIFICAR: ["Sin verificar", "El vendedor no completó el checklist de estado."]
+};
+
+function insigniaVerificacion(nivel, { chica = false } = {}) {
+    const [texto, ayuda] = NIVELES_VERIFICACION[nivel] || NIVELES_VERIFICACION.SIN_VERIFICAR;
+    const clase = (nivel || "SIN_VERIFICAR").toLowerCase().replace("_", "-");
+    const icono = nivel === "VERIFICADO" ? "✔" : nivel === "PARCIAL" ? "◐" : "?";
+    return `<span class="insignia insignia-${clase}${chica ? " insignia-chica" : ""}" title="${esc(ayuda)}">
+        <span aria-hidden="true">${icono}</span>${esc(texto)}</span>`;
+}
 
 const METODOS_PAGO = {
     SIMULADO: "Pago simulado",
@@ -528,6 +548,8 @@ function montarEncabezado({ busqueda = "" } = {}) {
             </form>
 
             <nav class="menu-usuario">
+                <button type="button" class="boton-tema" id="boton-tema"
+                        aria-label="Cambiar tema claro u oscuro" title="Cambiar tema"></button>
                 ${activa ? `
                     <a class="solo-escritorio" href="vender.html">Vender</a>
                     <a class="solo-escritorio" href="pedidos.html">Mis compras</a>
@@ -563,6 +585,18 @@ function montarEncabezado({ busqueda = "" } = {}) {
                 </div>
             </nav>
         </div>`;
+
+    const botonTema = document.getElementById("boton-tema");
+    const iconoTema = () => {
+        const oscuro = document.documentElement.getAttribute("data-tema") === "oscuro";
+        botonTema.textContent = oscuro ? "☀" : "☾";
+        botonTema.setAttribute("aria-pressed", String(oscuro));
+    };
+    iconoTema();
+    botonTema.addEventListener("click", () => {
+        if (window.alternarTema) window.alternarTema();
+        iconoTema();
+    });
 
     const boton = document.getElementById("boton-cuenta");
     const menu = document.getElementById("menu-cuenta");
@@ -638,6 +672,7 @@ function tarjetaProducto(p) {
             <a class="foto" href="producto.html?id=${p.id_producto}">${imagenProducto(p.imagen_principal, p.nombre)}</a>
             <a class="nombre" href="producto.html?id=${p.id_producto}">${esc(p.nombre)}</a>
             <div class="precio">${precio(p.precio)}</div>
+            ${insigniaVerificacion(p.nivel_verificacion, { chica: true })}
             <div class="detalle">${esc(CONDICIONES[p.condicion] || p.condicion)} · ${p.stock} disponible${p.stock === 1 ? "" : "s"}</div>
             ${propio
                 ? `<a class="boton boton-secundario" href="vender.html#mis-productos">Es tu producto</a>`

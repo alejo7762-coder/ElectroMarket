@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vender | ElectroMarket</title>
     <link rel="stylesheet" href="css/estilos.css">
+    <script src="js/tema.js"></script>
 </head>
 <body>
     <header id="encabezado"></header>
@@ -54,10 +55,28 @@
                     </div>
                 </div>
 
+                <fieldset class="checklist-estado">
+                    <legend>Verificación del estado</legend>
+                    <p class="ayuda">Declara con honestidad el estado del artículo. Los compradores ven este checklist y una insignia de verificación.</p>
+                    <div class="checklist-opciones">
+                        <label><input type="checkbox" name="enciende"> Enciende y funciona correctamente <em>esencial</em></label>
+                        <label><input type="checkbox" name="pantalla_sin_danos"> Pantalla o carcasa sin daños <em>esencial</em></label>
+                        <label><input type="checkbox" name="bateria_ok"> Batería o alimentación en buen estado <em>esencial</em></label>
+                        <label><input type="checkbox" name="sin_reparaciones"> Sin reparaciones ni piezas cambiadas</label>
+                        <label><input type="checkbox" name="accesorios_completos"> Incluye accesorios originales</label>
+                        <label><input type="checkbox" name="con_garantia"> Conserva garantía o factura</label>
+                    </div>
+                    <div class="campo">
+                        <label for="descripcion_defectos">Defectos, rayones o desgaste (obligatorio)</label>
+                        <textarea class="control" id="descripcion_defectos" name="descripcion_defectos" maxlength="1000" rows="3"
+                                  placeholder="Ej.: rayón leve en la esquina superior, batería al 85 %. Escribe «Ninguno» si no tiene."></textarea>
+                    </div>
+                </fieldset>
+
                 <div class="campo" id="bloque-fotos-nuevas">
-                    <label for="fotos">Fotografías</label>
+                    <label for="fotos">Fotografías (mínimo 3)</label>
                     <input class="control" id="fotos" type="file" accept=".jpg,.jpeg,.png,.webp" multiple>
-                    <div class="ayuda" id="ayuda-fotos">Hasta 5 fotos JPG, PNG o WEBP de máximo 5 MB. La primera será la principal.</div>
+                    <div class="ayuda" id="ayuda-fotos">Entre 3 y 5 fotos JPG, PNG o WEBP de máximo 5 MB. Muestra el frente, la parte trasera y los defectos. La primera será la principal.</div>
                     <div class="previsualizaciones" id="previsualizaciones"></div>
                 </div>
 

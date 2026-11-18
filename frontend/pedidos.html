@@ -5,13 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mis compras | ElectroMarket</title>
     <link rel="stylesheet" href="css/estilos.css">
+    <script src="js/tema.js"></script>
 </head>
 <body>
     <header id="encabezado"></header>
 
     <main class="contenedor">
         <h1 class="titulo-seccion">Mis compras</h1>
-        <p class="subtitulo-seccion">Consulta tus pedidos, sigue los envíos y gestiona cancelaciones.</p>
+        <p class="subtitulo-seccion">Consulta tus pedidos, sigue los envíos, gestiona cancelaciones y revisa tus reembolsos.</p>
 
         <div class="filtros" id="filtros">
             <button type="button" class="chip activo" data-estado="">Todos</button>
@@ -23,6 +24,12 @@
         </div>
 
         <div id="lista" class="lista-tarjetas"><div class="cargando">Cargando pedidos...</div></div>
+
+        <section class="seccion-reembolsos" aria-labelledby="titulo-reembolsos">
+            <h2 class="titulo-seccion" id="titulo-reembolsos">Mis reembolsos</h2>
+            <p class="subtitulo-seccion">Cuando cancelas un pedido o parte de él, el dinero vuelve a tu método de pago. Aquí puedes seguir cada reembolso.</p>
+            <div id="reembolsos"><div class="cargando">Cargando reembolsos...</div></div>
+        </section>
     </main>
 
     <footer id="pie"></footer>

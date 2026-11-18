@@ -15,10 +15,12 @@ from app.routes import direcciones
 from app.routes import pagos
 from app.routes import ventas
 from app.routes import cancelaciones
+from app.routes import reembolsos
 
 
+# backend/ (contiene app/ y storage/) y raíz del repositorio (contiene frontend/)
 BASE_DIR = Path(__file__).resolve().parents[1]
-FRONTEND_DIR = BASE_DIR / "frontend"
+FRONTEND_DIR = BASE_DIR.parent / "frontend"
 STORAGE_DIR = BASE_DIR / "storage"
 
 # La carpeta de fotos debe existir antes de montarla
@@ -42,6 +44,7 @@ app.include_router(direcciones.router)
 app.include_router(pagos.router)
 app.include_router(ventas.router)
 app.include_router(cancelaciones.router)
+app.include_router(reembolsos.router)
 
 
 @app.get("/", include_in_schema=False)
