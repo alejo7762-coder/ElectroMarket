@@ -34,3 +34,4 @@ python commits/generar_bitacora.py
 | 023 | [`95ed1ff`](023_95ed1ff.md) | 2026-11-19 15:55 | Claude | Ajusta la prueba de interfaz de devoluciones a la nueva sección |
 | 024 | [`9e4193e`](024_9e4193e.md) | 2026-11-19 16:02 | Claude | Muestra «Solicitar devolución» en la lista de Mis compras |
 | 025 | [`e2eef5c`](025_e2eef5c.md) | 2026-11-19 16:05 | Claude | Revierte la función de devoluciones |
+| 026 | [`e037200`](026_e037200.md) | 2026-11-19 16:15 | Claude | Agrega el guion de sustentación por integrante y criterio (PDF) |
