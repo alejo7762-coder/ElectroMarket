@@ -536,7 +536,14 @@ def listar_pedidos(id_comprador: int, estado: str | None = None):
                     FROM Pagos PG
                     WHERE PG.IdPedido = P.IdPedido
                     ORDER BY PG.IdPago DESC
-                ) AS EstadoPago
+                ) AS EstadoPago,
+                (
+                    -- Última entrega del pedido: define el plazo para devolver
+                    SELECT MAX(E.FechaEntrega)
+                    FROM Ventas V
+                    INNER JOIN Envios E ON E.IdVenta = V.IdVenta
+                    WHERE V.IdPedido = P.IdPedido AND V.Estado = 'ENTREGADA'
+                ) AS UltimaEntrega
             FROM Pedidos P
             WHERE P.IdComprador = ?
         """
@@ -567,7 +574,8 @@ def listar_pedidos(id_comprador: int, estado: str | None = None):
                 "total": total,
                 "total_cancelado": cancelado,
                 "total_neto": round(total - cancelado, 2) if pagado else 0.0,
-                "ciudad_entrega": fila.CiudadEntrega
+                "ciudad_entrega": fila.CiudadEntrega,
+                "dias_para_devolver": dias_restantes(fila.UltimaEntrega)
             })
 
         return pedidos

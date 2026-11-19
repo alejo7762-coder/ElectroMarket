@@ -49,7 +49,11 @@ async function cargarLista() {
                         ${p.total_cancelado > 0 ? `<span class="ayuda u-en-linea"> · ${precio(p.total_cancelado)} cancelado</span>` : ""}
                     </div>
                 </div>
-                <button type="button" class="boton boton-secundario" data-ver="${p.id_pedido}">Ver detalle</button>
+                <div class="grupo-botones">
+                    ${p.dias_para_devolver > 0 ? `<button type="button" class="boton boton-secundario" data-ver="${p.id_pedido}" data-abrir-devolucion="1"
+                        title="Te quedan ${p.dias_para_devolver} día${p.dias_para_devolver === 1 ? "" : "s"} para devolver">Solicitar devolución</button>` : ""}
+                    <button type="button" class="boton boton-secundario" data-ver="${p.id_pedido}">Ver detalle</button>
+                </div>
             </article>`).join("");
 
     } catch (e) {
@@ -240,8 +244,10 @@ function bloqueVenta(venta, productos) {
             acciones = `<span class="ayuda u-en-linea">Devolución en curso (ver abajo).</span>`;
         } else if (!disponibles.length) {
             acciones = `<span class="ayuda u-en-linea">No quedan unidades por devolver.</span>`;
+        } else if (!envio || !envio.fecha_entrega) {
+            acciones = `<span class="ayuda u-en-linea">No hay fecha de entrega registrada; no se puede calcular el plazo de devolución.</span>`;
         } else if (!(venta.dias_para_devolver > 0)) {
-            acciones = `<span class="ayuda u-en-linea">El plazo de 15 días para devolver ya venció.</span>`;
+            acciones = `<span class="ayuda u-en-linea">El plazo de 15 días para devolver venció (entregado el ${fecha(envio.fecha_entrega)}).</span>`;
         } else {
             acciones = `<button type="button" class="boton boton-secundario boton-chico" data-devolver="${venta.id_venta}">Solicitar devolución</button>
                         <span class="ayuda u-en-linea">${venta.dias_para_devolver} día${venta.dias_para_devolver === 1 ? "" : "s"} para devolver</span>`;
@@ -381,7 +387,7 @@ function formularioDevolucion(venta, productos) {
     });
 }
 
-async function abrirDetalle(idPedido) {
+async function abrirDetalle(idPedido, { devolver = false } = {}) {
     const { elemento, cerrar } = abrirModal({
         titulo: `Pedido #${idPedido}`,
         contenido: `<div class="cargando">Cargando...</div>`
@@ -411,6 +417,13 @@ async function abrirDetalle(idPedido) {
     });
 
     await recargar();
+
+    // Desde «Solicitar devolución» en la lista: abre directamente el formulario
+    if (devolver) {
+        const boton = elemento.querySelector("[data-devolver]");
+        if (boton) boton.click();
+        else aviso("Este pedido no tiene productos que se puedan devolver.", "info");
+    }
     return cerrar;
 }
 
@@ -686,7 +699,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     document.getElementById("lista").addEventListener("click", (e) => {
         const boton = e.target.closest("[data-ver]");
-        if (boton) abrirDetalle(Number(boton.dataset.ver));
+        if (boton) abrirDetalle(Number(boton.dataset.ver), { devolver: Boolean(boton.dataset.abrirDevolucion) });
     });
 
     cargarLista();
