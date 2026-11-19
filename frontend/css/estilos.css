@@ -2658,6 +2658,66 @@ input[type="file"].control::file-selector-button {
     margin: 0 0 2px;
 }
 
+
+/* ------------------------------------------------------------------ */
+/* Devoluciones                                                        */
+/* ------------------------------------------------------------------ */
+
+.seccion-devoluciones {
+    background: var(--superficie);
+    border: 1px solid var(--borde);
+    border-radius: var(--radio);
+    padding: 16px 18px;
+    margin: 18px 0;
+}
+
+.tarjeta-devolucion {
+    border: 1px solid var(--borde);
+    border-left: 4px solid var(--aviso);
+    border-radius: var(--radio);
+    background: var(--superficie);
+    padding: 12px 14px;
+    margin-top: 12px;
+}
+
+.tarjeta-devolucion.estado-dev-recibida { border-left-color: var(--exito); }
+.tarjeta-devolucion.estado-dev-rechazada { border-left-color: var(--error); }
+.tarjeta-devolucion.estado-dev-aprobada,
+.tarjeta-devolucion.estado-dev-enviada { border-left-color: var(--acento); }
+
+.tarjeta-devolucion strong .icono {
+    color: var(--acento);
+}
+
+.pasos-devolucion {
+    grid-template-columns: repeat(4, 1fr);
+}
+
+.lista-devolver .opcion {
+    align-items: center;
+}
+
+.lista-devolver .opcion > span {
+    flex: 1;
+}
+
+.control-cantidad {
+    width: 80px;
+    flex-shrink: 0;
+}
+
+.seccion-devoluciones summary {
+    cursor: pointer;
+    color: var(--acento);
+    font-weight: 600;
+}
+
+@media (max-width: 600px) {
+    .pasos-devolucion {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
 @media (max-width: 900px) {
     .producto-secundario,
     .perfil-vendedor {

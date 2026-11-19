@@ -341,11 +341,16 @@ def resumen_ventas(id_vendedor: int):
                         ON V2.IdVenta = SC.IdVenta
                     WHERE V2.IdVendedor = ?
                       AND SC.Estado = 'APROBADA'
-                ), 0) AS Cancelado
+                ), 0) AS Cancelado,
+                COALESCE((
+                    SELECT SUM(D.MontoReembolso)
+                    FROM Devoluciones D
+                    WHERE D.IdVendedor = ? AND D.Estado = 'RECIBIDA'
+                ), 0) AS Devuelto
             FROM Ventas V
             WHERE V.IdVendedor = ?;
             """,
-            (id_vendedor, id_vendedor)
+            (id_vendedor, id_vendedor, id_vendedor)
         )
 
         montos = cursor.fetchone()
@@ -382,6 +387,7 @@ def resumen_ventas(id_vendedor: int):
 
         bruto = a_float(montos.Bruto)
         cancelado = a_float(montos.Cancelado)
+        devuelto = a_float(montos.Devuelto)
 
         return {
             "ventas_por_estado": por_estado,
@@ -390,7 +396,8 @@ def resumen_ventas(id_vendedor: int):
             "unidades_canceladas": unidades.Canceladas,
             "ingresos_brutos": bruto,
             "monto_cancelado": cancelado,
-            "ingresos_netos": round(bruto - cancelado, 2)
+            "monto_devuelto": devuelto,
+            "ingresos_netos": round(bruto - cancelado - devuelto, 2)
         }
 
     finally:

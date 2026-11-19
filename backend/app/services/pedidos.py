@@ -4,6 +4,7 @@ from decimal import Decimal, ROUND_HALF_UP
 
 from app.db.connection import get_connection
 from app.services.carrito import UserNotActive, CartProcessed
+from app.services.devoluciones_plazo import dias_restantes
 from app.services.utilidades import (
     SQL_TIPO_CANCELACION,
     ESTADOS_PAGO_COBRADO,
@@ -695,7 +696,8 @@ def obtener_pedido(id_comprador: int, id_pedido: int):
                 E.IdEnvio,
                 E.Transportadora,
                 E.NumeroGuia,
-                E.Estado AS EstadoEnvio
+                E.Estado AS EstadoEnvio,
+                E.FechaEntrega
             FROM Ventas V
             INNER JOIN Usuarios U ON U.IdUsuario = V.IdVendedor
             LEFT JOIN Envios E ON E.IdVenta = V.IdVenta
@@ -716,8 +718,11 @@ def obtener_pedido(id_comprador: int, id_pedido: int):
                     "id_envio": v.IdEnvio,
                     "transportadora": v.Transportadora,
                     "numero_guia": v.NumeroGuia,
-                    "estado": v.EstadoEnvio
-                }
+                    "estado": v.EstadoEnvio,
+                    "fecha_entrega": iso(v.FechaEntrega)
+                },
+                # Días que quedan para pedir una devolución (0 si no aplica)
+                "dias_para_devolver": dias_restantes(v.FechaEntrega) if v.Estado == "ENTREGADA" else 0
             }
             for v in cursor.fetchall()
         ]

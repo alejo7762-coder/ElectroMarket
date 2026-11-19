@@ -48,7 +48,7 @@ ElectroMarket/
 ├── pruebas_e2e/                 pruebas de interfaz con Playwright
 ├── database/
 │   ├── README.md                modelo, estados y orden de los scripts
-│   └── scripts/                 scripts SQL (00 a 06 y 99)
+│   └── scripts/                 scripts SQL (00 a 07 y 99)
 └── commits/                     bitácora del historial de commits
 ```
 
@@ -101,6 +101,7 @@ Ejecuta en SSMS los scripts de `database/scripts/` en orden:
 3. `04_datos_iniciales.sql`: categorías de productos.
 4. `05_inspeccion_ia.sql`: tabla con los resultados del inspector de IA.
    `06_resenas.sql`: tabla de reseñas y calificaciones.
+   `07_devoluciones.sql`: devoluciones y reembolsos asociados a ellas.
 5. `99_verificar_esquema.sql`: solo lectura; si sus consultas salen vacías, el esquema es compatible.
 
 El diagrama del modelo, los estados y las reglas del esquema están en [`database/README.md`](database/README.md).
@@ -132,10 +133,10 @@ La interfaz está en `frontend/` (HTML, CSS y JavaScript sin dependencias) y la 
 | Vendedor | `vendedor.html` | Perfil público: fiabilidad, opiniones y productos del vendedor |
 | Carrito | `carrito.html` | Cambiar cantidades, quitar y vaciar |
 | Finalizar compra | `checkout.html` | Dirección, método de pago simulado y pago |
-| Mis compras | `pedidos.html` | Pedidos, seguimiento, cancelaciones parciales o totales, reembolsos y calificación de compras entregadas |
+| Mis compras | `pedidos.html` | Pedidos, seguimiento, cancelaciones parciales o totales, devoluciones, reembolsos y calificación de compras entregadas |
 | Mi perfil | `perfil.html` | Datos personales, contraseña y direcciones |
 | Vender | `vender.html` | Publicar y editar artículos con checklist de estado y mínimo 3 fotos; pausar, reactivar y eliminar |
-| Mis ventas | `ventas.html` | Envíos, cambios de estado y respuesta a solicitudes de cancelación |
+| Mis ventas | `ventas.html` | Envíos, cambios de estado y respuesta a solicitudes de cancelación y de devolución |
 
 La sesión se guarda en el navegador (token JWT). Si el token vence, la interfaz pide ingresar de nuevo.
 
@@ -243,6 +244,19 @@ Al publicar o editar, el cuerpo debe incluir:
 
 `GET /productos/{id}` devuelve `verificacion` (nivel, puntaje 0-100, criterios, defectos y requisitos faltantes); los listados devuelven `nivel_verificacion`. Es `VERIFICADO` si cumple los tres criterios esenciales, tiene al menos 3 fotos y defectos declarados; `PARCIAL` si falta algo; `SIN_VERIFICAR` si no hay checklist.
 
+### Devoluciones
+| Método | Ruta | Quién | Descripción |
+|---|---|---|---|
+| POST | `/devoluciones/` | Comprador | Solicitar la devolución (total o de algunos productos y unidades) con motivo y descripción |
+| GET | `/devoluciones/` | Ambos | Devoluciones (filtros `rol`, `id_pedido`, `estado`) |
+| GET | `/devoluciones/{id}` | Ambos | Detalle con productos, guía y reembolso |
+| POST | `/devoluciones/{id}/aprobar` | Vendedor | Aprobar, con instrucciones opcionales |
+| POST | `/devoluciones/{id}/rechazar` | Vendedor | Rechazar con motivo |
+| POST | `/devoluciones/{id}/enviar` | Comprador | Registrar transportadora y guía del envío de vuelta |
+| POST | `/devoluciones/{id}/recibir` | Vendedor | Confirmar la recepción: genera el reembolso y, si se indica, reintegra el inventario |
+
+Estados: `SOLICITADA` → `APROBADA` → `ENVIADA` → `RECIBIDA`, o `RECHAZADA`. Se puede devolver una venta **entregada** hasta **15 días** después de la entrega, una devolución en curso por venta, y solo unidades no canceladas ni ya devueltas. El reembolso sigue el ciclo de los reembolsos (`PENDIENTE` → `PROCESADO`) y los ingresos netos del vendedor descuentan las devoluciones recibidas.
+
 ### Reseñas y vendedores
 | Método | Ruta | Descripción |
 |---|---|---|
@@ -323,7 +337,7 @@ Si se omite `cantidad`, se cancelan todas las unidades vigentes de ese producto.
   - El vendedor puede cancelar su venta solo antes de despacharla.
 - Al aplicar una cancelación se devuelven las unidades al inventario (un producto `AGOTADO` vuelve a `PUBLICADO`) y se registra un reembolso `PENDIENTE`. Al procesarse, el pago pasa a `REEMBOLSO_PARCIAL` o `REEMBOLSADO`.
 - Un producto se publica con checklist de estado y descripción de defectos; queda `VERIFICADO` solo si cumple los criterios esenciales y tiene al menos 3 fotos.
-- No se implementan devoluciones después de la entrega.
+- Después de la entrega, el comprador puede pedir una devolución dentro de 15 días; el vendedor la aprueba o rechaza, el comprador envía el producto y, al recibirlo, el vendedor genera el reembolso y decide si reintegra las unidades al inventario.
 - Las fotos (JPG, PNG o WEBP, máximo 5 MB, hasta 5 por producto) se guardan en `backend/storage/productos/{id_producto}/` y la base de datos guarda la ruta.
 
 ## 7. Estados
@@ -332,7 +346,8 @@ Si se omite `cantidad`, se cancelan todas las unidades vigentes de ese producto.
 |---|---|
 | Pedido | `PENDIENTE_PAGO`, `PAGADO`, `EN_PROCESO`, `PARCIALMENTE_ENVIADO`, `COMPLETADO`, `CANCELADO` |
 | Pago | `PENDIENTE`, `APROBADO`, `RECHAZADO`, `REEMBOLSO_PARCIAL`, `REEMBOLSADO` |
-| Reembolso | `PENDIENTE`, `PROCESADO` |
+| Reembolso | `PENDIENTE`, `PROCESADO` (origen: cancelación o devolución) |
+| Devolución | `SOLICITADA`, `APROBADA`, `ENVIADA`, `RECIBIDA`, `RECHAZADA` |
 | Venta | `PENDIENTE`, `PREPARANDO`, `ENVIADA`, `ENTREGADA`, `CANCELACION_SOLICITADA`, `CANCELADA` |
 | Envío | `PREPARANDO`, `ENVIADO`, `EN_TRANSITO`, `ENTREGADO`, `PROBLEMA`, `CANCELADO` |
 | Cancelación | `SOLICITADA`, `APROBADA`, `RECHAZADA` (tipo `TOTAL` o `PARCIAL`) |

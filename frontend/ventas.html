@@ -12,11 +12,20 @@
 
     <main class="contenedor">
         <h1 class="titulo-seccion" data-icono="grafico">Mis ventas</h1>
-        <p class="subtitulo-seccion">Prepara los envíos, actualiza su estado y responde las solicitudes de cancelación. <a href="vender.html">Publicar artículo</a></p>
+        <p class="subtitulo-seccion">Prepara los envíos, actualiza su estado y responde las solicitudes de cancelación y de devolución. <a href="vender.html">Publicar artículo</a></p>
 
         <div class="indicadores" id="indicadores"></div>
 
         <div id="solicitudes"></div>
+
+        <section id="devoluciones" class="seccion-devoluciones oculto" aria-labelledby="titulo-devoluciones">
+            <h2 class="titulo-tarjeta" id="titulo-devoluciones" data-icono="reembolso">Devoluciones</h2>
+            <div id="devoluciones-en-curso"></div>
+            <details class="u-mt-10" id="devoluciones-cerradas-bloque">
+                <summary>Devoluciones terminadas</summary>
+                <div id="devoluciones-cerradas" class="u-mt-10"></div>
+            </details>
+        </section>
 
         <div class="filtros" id="filtros">
             <button type="button" class="chip activo" data-estado="">Todas</button>
@@ -36,6 +45,7 @@
     <script src="js/iconos.js"></script>
     <script src="js/api.js"></script>
     <script src="js/comunes_pedidos.js"></script>
+    <script src="js/devoluciones.js"></script>
     <script src="js/ventas.js"></script>
 </body>
 </html>

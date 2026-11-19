@@ -4,6 +4,13 @@ const ESTADOS_PEDIDO_CANCELABLES = ["PAGADO", "EN_PROCESO", "PARCIALMENTE_ENVIAD
 
 let filtroEstado = "";
 let resenasDelPedido = {};   // "idVenta-idProducto" -> reseña del comprador
+let devolucionesDelPedido = [];
+let recargarDetalle = null;  // recarga el detalle abierto (lo usa devoluciones.js)
+
+function alCambiarDevolucion() {
+    if (recargarDetalle) recargarDetalle();
+    cargarLista();
+}
 
 /* ------------------------------------------------------------------ */
 /* Lista de pedidos                                                    */
@@ -57,7 +64,7 @@ function lineaTiempoReembolso(r) {
     const procesado = r.estado === "PROCESADO";
     return `
         <ol class="linea-reembolso" aria-label="Progreso del reembolso">
-            <li class="hecho"><strong>${icono("check")}Cancelación aprobada</strong><span>${fecha(r.fecha_solicitud, true)}</span></li>
+            <li class="hecho"><strong>${icono("check")}${r.origen === "DEVOLUCION" ? "Devolución recibida" : "Cancelación aprobada"}</strong><span>${fecha(r.fecha_solicitud, true)}</span></li>
             <li class="hecho"><strong>${icono("reembolso")}Reembolso registrado</strong><span>${esc(METODOS_PAGO[r.metodo_destino] || r.metodo_destino)}</span></li>
             <li class="${procesado ? "hecho" : "actual"}"><strong>${icono(procesado ? "billetera" : "historial")}${procesado ? "Dinero devuelto" : "En proceso"}</strong>
                 <span>${procesado ? `${fecha(r.fecha_procesado, true)} · ${esc(r.referencia)}` : "La pasarela lo procesa en pocos minutos"}</span></li>
@@ -72,7 +79,7 @@ function tablaReembolsos(reembolsos) {
                     <div class="tarjeta-reembolso-cabecera">
                         <div>
                             <strong>Pedido #${r.id_pedido}</strong>
-                            <span class="ayuda u-en-linea"> · Cancelación ${r.tipo_cancelacion === "TOTAL" ? "total" : "parcial"} #${r.id_cancelacion}</span>
+                            <span class="ayuda u-en-linea"> · ${r.origen === "DEVOLUCION" ? `Devolución #${r.id_devolucion}` : `Cancelación ${r.tipo_cancelacion === "TOTAL" ? "total" : "parcial"} #${r.id_cancelacion}`}</span>
                         </div>
                         <div class="monto-reembolso">${precio(r.valor)} ${etiquetaEstado(r.estado === "PENDIENTE" ? "PENDIENTE" : r.estado)}</div>
                     </div>
@@ -211,6 +218,14 @@ function bloqueVenta(venta, productos) {
         acciones = `<span class="ayuda">Esperando respuesta del vendedor.</span>`;
     }
 
+    const devoluciones = devolucionesDelPedido.filter((d) => d.id_venta === venta.id_venta);
+    const enCurso = devoluciones.some((d) => ["SOLICITADA", "APROBADA", "ENVIADA"].includes(d.estado));
+    const disponibles = productosDevolvibles(productos, devoluciones);
+    if (venta.estado === "ENTREGADA" && venta.dias_para_devolver > 0 && !enCurso && disponibles.length) {
+        acciones = `<button type="button" class="boton boton-secundario boton-chico" data-devolver="${venta.id_venta}">Solicitar devolución</button>
+                    <span class="ayuda u-en-linea">${venta.dias_para_devolver} día${venta.dias_para_devolver === 1 ? "" : "s"} para devolver</span>`;
+    }
+
     return `
         <div class="tarjeta tarjeta-plana u-mb-12">
             <div class="u-fila-entre u-gap-10 u-envolver">
@@ -248,7 +263,100 @@ function bloqueVenta(venta, productos) {
                     </tbody>
                 </table>
             </div>
+            ${devoluciones.map((d) => tarjetaDevolucion(d)).join("")}
         </div>`;
+}
+
+/* Unidades que aún se pueden devolver: vigentes menos las de devoluciones no rechazadas */
+function productosDevolvibles(productos, devoluciones) {
+    return productos.map((p) => {
+        const devueltas = devoluciones.filter((d) => d.estado !== "RECHAZADA")
+            .flatMap((d) => d.productos).filter((x) => x.id_producto === p.id_producto)
+            .reduce((suma, x) => suma + x.cantidad, 0);
+        return { ...p, disponible: p.cantidad_vigente - devueltas };
+    }).filter((p) => p.disponible > 0);
+}
+
+function formularioDevolucion(venta, productos) {
+    const { elemento, cerrar } = abrirModal({
+        titulo: "Solicitar devolución",
+        contenido: `
+            <form id="form-devolucion" novalidate>
+                <p class="u-mt-0">Elige qué quieres devolver. Si el vendedor aprueba, le envías el producto y, al recibirlo, se te reembolsa su valor.</p>
+                <div class="lista-devolver">
+                    ${productos.map((p) => `
+                        <label class="opcion">
+                            <input type="checkbox" name="producto" value="${p.id_producto}" data-precio="${p.precio_unitario}" checked>
+                            <span>${esc(p.nombre)}<small>${precio(p.precio_unitario)} c/u · hasta ${p.disponible} und.</small></span>
+                            <input class="control control-cantidad" type="number" min="1" max="${p.disponible}" value="${p.disponible}"
+                                   data-cantidad="${p.id_producto}" aria-label="Unidades a devolver de ${esc(p.nombre)}">
+                        </label>`).join("")}
+                </div>
+                <div class="campo">
+                    <label for="motivo-dev">Motivo</label>
+                    <select class="control" id="motivo-dev" name="motivo">
+                        <option value="">Selecciona el motivo</option>
+                        ${Object.entries(MOTIVOS_DEVOLUCION).map(([v, t]) => `<option value="${v}">${esc(t)}</option>`).join("")}
+                    </select>
+                </div>
+                <div class="campo">
+                    <label for="descripcion-dev">Describe el problema</label>
+                    <textarea class="control" id="descripcion-dev" name="descripcion" maxlength="1000" rows="3"
+                              placeholder="Ej.: la pantalla parpadea al encender; ocurre desde el primer día."></textarea>
+                </div>
+                <ul class="lista-datos"><li><span>Reembolso estimado</span><strong id="estimado-dev"></strong></li></ul>
+                <div class="mensaje mensaje-error oculto" id="error-devolucion"></div>
+                <div class="grupo-botones u-al-final">
+                    <button type="button" class="boton boton-secundario" data-cancelar>Volver</button>
+                    <button type="submit" class="boton" id="enviar-devolucion">Enviar solicitud</button>
+                </div>
+            </form>`
+    });
+
+    const form = elemento.querySelector("#form-devolucion");
+    const error = elemento.querySelector("#error-devolucion");
+    const elegidos = () => [...form.querySelectorAll("[name=producto]:checked")].map((c) => ({
+        id_producto: Number(c.value),
+        cantidad: Number(form.querySelector(`[data-cantidad="${c.value}"]`).value),
+        precio: Number(c.dataset.precio),
+        maximo: Number(form.querySelector(`[data-cantidad="${c.value}"]`).max)
+    }));
+    const actualizar = () => {
+        elemento.querySelector("#estimado-dev").textContent = precio(elegidos().reduce((s, p) => s + p.precio * (p.cantidad || 0), 0));
+    };
+    form.addEventListener("input", actualizar);
+    actualizar();
+    elemento.querySelector("[data-cancelar]").addEventListener("click", cerrar);
+
+    form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const productosElegidos = elegidos();
+        const fallas = [];
+        if (!productosElegidos.length) fallas.push("Elige al menos un producto.");
+        if (productosElegidos.some((p) => !Number.isInteger(p.cantidad) || p.cantidad < 1 || p.cantidad > p.maximo)) fallas.push("Revisa las unidades a devolver.");
+        if (!form.motivo.value) fallas.push("Selecciona el motivo.");
+        if (form.descripcion.value.trim().length < 10) fallas.push("Describe el problema (al menos 10 caracteres).");
+        if (fallas.length) {
+            error.innerHTML = fallas.map(esc).join("<br>");
+            error.classList.remove("oculto");
+            return;
+        }
+
+        await conBoton(elemento.querySelector("#enviar-devolucion"), async () => {
+            try {
+                await api("POST", "/devoluciones/", { cuerpo: {
+                    id_venta: venta.id_venta, motivo: form.motivo.value, descripcion: form.descripcion.value.trim(),
+                    productos: productosElegidos.map(({ id_producto, cantidad }) => ({ id_producto, cantidad }))
+                } });
+                cerrar();
+                aviso("Solicitud de devolución enviada al vendedor.", "exito");
+                alCambiarDevolucion();
+            } catch (err) {
+                error.textContent = err.message;
+                error.classList.remove("oculto");
+            }
+        }, "Enviando...");
+    });
 }
 
 async function abrirDetalle(idPedido) {
@@ -261,10 +369,13 @@ async function abrirDetalle(idPedido) {
 
     async function recargar() {
         try {
-            const [pedido, resenas] = await Promise.all([
+            const [pedido, resenas, devoluciones] = await Promise.all([
                 api("GET", `/pedidos/${idPedido}`),
-                api("GET", `/resenas/mias?id_pedido=${idPedido}`).catch(() => [])
+                api("GET", `/resenas/mias?id_pedido=${idPedido}`).catch(() => []),
+                api("GET", `/devoluciones/?rol=COMPRADOR&id_pedido=${idPedido}`).catch(() => [])
             ]);
+            devolucionesDelPedido = devoluciones;
+            recargarDetalle = recargar;
             resenasDelPedido = Object.fromEntries(resenas.map((r) => [`${r.id_venta}-${r.id_producto}`, r]));
             pintarDetalle(cuerpo, pedido, recargar);
         } catch (e) {
@@ -333,6 +444,15 @@ function pintarDetalle(cuerpo, pedido, recargar) {
     cargarReembolsosPedido(pedido.id_pedido);
 
     const avisarCambio = () => cuerpo.closest(".modal").dispatchEvent(new Event("pedido-cambio"));
+
+    // Solicitar devolución de una venta entregada
+    cuerpo.querySelectorAll("[data-devolver]").forEach((b) =>
+        b.addEventListener("click", () => {
+            const venta = pedido.ventas.find((v) => v.id_venta === Number(b.dataset.devolver));
+            const productos = pedido.productos.filter((p) => p.id_venta === venta.id_venta);
+            formularioDevolucion(venta, productosDevolvibles(productos, devolucionesDelPedido.filter((d) => d.id_venta === venta.id_venta)));
+        })
+    );
 
     // Calificar productos entregados
     cuerpo.querySelectorAll("[data-resenar]").forEach((b) =>
