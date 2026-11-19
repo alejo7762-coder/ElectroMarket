@@ -30,3 +30,4 @@ python commits/generar_bitacora.py
 | 019 | [`acbc650`](019_acbc650.md) | 2026-11-18 18:39 | Claude | Agrega reseñas con estrellas y fiabilidad del vendedor |
 | 020 | [`908b551`](020_908b551.md) | 2026-11-19 02:37 | Claude | Actualiza el Documento Maestro con reseñas y fiabilidad del vendedor |
 | 021 | [`5d24110`](021_5d24110.md) | 2026-11-19 15:43 | Claude | Agrega devoluciones de pedidos entregados |
+| 022 | [`1d13346`](022_1d13346.md) | 2026-11-19 15:54 | Claude | Hace visibles las devoluciones y evita archivos viejos en el navegador |
