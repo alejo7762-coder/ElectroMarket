@@ -31,3 +31,4 @@ python commits/generar_bitacora.py
 | 020 | [`908b551`](020_908b551.md) | 2026-11-19 02:37 | Claude | Actualiza el Documento Maestro con reseñas y fiabilidad del vendedor |
 | 021 | [`5d24110`](021_5d24110.md) | 2026-11-19 15:43 | Claude | Agrega devoluciones de pedidos entregados |
 | 022 | [`1d13346`](022_1d13346.md) | 2026-11-19 15:54 | Claude | Hace visibles las devoluciones y evita archivos viejos en el navegador |
+| 023 | [`95ed1ff`](023_95ed1ff.md) | 2026-11-19 15:55 | Claude | Ajusta la prueba de interfaz de devoluciones a la nueva sección |
