@@ -28,3 +28,4 @@ python commits/generar_bitacora.py
 | 017 | [`f23d08b`](017_f23d08b.md) | 2026-11-18 05:36 | Claude | Documenta el precio sugerido y actualiza las evidencias de pruebas |
 | 018 | [`47b94dd`](018_47b94dd.md) | 2026-11-18 05:44 | Claude | Consolida el Documento Maestro final (PDF y Word) |
 | 019 | [`acbc650`](019_acbc650.md) | 2026-11-18 18:39 | Claude | Agrega reseñas con estrellas y fiabilidad del vendedor |
+| 020 | [`908b551`](020_908b551.md) | 2026-11-19 02:37 | Claude | Actualiza el Documento Maestro con reseñas y fiabilidad del vendedor |
