@@ -97,31 +97,10 @@ async function cargarLista() {
     }
 }
 
-async function cargarDevoluciones() {
-    try {
-        const devoluciones = await api("GET", "/devoluciones/?rol=VENDEDOR");
-        const enCurso = devoluciones.filter((d) => ["SOLICITADA", "APROBADA", "ENVIADA"].includes(d.estado));
-        const cerradas = devoluciones.filter((d) => !enCurso.includes(d));
-
-        document.getElementById("devoluciones-en-curso").innerHTML = enCurso.length
-            ? enCurso.map((d) => tarjetaDevolucion(d, { mostrarPedido: true })).join("")
-            : `<p class="ayuda">${devoluciones.length ? "No tienes devoluciones pendientes." : "Aún no tienes solicitudes de devolución. Cuando un comprador pida devolver una compra entregada, aparecerá aquí para que la apruebes o rechaces."}</p>`;
-        document.getElementById("devoluciones-cerradas-bloque").classList.toggle("oculto", !cerradas.length);
-        document.getElementById("devoluciones-cerradas").innerHTML = cerradas.map((d) => tarjetaDevolucion(d, { mostrarPedido: true })).join("");
-    } catch (e) {
-        document.getElementById("devoluciones-en-curso").innerHTML = `<div class="mensaje mensaje-error">No se pudieron cargar las devoluciones: ${esc(e.message)}</div>`;
-    }
-}
-
 function recargarTodo() {
     cargarResumen();
     cargarSolicitudes();
-    cargarDevoluciones();
     cargarLista();
-}
-
-function alCambiarDevolucion() {
-    recargarTodo();
 }
 
 /* ------------------------------------------------------------------ */

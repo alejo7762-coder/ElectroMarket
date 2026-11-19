@@ -97,13 +97,11 @@ _SELECT_REEMBOLSOS = """
         PG.IdPedido,
         PG.Metodo,
         """ + SQL_TIPO_CANCELACION + """ AS TipoSolicitud,
-        COALESCE(SC.Motivo, D.Descripcion) AS Motivo,
-        R.IdDevolucion
+        SC.Motivo
     FROM Reembolsos R
     INNER JOIN Pagos PG ON PG.IdPago = R.IdPago
     INNER JOIN Pedidos P ON P.IdPedido = PG.IdPedido
     LEFT JOIN SolicitudesCancelacion SC ON SC.IdSolicitud = R.IdSolicitud
-    LEFT JOIN Devoluciones D ON D.IdDevolucion = R.IdDevolucion
 """
 
 
@@ -112,9 +110,7 @@ def _a_diccionario(fila):
         "id_reembolso": fila.IdReembolso,
         "id_pago": fila.IdPago,
         "id_pedido": fila.IdPedido,
-        "origen": "DEVOLUCION" if fila.IdDevolucion else "CANCELACION",
         "id_cancelacion": fila.IdSolicitud,
-        "id_devolucion": fila.IdDevolucion,
         "tipo_cancelacion": fila.TipoSolicitud,
         "motivo": fila.Motivo,
         "valor": a_float(fila.Valor),

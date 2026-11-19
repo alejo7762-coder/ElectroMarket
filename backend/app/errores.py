@@ -184,17 +184,3 @@ class ReviewForbidden(AccesoDenegado):
 
 class ReviewConflict(Conflicto):
     pass
-
-
-# Devoluciones ----------------------------------------------------------
-
-class ReturnNotFound(NoEncontrado):
-    pass
-
-
-class ReturnForbidden(AccesoDenegado):
-    pass
-
-
-class ReturnConflict(Conflicto):
-    pass

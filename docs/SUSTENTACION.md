@@ -156,6 +156,6 @@ Roles: Alejandro Castro Alvarez (líder y backend), Maria Camila Sosa Cediel (da
 ## 7. Limitaciones conocidas (decirlas antes de que las pregunten)
 
 - Los pagos y reembolsos son simulados; no hay pasarela real.
-- Las devoluciones se piden hasta 15 días después de la entrega; el envío de vuelta y su guía los registra el comprador (no hay integración con transportadoras).
+- No hay devoluciones después de la entrega.
 - El checklist de estado lo declara el vendedor; no hay revisión de un tercero.
 - El procesamiento del reembolso ocurre al consultar, no con un proceso programado.

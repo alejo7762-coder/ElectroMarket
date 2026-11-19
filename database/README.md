@@ -11,8 +11,7 @@ SQL Server Express. Los scripts están en `scripts/` y se ejecutan en SSMS en es
 | 5 | `04_datos_iniciales.sql` | Inserta las categorías de productos | Sí |
 | 6 | `05_inspeccion_ia.sql` | Crea `InspeccionesIA` (resultado del inspector de estado con IA) | Sí |
 | 7 | `06_resenas.sql` | Crea `Resenas` (calificaciones de producto y vendedor por venta entregada) | Sí |
-| 8 | `07_devoluciones.sql` | Crea `Devoluciones` y `DetalleDevolucion`; `Reembolsos` admite una devolución como origen | Sí |
-| 9 | `99_verificar_esquema.sql` | Solo lectura: comprueba estados `CHECK` y columnas que usa el código | Sí |
+| 8 | `99_verificar_esquema.sql` | Solo lectura: comprueba estados `CHECK` y columnas que usa el código | Sí |
 
 Si ya tienes la base creada, omite `00_modelo.sql` y ejecuta del 01 en adelante. Si las consultas de `99_verificar_esquema.sql` salen vacías, el esquema es compatible con la aplicación.
 
@@ -29,9 +28,6 @@ erDiagram
     Productos ||--o| VerificacionProductos : checklist
     Productos ||--o| InspeccionesIA : "análisis de IA"
     Ventas ||--o{ Resenas : "se califica"
-    Ventas ||--o{ Devoluciones : "se devuelve"
-    Devoluciones ||--o{ DetalleDevolucion : detalla
-    Devoluciones ||--o| Reembolsos : genera
     Productos ||--o{ Resenas : recibe
     Usuarios ||--o{ Pedidos : compra
     Pedidos ||--o{ DetallesPedido : incluye
@@ -55,8 +51,7 @@ erDiagram
 | `Ventas` | `PENDIENTE`, `PREPARANDO`, `ENVIADA`, `ENTREGADA`, `CANCELACION_SOLICITADA`, `CANCELADA` |
 | `Envios` | `PREPARANDO`, `ENVIADO`, `EN_TRANSITO`, `ENTREGADO`, `PROBLEMA`, `CANCELADO` |
 | `SolicitudesCancelacion` | `PENDIENTE` (la API la muestra como `SOLICITADA`), `APROBADA`, `RECHAZADA` |
-| `Reembolsos` | `PENDIENTE`, `PROCESADO` (origen: una cancelación o una devolución, `CK_Reembolsos_Origen`) |
-| `Devoluciones` | `SOLICITADA`, `APROBADA`, `ENVIADA`, `RECIBIDA`, `RECHAZADA`; motivos `DEFECTUOSO`, `NO_COINCIDE`, `LLEGO_DANADO`, `EQUIVOCADO`, `ARREPENTIMIENTO` |
+| `Reembolsos` | `PENDIENTE`, `PROCESADO` |
 | `Productos` | `PUBLICADO`, `PAUSADO`, `AGOTADO`, `ELIMINADO` |
 | `InspeccionesIA.Coherencia` | `COHERENTE`, `REVISAR` (un producto en `REVISAR` no puede quedar verificado) |
 

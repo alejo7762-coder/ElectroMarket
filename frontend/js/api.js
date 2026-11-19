@@ -355,7 +355,6 @@ const ESTADOS = {
     ELIMINADO: ["Eliminado", "error"],
     // Reembolsos
     PROCESADO: ["Reembolsado", "ok"],
-    RECIBIDA: ["Recibida", "ok"],
     FALLIDO: ["Fallido", "error"],
     SIN_REEMBOLSO: ["Sin reembolso", ""],
     REEMBOLSO_PARCIAL: ["Reembolso parcial", "alerta"],

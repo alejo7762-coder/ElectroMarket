@@ -21,7 +21,6 @@ from app.routes import cancelaciones
 from app.routes import reembolsos
 from app.routes import ia
 from app.routes import resenas
-from app.routes import devoluciones
 
 
 # backend/ (contiene app/ y storage/) y raíz del repositorio (contiene frontend/)
@@ -44,15 +43,6 @@ logging.basicConfig(
     format="%(asctime)s %(levelname)s %(name)s: %(message)s"
 )
 logger = logging.getLogger("electromarket")
-
-
-@app.middleware("http")
-async def sin_cache_en_la_interfaz(request: Request, llamar_siguiente):
-    """La interfaz (/web) se revalida siempre: el navegador no usa JS o CSS viejos tras una actualización."""
-    respuesta = await llamar_siguiente(request)
-    if request.url.path.startswith("/web"):
-        respuesta.headers["Cache-Control"] = "no-cache"
-    return respuesta
 
 
 @app.exception_handler(ErrorAplicacion)
@@ -86,7 +76,6 @@ app.include_router(reembolsos.router)
 app.include_router(ia.router)
 app.include_router(ia.router_precio)
 app.include_router(resenas.router)
-app.include_router(devoluciones.router)
 
 
 @app.get("/", include_in_schema=False)

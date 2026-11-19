@@ -7,7 +7,7 @@
 - **Repositorio:** https://github.com/alejo7762-coder/ElectroMarket
 - **Instalación y ejecución local:** sección «Instalación» del [README](../README.md), con estos pasos:
   1. `pip install -r backend/requirements.txt`
-  2. Ejecutar en SSMS los scripts de `database/scripts/` (00 a 07 y 99), según [`database/README.md`](../database/README.md).
+  2. Ejecutar en SSMS los scripts de `database/scripts/` (00 a 05 y 99), según [`database/README.md`](../database/README.md).
   3. Copiar `backend/.env.example` como `backend/.env` y completarlo.
   4. `cd backend` y `uvicorn app.main:app --reload`.
   5. Abrir http://127.0.0.1:8000 (tienda) y http://127.0.0.1:8000/docs (API).
@@ -17,9 +17,9 @@
 
 Índice: [`evidencias/pruebas/RESUMEN.md`](evidencias/pruebas/RESUMEN.md)
 
-- 133 pruebas automatizadas, todas aprobadas; 5 de ellas recorren el sistema contra SQL Server real.
+- 116 pruebas automatizadas, todas aprobadas; 4 de ellas recorren el sistema contra SQL Server real.
 - Reporte HTML de pytest: [`evidencias/pruebas/reporte_pruebas.html`](evidencias/pruebas/reporte_pruebas.html)
-- Cobertura del backend: 68 % ([`salida_pytest.txt`](evidencias/pruebas/salida_pytest.txt))
+- Cobertura del backend: 66 % ([`salida_pytest.txt`](evidencias/pruebas/salida_pytest.txt))
 - Pruebas de interfaz en navegador real con capturas: [`evidencias/capturas/`](evidencias/capturas/)
 
 ## 3. Evidencia del servicio de Inteligencia Artificial

@@ -4,7 +4,6 @@ from decimal import Decimal, ROUND_HALF_UP
 
 from app.db.connection import get_connection
 from app.services.carrito import UserNotActive, CartProcessed
-from app.services.devoluciones_plazo import dias_restantes
 from app.services.utilidades import (
     SQL_TIPO_CANCELACION,
     ESTADOS_PAGO_COBRADO,
@@ -536,14 +535,7 @@ def listar_pedidos(id_comprador: int, estado: str | None = None):
                     FROM Pagos PG
                     WHERE PG.IdPedido = P.IdPedido
                     ORDER BY PG.IdPago DESC
-                ) AS EstadoPago,
-                (
-                    -- Última entrega del pedido: define el plazo para devolver
-                    SELECT MAX(E.FechaEntrega)
-                    FROM Ventas V
-                    INNER JOIN Envios E ON E.IdVenta = V.IdVenta
-                    WHERE V.IdPedido = P.IdPedido AND V.Estado = 'ENTREGADA'
-                ) AS UltimaEntrega
+                ) AS EstadoPago
             FROM Pedidos P
             WHERE P.IdComprador = ?
         """
@@ -574,8 +566,7 @@ def listar_pedidos(id_comprador: int, estado: str | None = None):
                 "total": total,
                 "total_cancelado": cancelado,
                 "total_neto": round(total - cancelado, 2) if pagado else 0.0,
-                "ciudad_entrega": fila.CiudadEntrega,
-                "dias_para_devolver": dias_restantes(fila.UltimaEntrega)
+                "ciudad_entrega": fila.CiudadEntrega
             })
 
         return pedidos
@@ -704,8 +695,7 @@ def obtener_pedido(id_comprador: int, id_pedido: int):
                 E.IdEnvio,
                 E.Transportadora,
                 E.NumeroGuia,
-                E.Estado AS EstadoEnvio,
-                E.FechaEntrega
+                E.Estado AS EstadoEnvio
             FROM Ventas V
             INNER JOIN Usuarios U ON U.IdUsuario = V.IdVendedor
             LEFT JOIN Envios E ON E.IdVenta = V.IdVenta
@@ -726,11 +716,8 @@ def obtener_pedido(id_comprador: int, id_pedido: int):
                     "id_envio": v.IdEnvio,
                     "transportadora": v.Transportadora,
                     "numero_guia": v.NumeroGuia,
-                    "estado": v.EstadoEnvio,
-                    "fecha_entrega": iso(v.FechaEntrega)
-                },
-                # Días que quedan para pedir una devolución (0 si no aplica)
-                "dias_para_devolver": dias_restantes(v.FechaEntrega) if v.Estado == "ENTREGADA" else 0
+                    "estado": v.EstadoEnvio
+                }
             }
             for v in cursor.fetchall()
         ]
