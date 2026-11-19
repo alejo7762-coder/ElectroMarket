@@ -49,7 +49,7 @@ async function usuario(nombre, apellido) {
   // 1. El comprador solicita la devolución de 1 de las 2 unidades
   await page.goto(B + '/web/login.html'); await sesion(comp);
   await page.goto(`${B}/web/pedidos.html?pedido=${compra.id_pedido}`);
-  await page.waitForSelector('[data-devolver]'); await page.click('[data-devolver]');
+  await page.waitForSelector('.modal [data-devolver]'); await page.click('.modal [data-devolver]');
   await page.waitForSelector('#form-devolucion');
   await page.fill('.control-cantidad', '1');
   await page.selectOption('#motivo-dev', 'DEFECTUOSO');
@@ -66,7 +66,7 @@ async function usuario(nombre, apellido) {
 
   // 3. El comprador registra el envío
   await sesion(comp); await page.goto(`${B}/web/pedidos.html?pedido=${compra.id_pedido}`);
-  await page.waitForSelector('[data-dev-accion=enviar]'); await page.click('[data-dev-accion=enviar]');
+  await page.waitForSelector('.modal [data-dev-accion=enviar]'); await page.click('.modal [data-dev-accion=enviar]');
   await page.fill('#transportadora', 'Servientrega'); await page.fill('#numero_guia', 'SV-2026-55821'); await enviarModal();
 
   // 4. El vendedor confirma la recepción y se genera el reembolso
