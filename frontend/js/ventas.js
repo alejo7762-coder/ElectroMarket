@@ -98,21 +98,18 @@ async function cargarLista() {
 }
 
 async function cargarDevoluciones() {
-    const seccion = document.getElementById("devoluciones");
     try {
         const devoluciones = await api("GET", "/devoluciones/?rol=VENDEDOR");
         const enCurso = devoluciones.filter((d) => ["SOLICITADA", "APROBADA", "ENVIADA"].includes(d.estado));
         const cerradas = devoluciones.filter((d) => !enCurso.includes(d));
 
-        seccion.classList.toggle("oculto", !devoluciones.length);
         document.getElementById("devoluciones-en-curso").innerHTML = enCurso.length
             ? enCurso.map((d) => tarjetaDevolucion(d, { mostrarPedido: true })).join("")
-            : `<p class="ayuda">No tienes devoluciones pendientes.</p>`;
+            : `<p class="ayuda">${devoluciones.length ? "No tienes devoluciones pendientes." : "Aún no tienes solicitudes de devolución. Cuando un comprador pida devolver una compra entregada, aparecerá aquí para que la apruebes o rechaces."}</p>`;
         document.getElementById("devoluciones-cerradas-bloque").classList.toggle("oculto", !cerradas.length);
         document.getElementById("devoluciones-cerradas").innerHTML = cerradas.map((d) => tarjetaDevolucion(d, { mostrarPedido: true })).join("");
     } catch (e) {
-        seccion.classList.remove("oculto");
-        document.getElementById("devoluciones-en-curso").innerHTML = `<div class="mensaje mensaje-error">${esc(e.message)}</div>`;
+        document.getElementById("devoluciones-en-curso").innerHTML = `<div class="mensaje mensaje-error">No se pudieron cargar las devoluciones: ${esc(e.message)}</div>`;
     }
 }
 

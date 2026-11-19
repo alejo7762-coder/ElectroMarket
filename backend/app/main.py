@@ -46,6 +46,15 @@ logging.basicConfig(
 logger = logging.getLogger("electromarket")
 
 
+@app.middleware("http")
+async def sin_cache_en_la_interfaz(request: Request, llamar_siguiente):
+    """La interfaz (/web) se revalida siempre: el navegador no usa JS o CSS viejos tras una actualización."""
+    respuesta = await llamar_siguiente(request)
+    if request.url.path.startswith("/web"):
+        respuesta.headers["Cache-Control"] = "no-cache"
+    return respuesta
+
+
 @app.exception_handler(ErrorAplicacion)
 def manejar_error_aplicacion(request: Request, error: ErrorAplicacion):
     """Errores de negocio: cada clase define su código HTTP."""

@@ -18,6 +18,7 @@ function alCambiarDevolucion() {
 
 async function cargarLista() {
     cargarReembolsos();
+    cargarDevoluciones();
     const lista = document.getElementById("lista");
     lista.innerHTML = `<div class="cargando">Cargando pedidos...</div>`;
 
@@ -87,6 +88,19 @@ function tablaReembolsos(reembolsos) {
                     ${lineaTiempoReembolso(r)}
                 </article>`).join("")}
         </div>`;
+}
+
+async function cargarDevoluciones() {
+    const destino = document.getElementById("devoluciones");
+    if (!destino) return;
+    try {
+        const devoluciones = await api("GET", "/devoluciones/?rol=COMPRADOR");
+        destino.innerHTML = devoluciones.length
+            ? devoluciones.map((d) => tarjetaDevolucion(d, { mostrarPedido: true })).join("")
+            : `<div class="tarjeta vacio"><p>No tienes devoluciones. Cuando solicites una, aquí verás su estado y lo que sigue.</p></div>`;
+    } catch (e) {
+        destino.innerHTML = `<div class="mensaje mensaje-error">No se pudieron cargar las devoluciones: ${esc(e.message)}</div>`;
+    }
 }
 
 async function cargarReembolsos() {
@@ -221,9 +235,17 @@ function bloqueVenta(venta, productos) {
     const devoluciones = devolucionesDelPedido.filter((d) => d.id_venta === venta.id_venta);
     const enCurso = devoluciones.some((d) => ["SOLICITADA", "APROBADA", "ENVIADA"].includes(d.estado));
     const disponibles = productosDevolvibles(productos, devoluciones);
-    if (venta.estado === "ENTREGADA" && venta.dias_para_devolver > 0 && !enCurso && disponibles.length) {
-        acciones = `<button type="button" class="boton boton-secundario boton-chico" data-devolver="${venta.id_venta}">Solicitar devolución</button>
-                    <span class="ayuda u-en-linea">${venta.dias_para_devolver} día${venta.dias_para_devolver === 1 ? "" : "s"} para devolver</span>`;
+    if (venta.estado === "ENTREGADA") {
+        if (enCurso) {
+            acciones = `<span class="ayuda u-en-linea">Devolución en curso (ver abajo).</span>`;
+        } else if (!disponibles.length) {
+            acciones = `<span class="ayuda u-en-linea">No quedan unidades por devolver.</span>`;
+        } else if (!(venta.dias_para_devolver > 0)) {
+            acciones = `<span class="ayuda u-en-linea">El plazo de 15 días para devolver ya venció.</span>`;
+        } else {
+            acciones = `<button type="button" class="boton boton-secundario boton-chico" data-devolver="${venta.id_venta}">Solicitar devolución</button>
+                        <span class="ayuda u-en-linea">${venta.dias_para_devolver} día${venta.dias_para_devolver === 1 ? "" : "s"} para devolver</span>`;
+        }
     }
 
     return `
