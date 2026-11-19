@@ -44,6 +44,7 @@ ElectroMarket/
 │   ├── Documento_Maestro_*.pdf  Documento Maestro final (PDF y Word)
 │   ├── SERVICIO_IA.md           servicio de inteligencia artificial
 │   ├── SUSTENTACION.md          guion de demostración y decisiones técnicas
+│   ├── Guion_Sustentacion_ElectroMarket.pdf  qué explica y muestra cada integrante por criterio
 │   └── evidencias/              reportes de pruebas, métricas de IA y capturas
 ├── pruebas_e2e/                 pruebas de interfaz con Playwright
 ├── database/
