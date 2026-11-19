@@ -32,3 +32,4 @@ python commits/generar_bitacora.py
 | 021 | [`5d24110`](021_5d24110.md) | 2026-11-19 15:43 | Claude | Agrega devoluciones de pedidos entregados |
 | 022 | [`1d13346`](022_1d13346.md) | 2026-11-19 15:54 | Claude | Hace visibles las devoluciones y evita archivos viejos en el navegador |
 | 023 | [`95ed1ff`](023_95ed1ff.md) | 2026-11-19 15:55 | Claude | Ajusta la prueba de interfaz de devoluciones a la nueva sección |
+| 024 | [`9e4193e`](024_9e4193e.md) | 2026-11-19 16:02 | Claude | Muestra «Solicitar devolución» en la lista de Mis compras |
