@@ -1,0 +1,24 @@
+{
+  "correo": "carlos.prueba@gmail.com",
+  "contrasena": "ElectroTest2026!"
+}
+
+{
+  "correo": "pedro.vendedor@gmail.com",
+  "contrasena": "PedroTest2026!"
+}
+
+{
+  "correo": "alejo2122@gmail.com",
+  "contrasena": "12345678910"
+}
+
+{
+  "correo": "manuel123@gmail.com",
+  "contrasena": "Manuel1234567"
+}
+
+{
+  "correo": "camila2122@gmail.com",
+  "contrasena": "123456789"
+}
